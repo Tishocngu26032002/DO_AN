@@ -4,7 +4,7 @@ export const responseHandler = {
       success: true,
       data,
       status: 200,
-      message: 'SUCCESS!',
+      message: 'SUCCESS đẩy code thành công!',
     };
   },
 
