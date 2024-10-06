@@ -38,7 +38,9 @@ export class CategoryController {
       );
       return responseHandler.ok(listcategory);
     } catch (e) {
-      return responseHandler.error(e.message);
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
+      /*return responseHandler.error(e.);*/
     }
   }
 

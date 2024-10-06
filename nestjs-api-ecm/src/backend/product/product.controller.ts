@@ -17,29 +17,29 @@ import { categoryUpdateDTO } from '../../dto/categoryDTO/category.update.dto';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  // @Get(':page/:limit/:hot?/:status?')
-  // async getList(
-  //   @Param('page') page: number,
-  //   @Param('limit') limit: number,
-  //   @Query('hot') hot?: number,
-  //   @Query('status') status?: number,
-  // ) {
-  //   try {
-  //     const filters = {
-  //       hot: hot !== undefined ? hot : '', // Kiểm tra nếu hot không được truyền
-  //       status: status !== undefined ? status : '', // Kiểm tra nếu status không được truyền
-  //     };
-  //     const listcategory = await this.productService.getList(
-  //       page,
-  //       limit,
-  //       filters,
-  //     );
-  //     return responseHandler.ok(listcategory);
-  //   } catch (e) {
-  //     return responseHandler.error(e.message);
-  //   }
-  // }
-  //
+  @Get(':page/:limit/:hot?/:status?')
+  async getList(
+    @Param('page') page: number,
+    @Param('limit') limit: number,
+    @Query('hot') hot?: number,
+    @Query('status') status?: number,
+  ) {
+    try {
+      const filters = {
+        hot: hot !== undefined ? hot : '', // Kiểm tra nếu hot không được truyền
+        status: status !== undefined ? status : '', // Kiểm tra nếu status không được truyền
+      };
+      const listcategory = await this.productService.getList(
+        page,
+        limit,
+        filters,
+      );
+      return responseHandler.ok(listcategory);
+    } catch (e) {
+      return responseHandler.error(e.message);
+    }
+  }
+
   // @Post()
   // async create(@Body() createCate: categoryCreateDTO) {
   //   try {

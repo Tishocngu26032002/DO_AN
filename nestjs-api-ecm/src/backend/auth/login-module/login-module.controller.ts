@@ -13,6 +13,7 @@ export class LoginModuleController {
       const access = await this.loginModuleService.login(login);
       return responseHandler.ok(access);
     } catch (err) {
+      // @ts-ignore
       return responseHandler.unauthorized(err.message);
     }
   }
