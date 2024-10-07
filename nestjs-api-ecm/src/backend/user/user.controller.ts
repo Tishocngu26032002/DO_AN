@@ -22,7 +22,8 @@ export class UserController {
       const user = this.usersService.create(createUserDto);
       return responseHandler.ok(user);
     } catch (e) {
-      return responseHandler.error(e.message);
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
     }
   }
 
@@ -32,8 +33,9 @@ export class UserController {
       const users = await this.usersService.findAll(page, limit);
       console.log(users);
       return responseHandler.ok(users);
-    } catch (err) {
-      return responseHandler.error(err.message);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
     }
   }
 
@@ -42,8 +44,9 @@ export class UserController {
     try {
       const user = await this.usersService.findOne(id);
       return responseHandler.ok(user);
-    } catch (err) {
-      return responseHandler.error(err.message);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
     }
   }
 
@@ -52,8 +55,9 @@ export class UserController {
     try {
       const user = await this.usersService.update(id, updateUserDto);
       return responseHandler.ok(user);
-    } catch (err) {
-      return responseHandler.error(err.message);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
     }
   }
 
@@ -62,8 +66,9 @@ export class UserController {
     try {
       const check = await this.usersService.remove(id);
       return responseHandler.ok(check);
-    } catch (err) {
-      return responseHandler.error(err.message);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
     }
   }
 }

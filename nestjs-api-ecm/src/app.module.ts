@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BackendModule } from './backend/backend.module';
-import { FrontendModule } from './frontend/frontend.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { User } from './entities/userentity/user.entity';
@@ -12,7 +11,6 @@ import { CategoryEntity } from './entities/categoryentity/category.entity';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     BackendModule,
-    FrontendModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

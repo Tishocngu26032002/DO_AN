@@ -38,7 +38,8 @@ export class CategoryController {
       );
       return responseHandler.ok(listcategory);
     } catch (e) {
-      return responseHandler.error(e.message);
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
     }
   }
 
@@ -48,7 +49,8 @@ export class CategoryController {
       const category = await this.categoryService.create(createCate);
       return responseHandler.ok(category);
     } catch (e) {
-      return responseHandler.error(e.message);
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
     }
   }
 
@@ -57,7 +59,8 @@ export class CategoryController {
     try {
       return responseHandler.ok(await this.categoryService.detail(id));
     } catch (e) {
-      return responseHandler.error(e.message);
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
     }
   }
 
@@ -70,7 +73,8 @@ export class CategoryController {
       const check = await this.categoryService.update(categoryUpdateDTO, id);
       return responseHandler.ok(check);
     } catch (e) {
-      responseHandler.error(e.message);
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
     }
   }
 

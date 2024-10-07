@@ -12,8 +12,9 @@ export class LoginModuleController {
     try {
       const access = await this.loginModuleService.login(login);
       return responseHandler.ok(access);
-    } catch (err) {
-      return responseHandler.unauthorized(err.message);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
     }
   }
 }
