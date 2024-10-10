@@ -6,10 +6,19 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { User } from './entities/userentity/user.entity';
 import { CategoryEntity } from './entities/categoryentity/category.entity';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    JwtModule.registerAsync({
+      global: true,
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: configService.get<string>('TOKEN_EXPIRE') },
+      }),
+    }),
     BackendModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

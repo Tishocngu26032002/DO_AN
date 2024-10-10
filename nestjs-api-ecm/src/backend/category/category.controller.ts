@@ -9,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/guards/JwtAuth.guard';
 import { RolesGuard } from 'src/guards/Roles.guard';
 import { Roles } from 'src/decorator/Role.decorator';
@@ -19,8 +19,9 @@ import { CategoryService } from 'src/backend/category/category.service';
 import { categoryUpdateDTO } from 'src/dto/categoryDTO/category.update.dto';
 
 @Controller('category')
-@ApiTags('Category')
 @UseGuards(AuthGuard, RolesGuard)
+@ApiTags('Category')
+@ApiBearerAuth()
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
