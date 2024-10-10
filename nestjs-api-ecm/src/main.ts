@@ -5,6 +5,11 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({
+    origin: true, // Cho phép mọi nguồn truy cập
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Các phương thức HTTP cho phép
+    credentials: true, // Hỗ trợ gửi cookie nếu cần
+  });
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') || 3000;
   const config = new DocumentBuilder()

@@ -1,7 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { LoginModuleService } from './login-module.service';
 import { LoginDTO } from 'src/dto/loginDTO/login.dto';
-import { responseHandler } from '../../../Until/responseUtil';
+import { responseHandler } from 'src/Until/responseUtil';
 
 @Controller('login')
 export class LoginModuleController {
