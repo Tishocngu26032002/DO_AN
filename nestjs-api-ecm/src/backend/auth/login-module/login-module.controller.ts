@@ -1,7 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { LoginModuleService } from './login-module.service';
 import { LoginDTO } from 'src/dto/loginDTO/login.dto';
-import { responseHandler } from '../../../Until/responseUtil';
+import { responseHandler } from 'src/Until/responseUtil';
 
 @Controller('login')
 export class LoginModuleController {
@@ -12,8 +12,9 @@ export class LoginModuleController {
     try {
       const access = await this.loginModuleService.login(login);
       return responseHandler.ok(access);
-    } catch (err) {
-      return responseHandler.unauthorized(err.message);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
     }
   }
 }

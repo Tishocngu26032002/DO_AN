@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Patch, Param } from '@nestjs/common';
 import { RegisterModuleService } from './register-service/register-module.service';
-import { CreateUserDto } from '../../../dto/userDTO/user.create.dto';
-import { UpdateUserDto } from '../../../dto/userDTO/user.update.dto';
+import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
+import { UpdateUserDto } from 'src/dto/userDTO/user.update.dto';
 
 @Controller('register-module')
 export class RegisterModuleController {

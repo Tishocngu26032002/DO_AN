@@ -7,19 +7,26 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { CategoryService } from './category.service';
-import { categoryCreateDTO } from '../../dto/categoryDTO/category.create.dto';
-import { responseHandler } from '../../Until/responseUtil';
-import { categoryUpdateDTO } from '../../dto/categoryDTO/category.update.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/guards/JwtAuth.guard';
+import { RolesGuard } from 'src/guards/Roles.guard';
+import { Roles } from 'src/decorator/Role.decorator';
+import { responseHandler } from 'src/Until/responseUtil';
+import { categoryCreateDTO } from 'src/dto/categoryDTO/category.create.dto';
+import { CategoryService } from 'src/backend/category/category.service';
+import { categoryUpdateDTO } from 'src/dto/categoryDTO/category.update.dto';
 
 @Controller('category')
+@UseGuards(AuthGuard, RolesGuard)
 @ApiTags('Category')
+@ApiBearerAuth()
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Get(':page/:limit/:hot?/:status?')
+  @Roles('admin')
   async getList(
     @Param('page') page: number,
     @Param('limit') limit: number,
@@ -38,7 +45,8 @@ export class CategoryController {
       );
       return responseHandler.ok(listcategory);
     } catch (e) {
-      return responseHandler.error(e.message);
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
     }
   }
 
@@ -48,7 +56,8 @@ export class CategoryController {
       const category = await this.categoryService.create(createCate);
       return responseHandler.ok(category);
     } catch (e) {
-      return responseHandler.error(e.message);
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
     }
   }
 
@@ -57,7 +66,8 @@ export class CategoryController {
     try {
       return responseHandler.ok(await this.categoryService.detail(id));
     } catch (e) {
-      return responseHandler.error(e.message);
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
     }
   }
 
@@ -70,7 +80,8 @@ export class CategoryController {
       const check = await this.categoryService.update(categoryUpdateDTO, id);
       return responseHandler.ok(check);
     } catch (e) {
-      responseHandler.error(e.message);
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
     }
   }
 

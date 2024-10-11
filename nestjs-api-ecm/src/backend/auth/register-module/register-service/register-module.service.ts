@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from '../../../../dto/userDTO/user.create.dto';
-import { UpdateUserDto } from '../../../../dto/userDTO/user.update.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../../../../entities/userentity/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { User } from 'src/entities/userentity/user.entity';
+import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
+import { UpdateUserDto } from 'src/dto/userDTO/user.update.dto';
 
 @Injectable()
 export class RegisterModuleService {
@@ -22,8 +22,7 @@ export class RegisterModuleService {
       throw new Error('REGISTER.ACCOUNT EXISTS!');
     }
 
-    if (!checkExists?.isActive){
-
+    if (!checkExists?.isActive) {
     }
 
     // hashPassword
@@ -33,14 +32,13 @@ export class RegisterModuleService {
     // insert into db
     const user = this.userRepository.create(CreateUserDTO);
     const check = await this.userRepository.save(user);
-    let phone=null;
 
     if (!check) {
       throw new Error('REGISTER.OCCUR ERROR WHEN SAVE TO DATABASE!');
     }
 
     // send email OTP
-    phone = check.phone;
+
     return {
       email: check.email,
     };
