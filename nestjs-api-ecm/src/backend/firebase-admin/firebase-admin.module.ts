@@ -1,3 +1,4 @@
+/*
 import { Module } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import * as serviceAccount from '../firebase-admin/ecm-doan-firebase-adminsdk-15vx9-f49331cea0.json';
@@ -10,3 +11,4 @@ export class FirebaseAdminModule {
     });
   }
 }
+*/
