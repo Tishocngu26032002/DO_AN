@@ -40,7 +40,7 @@ export class UserController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number) {
+  async findOne(@Param('id') id: string) {
     try {
       const user = await this.usersService.findOne(id);
       return responseHandler.ok(user);
@@ -51,7 +51,7 @@ export class UserController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     try {
       const user = await this.usersService.update(id, updateUserDto);
       return responseHandler.ok(user);
@@ -62,7 +62,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: number) {
+  async remove(@Param('id') id: string) {
     try {
       const check = await this.usersService.remove(id);
       return responseHandler.ok(check);
