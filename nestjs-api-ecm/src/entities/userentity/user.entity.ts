@@ -23,6 +23,6 @@ export class User {
   @Column({ type: 'varchar', length: 255, default: 'user' })
   role: string;
 
-  @Column({ default: true })
+  @Column({ default: false })
   isActive: boolean;
 }
