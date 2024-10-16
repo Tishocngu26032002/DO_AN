@@ -8,6 +8,8 @@ import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
 import { authenticator } from 'otplib';
 import { Account } from 'src/Until/configConst';
 import { VerifyDto } from 'src/dto/userDTO/user.verify.dto';
+import {v4 as uuidv4} from "uuid";
+import {plainToClass} from "class-transformer";
 
 @Injectable()
 export class RegisterModuleService {
@@ -15,6 +17,7 @@ export class RegisterModuleService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
   async create(CreateUserDTO: CreateUserDto) {
+    let userAdd = plainToClass(User, CreateUserDTO);
     function sendEmail(email): any {
       const secret = email;
       authenticator.options = { digits: 6, step: 120 };
@@ -45,7 +48,7 @@ export class RegisterModuleService {
 
     // check exists?
     const checkExists = await this.userRepository.findOneBy({
-      email: CreateUserDTO.email,
+      email: userAdd.email,
     });
 
     // throw error exsist
@@ -57,14 +60,13 @@ export class RegisterModuleService {
       sendEmail(checkExists.email);
       throw new Error('REGISTER.ACCOUNT NOT VERIFY! PLEASE ENTER OTP VERIFY!');
     }
-    console.log('service 3');
     // hashPassword
-    const hashPassword = await bcrypt.hash(CreateUserDTO.password, 10);
-    CreateUserDTO.password = hashPassword;
-    console.log('service 4');
+    userAdd.id = uuidv4();
+    const hashPassword = await bcrypt.hash(userAdd.password, 10);
+    userAdd.password = hashPassword;
+
     // insert into db
-    const user = this.userRepository.create(CreateUserDTO);
-    const check = await this.userRepository.save(user);
+    const check = await this.userRepository.save(userAdd);
     // check action insert
     if (!check) {
       throw new Error('REGISTER.OCCUR ERROR WHEN SAVE TO DATABASE!');
