@@ -13,7 +13,6 @@ export class RegisterModuleController {
   @Post()
   async create(@Body() createUserDTO: CreateUserDto) {
     try {
-      console.log('vao controller', createUserDTO);
       const email = await this.registerModuleService.create(createUserDTO);
       return responseHandler.ok(email);
     } catch (e) {

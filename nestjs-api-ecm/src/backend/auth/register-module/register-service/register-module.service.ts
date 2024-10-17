@@ -57,11 +57,9 @@ export class RegisterModuleService {
       sendEmail(checkExists.email);
       throw new Error('REGISTER.ACCOUNT NOT VERIFY! PLEASE ENTER OTP VERIFY!');
     }
-    console.log('service 3');
     // hashPassword
     const hashPassword = await bcrypt.hash(CreateUserDTO.password, 10);
     CreateUserDTO.password = hashPassword;
-    console.log('service 4');
     // insert into db
     const user = this.userRepository.create(CreateUserDTO);
     const check = await this.userRepository.save(user);
