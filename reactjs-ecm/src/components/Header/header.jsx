@@ -10,7 +10,7 @@ const Header = () => {
       </a>
 
       <div className="flex items-center">
-        <ul id="navbar" className="hidden lg:flex items-center">
+        <ul id="navbar" className="hidden md:flex items-center">
           <li className="px-4">
             <a href="#" className="text-gray-800 font-semibold">Home</a>
           </li>
@@ -35,7 +35,7 @@ const Header = () => {
         </ul>
       </div>
 
-      <div id="mobile" className="flex lg:hidden items-center">
+      <div id="mobile" className="flex md:hidden items-center">
         <a href="cart" className="text-gray-800 px-4">
         <PiShoppingCartBold aria-hidden="true" className="h-[30px] w-[30px] " /> 
         </a>

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
 
+import  { useState } from 'react';
+import { PiMinusBold, PiPlusBold } from "react-icons/pi";
 const QuantityInput = () => {
   const [quantity, setQuantity] = useState(1);
 
@@ -13,12 +14,12 @@ const QuantityInput = () => {
 
   return (
     <div className="product__details__quantity ">
-      <div className="flex items-center bg-[#f5f5f5] w-[140px] h-[50px]">
+      <div className="flex items-center  bg-[#f5f5f5] w-[140px] h-[48px] rounded">
         <button
-          className="ml-6 mr-1  text-base font-normal text-gray-600  hover:bg-gray-300 focus:outline-none"
+          className="ml-[18px] mr-1  text-base font-normal text-gray-600  hover:bg-gray-300 focus:outline-none"
           onClick={handleDecrease}
         >
-          -
+          <PiMinusBold />
         </button>
         <input
           type="text"
@@ -30,7 +31,7 @@ const QuantityInput = () => {
           className=" text-base font-normal text-gray-600  hover:bg-gray-300 focus:outline-none"
           onClick={handleIncrease}
         >
-          +
+          <PiPlusBold />
         </button>
       </div>
     </div>

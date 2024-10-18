@@ -7,16 +7,16 @@ export default {
   ],
   theme: {
     extend: {
-      maxWidth: {
-        "container-1170": "1170px",
-        "container-960": "960px",
-        "container-720": "720px",
-        "container-540": "540px",
+      screens: {
+        tablet: { max: "799px" },
+        // => @media (max-width: 799px) { ... }
+        mobile: { max: "477px" },
+        // => @media (max-width: 477px) { ... }
       },
     },
     screens: {
       sm: "576px",
-      md: "768px",
+      md: "799px",
       lg: "992px",
       xl: "1200px",
     },

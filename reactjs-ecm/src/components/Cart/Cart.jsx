@@ -2,6 +2,7 @@ import Header from "../Header/header.jsx"
 import productImage2 from "../../assets/f3.jpg";
 
 import imgbanner from "../../assets/banner.png";
+import QuantityInput from '../Button/QuantitySelectorButtom.jsx'
 const Cart = () => {
   return (
     <div>
@@ -20,12 +21,12 @@ const Cart = () => {
           {/* <div className="text-2xl text-black p-12 w-full flex justify-center items-center  ">
             <h2>Your Cart is Empty</h2>
           </div> */}
-      <div className="small-container p-12 w-4/5 mx-auto">
+      <div className="small-container p-12   ">
         <table className="w-full border-collapse">
           <thead>
             <tr>
               <th className="text-left p-2 text-white bg-teal-700 font-normal">Product</th>
-              <th className="text-left p-2 text-white bg-teal-700 font-normal">Quantity</th>
+              <th className="text-left p-2 pl-[38px] text-white bg-teal-700 font-normal">Quantity</th>
               <th className="text-left p-2 text-white bg-teal-700 font-normal">Subtotal</th>
             </tr>
           </thead>
@@ -41,7 +42,7 @@ const Cart = () => {
                   </div>
                 </div>
               </td>
-              <td className="p-2"><input type="number" defaultValue="1" min={1} className="w-12 h-8 p-1 border border-slate-400" /></td>
+              <td className="p-2"><QuantityInput/></td>
               <td className="p-2">$78.00</td>
             </tr>
             <tr>
@@ -55,8 +56,7 @@ const Cart = () => {
                   </div>
                 </div>
               </td>
-              <td className="p-2"><input type="number"
-            defaultValue="1" min={1} className="w-12 h-8 p-1 border border-slate-400" /></td>
+              <td className="p-2"><QuantityInput/></td>
               <td className="p-2">$78.00</td>
             </tr>
             <tr>
@@ -70,7 +70,7 @@ const Cart = () => {
                   </div>
                 </div>
               </td>
-              <td className="p-2"><input type="number" defaultValue="1" min={1} className="w-12 h-8 p-1 border border-slate-400" /></td>
+              <td className="p-2"><QuantityInput/></td>
               <td className="p-2">$78.00</td>
             </tr>
           </tbody>
@@ -84,7 +84,7 @@ const Cart = () => {
                 <td className="p-2 text-right">$234.00</td>
               </tr>
               <tr>
-                <td className="p-2">Tax</td>
+                <td className="p-2">Delivery Fee</td>
                 <td className="p-2 text-right">$35.00</td>
               </tr>
               <tr>

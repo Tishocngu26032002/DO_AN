@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Cart  from "./components/Cart/Cart.jsx";
-import HomePage from './components/HomePages/homepage.jsx'
+import Home from './components/HomePages/homepage.jsx'
 import ProductDetail from "./components/ProductDetails/productdetail.jsx";
 import "./index.css";
 
@@ -16,7 +16,7 @@ root.render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/homepage" replace />} />
-        <Route path="/homepage" element={<HomePage />} />
+        <Route path="/homepage" element={<Home />} />
         <Route path="/productdetail" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
       </Routes>

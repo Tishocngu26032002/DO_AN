@@ -1,8 +1,10 @@
 import  { useState } from 'react';
 import Header from "../Header/header.jsx"
+import { PiShoppingCart } from "react-icons/pi";
 import productImage from "../../assets/product-details-1.jpg";
 import productImage2 from "../../assets/f3.jpg";
 import productImage3 from "../../assets/f4.jpg";
+import QuantityInput from '../Button/QuantitySelectorButtom.jsx'
 
 const Image = ({ mainImage, setMainImage, productImages }) => {
  
@@ -54,12 +56,9 @@ const ProductDetail = () => {
               <option key={index}>{size}</option>
             ))}
           </select>
-          <input
-            type="number"
-            defaultValue="1"
-            className="border border-black w-12 h-12 pl-2 text-lg mr-2 focus:outline-none"
-          />
-          <button className="bg-[#088178] h-12 text-white py-2 px-4 rounded">Add to cart</button>
+          <div className='flex mt-4'>
+          <QuantityInput />
+          <button className="bg-[#088178] h-12 text-white py-2 px-4 ml-4 rounded">Add to cart</button></div>
           <h4 className="pt-10 pb-5 font-semibold text-2xl">Product Details</h4>
           <p className="leading-[25px] text-l">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga quis molestiae
@@ -88,10 +87,10 @@ const ProductDetail = () => {
                     <i key={starIndex} className="fas fa-star text-yellow-500 mr-1 text-xs"></i>
                   ))}
                 </div>
-                <h4 className="pt-2 text-lg font-bold text-[#088178]">$78</h4>
+                <h4 className="pt-2 text-lg font-bold text-[#088178] m">$78</h4>
               </div>
-              <a href="#" className="cart w-10 h-10 leading-10 rounded-full bg-[#e8f6ea] font-medium text-[#088178] border border-[#cce7d0] absolute bottom-5 right-2">
-                <i className="fa-sharp fa-solid fa-cart-shopping"></i>
+              <a href="#" className="cart w-10 h-10 flex items-center justify-center leading-10 rounded-full bg-[#e8f6ea] font-medium text-[#088178] border border-[#cce7d0] absolute bottom-5 right-2">
+              <PiShoppingCart />
               </a>
             </div>
           ))}
