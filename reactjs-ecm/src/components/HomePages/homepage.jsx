@@ -1,12 +1,10 @@
-
-
-const ShoppingCart = () => {
+const HomePage = () => {
     
-    return (
-        <section className="shoping-cart spad ">
-           hi
-        </section>
-    );
+  return (
+      <section className="shoping-cart  ">
+       <div className="text-4xl"> HI </div>  
+      </section>
+  );
 };
 
-export default ShoppingCart;
+export default HomePage;
