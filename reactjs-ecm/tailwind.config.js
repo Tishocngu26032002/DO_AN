@@ -7,7 +7,7 @@ export default {
   ],
   theme: {
     extend: {
-      maxWidth: {
+      screens: {
         tablet: { max: "799px" },
         // => @media (max-width: 799px) { ... }
         mobile: { max: "477px" },
