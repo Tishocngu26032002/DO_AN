@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { FaStar, FaShoppingCart } from 'react-icons/fa';
-import b1 from '../../assets/images/b1.jpg';
-import f1 from '../../assets/images/f1.jpg';
-import b14 from '../../assets/images/b14.png';
+import f1 from '../../assets/f3.jpg';
 
 const categories = [
     { id: 'all', name: 'Tất cả các danh mục' },
