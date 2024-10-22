@@ -1,4 +1,4 @@
-import Header from "../Header/header.jsx"
+
 import productImage2 from "../../assets/f3.jpg";
 
 import imgbanner from "../../assets/banner.png";
@@ -6,7 +6,7 @@ import QuantityInput from '../Button/QuantitySelectorButtom.jsx'
 const Cart = () => {
   return (
     <div>
-    <Header />
+  
       <section 
         id="page-header" 
         className="bg-cover flex flex-col items-center justify-center text-center p-4 h-52"
@@ -94,7 +94,11 @@ const Cart = () => {
             </tbody>
           </table>
         </div>
+        <div className=" mt-4 flex justify-end ">
+          <button className="bg-teal-700 text-white py-2 px-4 rounded">Checkout</button>
+        </div>
       </div>
+      
     </div>
   );
 };

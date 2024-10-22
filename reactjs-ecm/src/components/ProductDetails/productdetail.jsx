@@ -42,7 +42,7 @@ const ProductDetail = () => {
   return (
     
     <div className="">
-    <Header />
+    
       <section id="prodetails" className="flex flex-col md:flex-row mx-10 xl:mx-28 mt-5 ">
         <Image mainImage={mainImage} setMainImage={setMainImage} productImages={productImages} />
 
