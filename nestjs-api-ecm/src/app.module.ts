@@ -4,9 +4,10 @@ import { AppService } from './app.service';
 import { BackendModule } from './backend/backend.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { User } from './entities/userentity/user.entity';
-import { CategoryEntity } from './entities/categoryentity/category.entity';
+import { User } from './entities/user_entity/user.entity';
+import { CategoryEntity } from './entities/category_entity/category.entity';
 import { JwtModule } from '@nestjs/jwt';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { JwtModule } from '@nestjs/jwt';
         synchronize: true,
       }),
     }),
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

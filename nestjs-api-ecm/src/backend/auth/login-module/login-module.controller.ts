@@ -12,8 +12,8 @@ export class LoginModuleController {
   @Post()
   async login(@Body() login: LoginDTO) {
     try {
-      const access = await this.loginModuleService.login(login);
-      return responseHandler.ok(access);
+      const data = await this.loginModuleService.login(login);
+      return responseHandler.ok(data);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
       return responseHandler.error(errorMessage);

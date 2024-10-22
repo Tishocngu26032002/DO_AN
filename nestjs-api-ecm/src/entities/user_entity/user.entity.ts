@@ -1,25 +1,18 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column } from 'typeorm';
+import { BaseEntity } from 'src/base/baseEntity/base.entity';
 
 @Entity({ name: 'users' })
-export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+export class User extends BaseEntity {
   @Column({ type: 'text' })
   firstName: string;
   @Column({ type: 'text' })
   lastName: string;
 
   @Column({ type: 'text' })
-  phone: string;
-
-  @Column({ type: 'text' })
   email: string;
 
   @Column({ type: 'text', nullable: false })
   password: string;
-
-  @Column({ type: 'text' })
-  address: string;
 
   @Column({ type: 'varchar', length: 255, default: 'user' })
   role: string;
