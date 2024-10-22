@@ -33,9 +33,27 @@ function LoginForm() {
       return response;
     },
     onSuccess: (response) => {
-      if (response && response.data && response.data.access_token) {
+      console.log(response.success);
+      if (response && response.success === true) {
         // authLocal.setToken(response.data.access_token);
-        navigate("/");
+        // localStorage.setItem("token", JSON.stringify(response?.access_token));
+        // const role = response?.role;
+        // if (role === "admin") {
+        //   setTimeout(() => {
+        //     navigate("/admin");
+        //   }, 2000);
+        // } else if (role === "customer") {
+        //   setTimeout(() => {
+        //     navigate("/home");
+        //   }, 2000);
+        // } else {
+        //   setTimeout(() => {
+        //     navigate("/shipper");
+        //   }, 2000);
+        // }
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
       }
     },
   });

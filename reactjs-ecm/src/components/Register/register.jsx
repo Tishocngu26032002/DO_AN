@@ -10,12 +10,19 @@ import axios from "axios";
 import { apiClient } from "../../services/custom-auth-api";
 const schema = z
   .object({
-    name: z.string().min(3, "name min = 3").max(50, "name max = 50"),
-    userName: z.string().min(3, "name min = 3").max(50, "name max = 50"),
+    firstName: z
+      .string()
+      .min(3, "firstName min = 3")
+      .max(50, "firstName max = 50"),
+    lastName: z
+      .string()
+      .min(3, "lastName min = 3")
+      .max(50, "lastName max = 50"),
     email: z.string().email("email invalid"),
     phone: z.string().regex(REGEX.phoneNumber, "phone invalid"),
     password: z.string(),
     confirmPass: z.string(),
+    address: z.string().min(3, "address min = 3").max(50, "address max = 50"),
   })
   .refine((data) => data.password === data.confirmPass, {
     message: "Passwords don't match",
@@ -30,12 +37,13 @@ function RegisterForm() {
     formState: { errors, isDirty },
   } = useForm({
     defaultValues: {
-      name: "",
-      userName: "",
+      firstName: "",
+      lastName: "",
       email: "",
       phone: "",
       password: "",
       confirmPass: "",
+      address: "",
     },
     mode: "onBlur",
     resolver: zodResolver(schema),
@@ -43,7 +51,7 @@ function RegisterForm() {
 
   const { mutate } = useMutation({
     mutationFn: async (data) => {
-      const response = await apiClient.post("/auth/register", data);
+      const response = await apiClient.post("/register-module", data);
       return response.data;
     },
     onSuccess: () => {
@@ -53,7 +61,8 @@ function RegisterForm() {
   });
 
   const onSubmit = (data) => {
-    mutate(data);
+    const { confirmPass, ...registerData } = data; // Loại bỏ confirmPass
+    mutate(registerData);
   };
 
   return (
@@ -69,35 +78,35 @@ function RegisterForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="p-6">
           <div className="flex flex-wrap justify-between gap-5">
             <div className="mb-3 w-full md:w-[calc(50%-20px)]">
-              <label htmlFor="name" className="mb-1 block font-medium">
-                Full Name
+              <label htmlFor="firstName" className="mb-1 block font-medium">
+                First Name
                 <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                id="name"
-                placeholder="Enter your name"
-                {...register("name")}
+                id="firstName"
+                placeholder="Enter your firstName"
+                {...register("firstName")}
                 className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]"
               />
-              {errors.name && (
-                <span className="text-red-500">{errors.name.message}</span>
+              {errors.firstName && (
+                <span className="text-red-500">{errors.firstName.message}</span>
               )}
             </div>
             <div className="mb-3 w-full md:w-[calc(50%-20px)]">
-              <label htmlFor="username" className="mb-1 block font-medium">
-                Username
+              <label htmlFor="lastName" className="mb-1 block font-medium">
+                Last Name
                 <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                id="username"
-                placeholder="Enter your username"
-                {...register("userName")}
+                id="lastName"
+                placeholder="Enter your lastName"
+                {...register("lastName")}
                 className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]"
               />
-              {errors.userName && (
-                <span className="text-red-500">{errors.userName.message}</span>
+              {errors.lastName && (
+                <span className="text-red-500">{errors.lastName.message}</span>
               )}
             </div>
             <div className="mb-3 w-full md:w-[calc(50%-20px)]">
@@ -148,6 +157,22 @@ function RegisterForm() {
               )}
             </div>
             <div className="mb-3 w-full md:w-[calc(50%-20px)]">
+              <label htmlFor="address" className="mb-1 block font-medium">
+                Address
+                <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="address"
+                placeholder="Enter your address"
+                {...register("address")}
+                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]"
+              />
+              {errors.address && (
+                <span className="text-red-500">{errors.address.message}</span>
+              )}
+            </div>
+            <div className="mb-3 w-full md:w-[calc(50%-20px)]">
               <label htmlFor="confirmPass" className="mb-1 block font-medium">
                 Confirm Password
                 <span className="text-red-500">*</span>
@@ -175,6 +200,7 @@ function RegisterForm() {
             />
           </div>
         </form>
+
         <Link to="/login" className="flex justify-center hover:font-bold">
           Login
         </Link>
