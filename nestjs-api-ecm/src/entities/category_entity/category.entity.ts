@@ -1,10 +1,6 @@
-import {
-  Entity,
-  Column,
-  OneToMany,
-} from 'typeorm';
-import { ProductEntity } from 'src/entities/product_entity/product.entity';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity } from 'src/base/baseEntity/base.entity';
+import { ProductEntity } from 'src/entities/product_entity/product.entity';
 
 @Entity('categories')
 export class CategoryEntity extends BaseEntity {
@@ -18,14 +14,18 @@ export class CategoryEntity extends BaseEntity {
   image: string;
 
   @Column()
-  c_banner: string;
+  banner: string;
 
   @Column()
-  c_description: string;
+  description: string;
 
   @Column()
-  c_hot: number;
+  hot: number;
 
   @Column()
-  c_status: boolean;
+  status: boolean;
+
+  // Mối quan hệ với ProductEntity
+  @OneToMany(() => ProductEntity, (product) => product.category)
+  products: ProductEntity[]; // Danh sách sản phẩm thuộc về danh mục
 }

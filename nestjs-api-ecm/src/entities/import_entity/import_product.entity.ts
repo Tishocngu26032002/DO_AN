@@ -1,8 +1,16 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { ImportEntity } from 'src/entities/import_entity/import.entity';
+import { ProductEntity } from 'src/entities/product_entity/product.entity';
 
 @Entity({ name: 'import_product' })
 export class Import_productEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
   @Column({ type: 'int' })
   quantity: number;
@@ -13,4 +21,13 @@ export class Import_productEntity {
 
   @Column({ type: 'text' })
   import_id: string;
+
+  @ManyToOne(() => ImportEntity, (importEntity) => importEntity.importProducts)
+  @JoinColumn({ name: 'import_id' }) // Associate import_id as foreign key
+  import: ImportEntity;
+
+  // Mối quan hệ với ProductEntity
+  @ManyToOne(() => ProductEntity, (product) => product.importProducts)
+  @JoinColumn({ name: 'product_id' }) // Associate product_id as foreign key
+  product: ProductEntity;
 }

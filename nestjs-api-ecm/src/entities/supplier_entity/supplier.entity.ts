@@ -18,4 +18,7 @@ export class SupplierEntity {
   @Column({ type: 'text' })
   address: string;
 
+  // Mối quan hệ với ProductEntity
+  @OneToMany(() => ProductEntity, (product) => product.supplier)
+  products: ProductEntity[]; // Danh sách sản phẩm thuộc về nhà cung cấp
 }
