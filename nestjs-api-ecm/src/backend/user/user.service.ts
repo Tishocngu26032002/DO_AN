@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { User } from 'src/entities/userentity/user.entity';
+import { User } from 'src/entities/user_entity/user.entity';
 import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
 import { UpdateUserDto } from 'src/dto/userDTO/user.update.dto';
-import {plainToClass} from "class-transformer";
+import { plainToClass } from 'class-transformer';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class UserService {
     private readonly usersRepository: Repository<User>,
   ) {}
   async create(createUserDto: CreateUserDto) {
-    let userAdd = plainToClass(User, createUserDto);
+    const userAdd = plainToClass(User, createUserDto);
     const chechExists = await this.usersRepository.findOneBy({
       email: userAdd.email,
     });

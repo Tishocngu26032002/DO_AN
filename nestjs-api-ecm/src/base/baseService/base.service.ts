@@ -17,14 +17,15 @@ export class baseService<T> {
     };
   }
 
-  async create(data: T, findCondition: any): Promise<T> {
+  async create(data: Partial<T>, findCondition: any): Promise<T> {
     const existingRecord = await this.repository.findOne({
       where: findCondition,
     });
     if (existingRecord) {
       throw new Error('RECORD ALREADY EXISTS!');
     }
-    return await this.repository.save(data);
+    Object.assign(existingRecord, data);
+    return await this.repository.save(existingRecord);
   }
 
   async findOne(id: number): Promise<T> {
