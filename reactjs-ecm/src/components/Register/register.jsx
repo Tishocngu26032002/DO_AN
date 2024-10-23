@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 // import "./style.css";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -54,14 +54,25 @@ function RegisterForm() {
       const response = await apiClient.post("/register-module", data);
       return response.data;
     },
-    onSuccess: () => {
-      alert("Registered successfully");
-      navigate("/login");
+    onSuccess: (response) => {
+      // console.log("Email registered:", response);
+      if (response && response.success === false) {
+        alert("Vui lòng kiểm tra Email nhận OTP");
+        // console.log("email:", email)
+        navigate("/otp", { state: { email: email } });
+
+      }
+    },
+    onError: (error) => {
+      console.error("Error:", error.response ? error.response.data : error);
     },
   });
 
+  const [email, setEmail] = useState("");
+
   const onSubmit = (data) => {
     const { confirmPass, ...registerData } = data; // Loại bỏ confirmPass
+    setEmail(registerData.email);
     mutate(registerData);
   };
 
