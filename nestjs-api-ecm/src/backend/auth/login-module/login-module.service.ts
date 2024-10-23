@@ -34,7 +34,6 @@ export class LoginModuleService {
       loginDTO.password,
       user.password,
     );
-
     if (!isPasswordCorrect) {
       throw new UnauthorizedException('LOGIN.USER.PASSWORD IS NOT VALID!');
     }

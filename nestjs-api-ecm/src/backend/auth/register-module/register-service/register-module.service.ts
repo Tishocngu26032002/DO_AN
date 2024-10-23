@@ -8,12 +8,14 @@ import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
 import { authenticator } from 'otplib';
 import { Account } from 'src/Until/configConst';
 import { VerifyDto } from 'src/dto/userDTO/user.verify.dto';
+import { v4 as uuidv4 } from "uuid";
+import { plainToClass } from "class-transformer";
 
 @Injectable()
 export class RegisterModuleService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-  ) {}
+  ) { }
   async create(CreateUserDTO: CreateUserDto) {
     async function sendEmail(email: string): Promise<boolean> {
       try {
@@ -76,8 +78,7 @@ export class RegisterModuleService {
     const hashPassword = await bcrypt.hash(CreateUserDTO.password, 10);
     CreateUserDTO.password = hashPassword;
     // insert into db
-    const user = this.userRepository.create(CreateUserDTO);
-    const check = await this.userRepository.save(user);
+    const check = await this.userRepository.save(CreateUserDTO);
     // check action insert
     if (!check) {
       throw new Error('REGISTER.OCCUR ERROR WHEN SAVE TO DATABASE!');
