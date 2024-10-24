@@ -8,9 +8,9 @@ import {
   Body,
 } from '@nestjs/common';
 import { UserService } from 'src/backend/user/user.service';
-import { CreateUserDto } from '../../dto/userDTO/user.create.dto';
-import { responseHandler } from '../../Until/responseUtil';
-import { UpdateUserDto } from '../../dto/userDTO/user.update.dto';
+import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
+import { responseHandler } from 'src/Until/responseUtil';
+import { UpdateUserDto } from 'src/dto/userDTO/user.update.dto';
 
 @Controller('users')
 export class UserController {

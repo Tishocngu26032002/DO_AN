@@ -26,7 +26,7 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Get(':page/:limit/:hot?/:status?')
-  @Roles('admin')
+  // @Roles('admin')
   async getList(
     @Param('page') page: number,
     @Param('limit') limit: number,

@@ -4,8 +4,8 @@ import { PiShoppingCart } from "react-icons/pi";
 import productImage from "../../assets/product-details-1.jpg";
 import productImage2 from "../../assets/f3.jpg";
 import productImage3 from "../../assets/f4.jpg";
-import QuantityInput from '../Button/QuantitySelectorButtom.jsx'
-
+import QuantityInput from '../Button/QuantitySelectorButtom.jsx';
+import Footer from "../Footer/footer.jsx";
 const Image = ({ mainImage, setMainImage, productImages }) => {
  
   const handleThumbnailClick = (img) => {
@@ -41,8 +41,8 @@ const ProductDetail = () => {
 
   return (
     
-    <div className="">
-    
+    <div >
+      <Header />
       <section id="prodetails" className="flex flex-col md:flex-row mx-10 xl:mx-28 mt-5 ">
         <Image mainImage={mainImage} setMainImage={setMainImage} productImages={productImages} />
 
@@ -96,6 +96,7 @@ const ProductDetail = () => {
           ))}
         </div>
       </section>
+      <Footer/>
     </div>
   );
 };

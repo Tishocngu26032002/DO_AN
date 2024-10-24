@@ -4,7 +4,7 @@ node_modules
 build
 
 nestjs-api-ecm/src/backend/firebase-admin/ecm-doan-firebase-adminsdk-15vx9-f49331cea0.json
-
+nestjs-api-ecm/src/Until/configConst.ts
 # Logs
 logs
 *.log
