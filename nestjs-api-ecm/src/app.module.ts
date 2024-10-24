@@ -7,7 +7,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { User } from './entities/user_entity/user.entity';
 import { CategoryEntity } from './entities/category_entity/category.entity';
 import { JwtModule } from '@nestjs/jwt';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ProductEntity } from 'src/entities/product_entity/product.entity';
 import { Order_Product } from 'src/entities/order_entity/order_product.entity';
 import { Cart_productEntity } from 'src/entities/cartproduct_entity/cart_product.entity';
@@ -54,7 +53,6 @@ import { Location_userEntity } from 'src/entities/user_entity/location_user.enti
         synchronize: true,
       }),
     }),
-    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
