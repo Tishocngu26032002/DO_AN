@@ -26,10 +26,10 @@ export class ProductEntity extends BaseEntity {
   @Column({ type: 'text' })
   url_images: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar', length: 36 })
   category_id: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar', length: 36 })
   supplier_id: string;
 
   // Relation with Order_Product

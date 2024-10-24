@@ -16,10 +16,10 @@ export class Import_productEntity {
   quantity: number;
   @Column({ type: 'int' })
   price_in: number;
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar', length: 36 })
   product_id: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar', length: 36 })
   import_id: string;
 
   @ManyToOne(() => ImportEntity, (importEntity) => importEntity.importProducts)

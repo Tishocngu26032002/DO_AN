@@ -18,10 +18,10 @@ export class Location_userEntity {
   @Column({ type: 'text' })
   phone: string;
 
-  @Column({ type: 'boolean', default: 'false' })
-  default: boolean;
+  @Column({ type: 'boolean', default: false })
+  default_location: boolean;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', length: 36 })
   user_id: string;
 
   // Foreign key to User using existing user_id column

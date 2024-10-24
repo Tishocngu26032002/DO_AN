@@ -1,5 +1,5 @@
 import {
-  Column,
+  Column, CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -15,9 +15,12 @@ export class ImportEntity {
   id: string;
   @Column({ type: 'int' })
   total_amount: number;
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar', length: 36 })
   employee_id: string;
-  @Column({ type: 'timestamp' })
+  @CreateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP(6)',
+  })
   createdAt: Date;
 
   @ManyToOne(() => User, (user) => user.imports)
