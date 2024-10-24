@@ -8,8 +8,6 @@ import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
 import { authenticator } from 'otplib';
 import { Account } from 'src/Until/configConst';
 import { VerifyDto } from 'src/dto/userDTO/user.verify.dto';
-import { v4 as uuidv4 } from "uuid";
-import { plainToClass } from "class-transformer";
 
 @Injectable()
 export class RegisterModuleService {

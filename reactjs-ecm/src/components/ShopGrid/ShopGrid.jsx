@@ -1,3 +1,6 @@
+import React, { useState } from 'react';
+import { FaStar, FaShoppingCart } from 'react-icons/fa';
+import f1 from '../../assets/f3.jpg';
 // import React, { useState } from "react";
 // import { FaStar, FaShoppingCart } from "react-icons/fa";
 // // import b1 from '../../assets/images/b1.jpg';
