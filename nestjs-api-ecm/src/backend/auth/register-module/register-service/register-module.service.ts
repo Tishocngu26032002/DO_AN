@@ -3,13 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import * as nodemailer from 'nodemailer';
-import { User } from 'src/entities/userentity/user.entity';
+import { User } from 'src/entities/user_entity/user.entity';
 import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
 import { authenticator } from 'otplib';
 import { Account } from 'src/Until/configConst';
 import { VerifyDto } from 'src/dto/userDTO/user.verify.dto';
-import { v4 as uuidv4 } from "uuid";
-import { plainToClass } from "class-transformer";
 
 @Injectable()
 export class RegisterModuleService {
@@ -17,14 +15,13 @@ export class RegisterModuleService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) { }
   async create(CreateUserDTO: CreateUserDto) {
-    let userAdd = plainToClass(User, CreateUserDTO);
     async function sendEmail(email: string): Promise<boolean> {
       try {
         // Thiết lập OTP
         const secret = email;
         authenticator.options = { digits: 6, step: 120 }; // OTP có hiệu lực trong 2 phút
         const token = authenticator.generate(secret);
-        console.log(token);
+
         // Tạo transporter để gửi email
         const transporter = nodemailer.createTransport({
           service: 'Gmail',
@@ -39,9 +36,8 @@ export class RegisterModuleService {
           from: Account.USER,
           to: email,
           subject: 'OTP Register Account',
-          text: `YourOTP(It will expire after 2 minutes): ${token}`,
+          text: `Your OTP (It will expire after 2 minutes): ${token}`,
         };
-        console.log(mailOptions);
 
         // Gửi email và chờ kết quả
         await transporter.sendMail(mailOptions);
@@ -64,46 +60,32 @@ export class RegisterModuleService {
 
     // check exists?
     const checkExists = await this.userRepository.findOneBy({
-      email: userAdd.email,
+      email: CreateUserDTO.email,
     });
-    console.log("Check if user exists:", checkExists);
 
     // throw error exsist
     if (checkExists?.isActive) {
-      console.log("Account exists and is active");
       throw new Error('REGISTER.ACCOUNT EXISTS!');
     }
 
     if (checkExists && !checkExists.isActive) {
-      console.log("Account exists but is not active, sending OTP");
       sendEmail(checkExists.email);
       throw new Error('REGISTER.ACCOUNT NOT VERIFY! PLEASE ENTER OTP VERIFY!');
     }
     // hashPassword
-    console.log("Hashing password for user");
-    userAdd.id = uuidv4();
-    const hashPassword = await bcrypt.hash(userAdd.password, 10);
-    userAdd.password = hashPassword;
-
+    const hashPassword = await bcrypt.hash(CreateUserDTO.password, 10);
+    CreateUserDTO.password = hashPassword;
     // insert into db
-    console.log("Saving user to database");
-    const check = await this.userRepository.save(userAdd);
-    console.log("Saved user:", check); // Log the saved user details
+    const check = await this.userRepository.save(CreateUserDTO);
     // check action insert
     if (!check) {
       throw new Error('REGISTER.OCCUR ERROR WHEN SAVE TO DATABASE!');
     }
 
     let email = null;
-    // email = check.email;
-    // sendEmail(email);
-    if (email) {
-      console.log("Sending OTP to:", email);
-      await sendEmail(email);
-    } else {
-      console.log("Email is undefined after save!");
-      throw new Error("Failed to retrieve user email after save.");
-    }
+    // send email OTP
+    email = check.email;
+    sendEmail(email);
 
     return {
       email: check.email,

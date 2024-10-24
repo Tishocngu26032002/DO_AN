@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CategoryEntity } from '../../entities/categoryentity/category.entity';
+import { CategoryEntity } from '../../entities/category_entity/category.entity';
 import { Repository } from 'typeorm';
 import { categoryCreateDTO } from '../../dto/categoryDTO/category.create.dto';
 import * as slug from 'slug';
@@ -27,8 +27,8 @@ export class CategoryService extends baseService<CategoryEntity> {
 
     const condition: any = {};
 
-    if (filters.hot) condition.c_hot = filters.hot;
-    if (filters.status) condition.c_status = filters.status;
+    if (filters.hot) condition.hot = filters.hot;
+    if (filters.status) condition.status = filters.status;
 
     const [list, total] = await this.categoryRepo.findAndCount({
       where: condition,
@@ -47,9 +47,8 @@ export class CategoryService extends baseService<CategoryEntity> {
   }
 
   async create(createCate: categoryCreateDTO) {
-    createCate.c_slug = slug(createCate.c_name);
-    const newdata = this.categoryRepo.create(createCate);
-    return await super.create(newdata, { c_name: createCate.c_name });
+    createCate.slug = slug(createCate.name);
+    return await super.create(createCate, { name: createCate.name });
   }
 
   async detail(id: number) {
