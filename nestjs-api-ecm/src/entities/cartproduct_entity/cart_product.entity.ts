@@ -7,10 +7,10 @@ export class Cart_productEntity extends BaseEntity {
   @Column({ type: 'int' })
   quantity: number;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar', length: 36 })
   product_id: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar', length: 36 })
   user_id: string;
 
   // Foreign key to User using existing user_id column

@@ -10,9 +10,9 @@ export class Order extends BaseEntity {
   status: number;
   @Column({ type: 'tinyint' })
   payment_method: number;
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar', length: 36 })
   employee_id: string;
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar', length: 36 })
   user_id: string;
 
   // user_id: ID of the person who placed the order

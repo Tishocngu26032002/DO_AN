@@ -6,8 +6,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Order } from 'src/entities/order_entity/oder.entity';
-import {ProductEntity} from "src/entities/product_entity/product.entity";
-@Entity({ name: 'oder_product' })
+import { ProductEntity } from 'src/entities/product_entity/product.entity';
+@Entity({ name: 'order_product' })
 export class Order_Product {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -18,10 +18,10 @@ export class Order_Product {
   @Column({ type: 'int' })
   priceout: number;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar', length: 36 })
   order_id: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar', length: 36 })
   product_id: string;
 
   @ManyToOne(() => Order, (order) => order.orderProducts)

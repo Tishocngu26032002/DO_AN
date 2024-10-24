@@ -47,9 +47,8 @@ export class CategoryService extends baseService<CategoryEntity> {
   }
 
   async create(createCate: categoryCreateDTO) {
-    createCate.c_slug = slug(createCate.c_name);
-    const newdata = this.categoryRepo.create(createCate);
-    return await super.create(newdata, { c_name: createCate.c_name });
+    createCate.slug = slug(createCate.name);
+    return await super.create(createCate, { name: createCate.name });
   }
 
   async detail(id: number) {
