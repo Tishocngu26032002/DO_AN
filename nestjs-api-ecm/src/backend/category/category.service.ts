@@ -27,8 +27,8 @@ export class CategoryService extends baseService<CategoryEntity> {
 
     const condition: any = {};
 
-    if (filters.hot) condition.c_hot = filters.hot;
-    if (filters.status) condition.c_status = filters.status;
+    if (filters.hot) condition.hot = filters.hot;
+    if (filters.status) condition.status = filters.status;
 
     const [list, total] = await this.categoryRepo.findAndCount({
       where: condition,
