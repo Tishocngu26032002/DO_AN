@@ -1,14 +1,12 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity } from 'src/base/baseEntity/base.entity';
 import { ProductEntity } from 'src/entities/product_entity/product.entity';
+import {ApplyStatus} from "src/share/Enum/Enum";
 
 @Entity('categories')
 export class CategoryEntity extends BaseEntity {
   @Column()
   name: string;
-
-  @Column()
-  slug: string;
 
   @Column()
   image: string;
@@ -23,7 +21,7 @@ export class CategoryEntity extends BaseEntity {
   hot: number;
 
   @Column()
-  status: boolean;
+  status: ApplyStatus;
 
   // Mối quan hệ với ProductEntity
   @OneToMany(() => ProductEntity, (product) => product.category)

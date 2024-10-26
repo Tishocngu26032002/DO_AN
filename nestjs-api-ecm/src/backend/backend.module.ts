@@ -9,6 +9,7 @@ import { MenuModule } from './menu/menu.module';
 import { LoginModuleModule } from './auth/login-module/login-module.module';
 import { RegisterModuleModule } from './auth/register-module/register-module.module';
 import { CloudinaryModule } from 'src/backend/cloudinary/cloudinary.module';
+import {SupplierModule} from "src/backend/supplier/supplier.module";
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CloudinaryModule } from 'src/backend/cloudinary/cloudinary.module';
     LoginModuleModule,
     RegisterModuleModule,
     CloudinaryModule,
+    SupplierModule
   ],
 })
 export class BackendModule {}

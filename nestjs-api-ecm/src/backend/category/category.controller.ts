@@ -14,9 +14,10 @@ import { AuthGuard } from 'src/guards/JwtAuth.guard';
 import { RolesGuard } from 'src/guards/Roles.guard';
 import { Roles } from 'src/decorator/Role.decorator';
 import { responseHandler } from 'src/Until/responseUtil';
-import { categoryCreateDTO } from 'src/dto/categoryDTO/category.create.dto';
+import { CategoryCreateDTO } from 'src/dto/categoryDTO/category.create.dto';
 import { CategoryService } from 'src/backend/category/category.service';
 import { categoryUpdateDTO } from 'src/dto/categoryDTO/category.update.dto';
+import {ApplyStatus} from "src/share/Enum/Enum";
 
 @Controller('category')
 @UseGuards(AuthGuard, RolesGuard)
@@ -25,18 +26,16 @@ import { categoryUpdateDTO } from 'src/dto/categoryDTO/category.update.dto';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @Get(':page/:limit/:hot?/:status?')
-  @Roles('admin')
+  @Get(':page/:limit')
+  //@Roles('admin')
   async getList(
     @Param('page') page: number,
     @Param('limit') limit: number,
-    @Query('hot') hot?: number,
-    @Query('status') status?: number,
+    @Query('status') status?: ApplyStatus,
   ) {
     try {
       const filters = {
-        hot: hot !== undefined ? hot : '', // Kiểm tra nếu hot không được truyền
-        status: status !== undefined ? status : '', // Kiểm tra nếu status không được truyền
+        status: status !== undefined ? status : '',
       };
       const listcategory = await this.categoryService.getList(
         page,
@@ -51,7 +50,7 @@ export class CategoryController {
   }
 
   @Post()
-  async create(@Body() createCate: categoryCreateDTO) {
+  async create(@Body() createCate: CategoryCreateDTO) {
     try {
       const category = await this.categoryService.create(createCate);
       return responseHandler.ok(category);

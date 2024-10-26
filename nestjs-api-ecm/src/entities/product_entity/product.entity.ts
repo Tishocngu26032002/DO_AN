@@ -5,6 +5,7 @@ import { Cart_productEntity } from 'src/entities/cartproduct_entity/cart_product
 import { Import_productEntity } from 'src/entities/import_entity/import_product.entity';
 import { CategoryEntity } from 'src/entities/category_entity/category.entity';
 import { SupplierEntity } from 'src/entities/supplier_entity/supplier.entity';
+import {ExpirationStatus} from "src/share/Enum/Enum";
 
 @Entity({ name: 'products' })
 export class ProductEntity extends BaseEntity {
@@ -31,6 +32,9 @@ export class ProductEntity extends BaseEntity {
 
   @Column({ type: 'varchar', length: 36 })
   supplier_id: string;
+
+  @Column({ type: 'varchar', length: 36 })
+  status: ExpirationStatus;
 
   // Relation with Order_Product
   @OneToMany(() => Order_Product, (orderProduct) => orderProduct.product)
