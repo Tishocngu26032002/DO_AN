@@ -13,49 +13,43 @@ import { VerifyDto } from 'src/dto/userDTO/user.verify.dto';
 export class RegisterModuleService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-  ) { }
+  ) {
+    authenticator.options = { digits: 6, step: 120 };
+  }
   async create(CreateUserDTO: CreateUserDto) {
-    async function sendEmail(email: string): Promise<boolean> {
-      try {
-        // Thiết lập OTP
-        const secret = email;
-        authenticator.options = { digits: 6, step: 120 }; // OTP có hiệu lực trong 2 phút
-        const token = authenticator.generate(secret);
+    function sendEmail(email: string): any {
+      // Thiết lập OTP
+      const secret = email;
+      const token = authenticator.generate(secret);
 
-        // Tạo transporter để gửi email
-        const transporter = nodemailer.createTransport({
-          service: 'Gmail',
-          auth: {
-            user: Account.USER,
-            pass: Account.PASS,
-          },
-        });
+      console.log(token);
 
-        // Thiết lập thông tin email
-        const mailOptions = {
-          from: Account.USER,
-          to: email,
-          subject: 'OTP Register Account',
-          text: `Your OTP (It will expire after 2 minutes): ${token}`,
-        };
+      // Tạo transporter để gửi email
+      const transporter = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+          user: Account.USER,
+          pass: Account.PASS,
+        },
+      });
 
-        // Gửi email và chờ kết quả
-        await transporter.sendMail(mailOptions);
+      // Thiết lập thông tin email
+      const mailOptions = {
+        from: Account.USER,
+        to: email,
+        subject: 'OTP Register Account',
+        text: `Your OTP (It will expire after 2 minutes): ${token}`,
+      };
 
-        // Nếu thành công, trả về true
-        return true;
-      } catch (error) {
-        // Ép kiểu lỗi về dạng có thể có 'responseCode'
-        if (error instanceof Error && 'responseCode' in error) {
-          const err = error as any; // Tạm ép kiểu về 'any' để tránh lỗi TypeScript
-          if (err.responseCode === 550) {
-            throw new Error('Email không tồn tại. Vui lòng nhập email hợp lệ.');
-          }
+      // Gửi email và chờ kết quả
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          throw new Error('REGISTER.EMAIL SEND FAILED!');
         }
+      });
 
-        // Xử lý lỗi chung
-        throw new Error('Có lỗi xảy ra khi gửi OTP. Vui lòng thử lại.');
-      }
+      // Nếu thành công, trả về true
+      return true;
     }
 
     // check exists?
@@ -96,9 +90,10 @@ export class RegisterModuleService {
     const token = verifyDto.otp;
     const secret = verifyDto.email;
 
-    authenticator.options = { digits: 6, step: 120 };
-    const verify = authenticator.verify({ token, secret });
+    console.log('token', token, 'email', secret);
 
+    const verify = authenticator.check(token, secret);
+    console.log('verify', verify);
     if (!verify) {
       throw new Error('REGISTER.OTP EXPIRED!');
     }

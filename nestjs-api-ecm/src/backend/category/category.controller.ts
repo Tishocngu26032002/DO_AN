@@ -18,14 +18,13 @@ import { categoryCreateDTO } from 'src/dto/categoryDTO/category.create.dto';
 import { CategoryService } from 'src/backend/category/category.service';
 import { categoryUpdateDTO } from 'src/dto/categoryDTO/category.update.dto';
 
+@ApiBearerAuth()
+@ApiTags('Category')
 @Controller('category')
 @UseGuards(AuthGuard, RolesGuard)
-@ApiTags('Category')
-@ApiBearerAuth()
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
-
-  @Get(':page/:limit/:hot?/:status?')
+  @Get()
   @Roles('admin')
   async getList(
     @Param('page') page: number,
