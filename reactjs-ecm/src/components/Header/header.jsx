@@ -6,8 +6,7 @@ import { IoMenu, IoClose } from "react-icons/io5";
 import { MdMenuOpen } from "react-icons/md";
 import { FaRegUser } from "react-icons/fa";
 
-
-function Header(){
+function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -15,7 +14,7 @@ function Header(){
   };
 
   return (
-    <div className="sticky top-0 z-50 flex items-center justify-between bg-purple-100 px-12 py-5 shadow-lg">
+    <div className="sticky top-0 z-50 flex items-center justify-between bg-purple-100 px-12 py-3 shadow-lg">
       <a href="#">
         <img src="images/logo.png" className="logo" alt="Logo" />
       </a>
@@ -27,7 +26,7 @@ function Header(){
         >
           <li className="px-4">
             <NavLink
-              to=""
+              to="/home-page"
               className={({ isActive }) =>
                 isActive
                   ? "text-xl font-bold text-gray-800"
@@ -39,7 +38,7 @@ function Header(){
           </li>
           <li className="px-4">
             <NavLink
-              to="/product"
+              to="/products"
               className={({ isActive }) =>
                 isActive
                   ? "text-xl font-bold text-gray-800"
@@ -86,7 +85,7 @@ function Header(){
             </NavLink>
           </li>
           <li id="lg-bag" className="md:mb-2 md:h-5 md:px-4">
-            <Link to="cart" className="">
+            <Link to="/cart" className="">
               <PiShoppingCartBold
                 aria-hidden="true"
                 className="h-[23px] w-[23px]"
@@ -94,7 +93,7 @@ function Header(){
             </Link>
           </li>
           <li id="lg-bag" className="md:mb-2 md:h-5 md:px-4">
-            <Link to="user" className="">
+            <Link to="/user" className="">
               <FaRegUser aria-hidden="true" className="h-[23px] w-[23px]" />
             </Link>
           </li>
@@ -102,7 +101,7 @@ function Header(){
       </div>
 
       <div id="mobile" className="flex items-center md:hidden">
-        <Link to="cart" className="px-4 text-gray-800">
+        <Link to="/cart" className="px-4 text-gray-800">
           <PiShoppingCartBold
             aria-hidden="true"
             className="h-[30px] w-[30px]"
@@ -144,7 +143,7 @@ function Header(){
           </li>
           <li className="py-2">
             <NavLink
-              to="/product"
+              to="/products"
               className={({ isActive }) =>
                 isActive
                   ? "text-xl font-bold text-gray-800"
@@ -194,6 +193,6 @@ function Header(){
       </div>
     </div>
   );
-};
+}
 
 export default Header;

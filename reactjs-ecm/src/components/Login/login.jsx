@@ -1,12 +1,11 @@
 import React from "react";
-// import "./style.css";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { loginApi } from "../../services/auth-api";
 import { Link, useNavigate } from "react-router-dom";
-import { authLocal } from "../../util/authLocal";
+import { authLocal } from "../../util/auth-local";
 const schema = z.object({
   email: z.string().email("email invalid"),
   password: z.string(),
@@ -33,27 +32,25 @@ function LoginForm() {
       return response;
     },
     onSuccess: (response) => {
-      console.log(response.success);
       if (response && response.success === true) {
-        // authLocal.setToken(response.data.access_token);
-        // localStorage.setItem("token", JSON.stringify(response?.access_token));
-        // const role = response?.role;
-        // if (role === "admin") {
-        //   setTimeout(() => {
-        //     navigate("/admin");
-        //   }, 2000);
-        // } else if (role === "customer") {
-        //   setTimeout(() => {
-        //     navigate("/home");
-        //   }, 2000);
-        // } else {
-        //   setTimeout(() => {
-        //     navigate("/shipper");
-        //   }, 2000);
-        // }
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
+        localStorage.setItem(
+          "token",
+          JSON.stringify(response?.data.accessToken),
+        );
+        const role = response?.data.user.role;
+        if (role === "admin") {
+          setTimeout(() => {
+            navigate("/admin");
+          }, 1000);
+        } else if (role === "user") {
+          setTimeout(() => {
+            navigate("/");
+          }, 1000);
+        } else {
+          setTimeout(() => {
+            navigate("/shipper");
+          }, 1000);
+        }
       }
     },
   });

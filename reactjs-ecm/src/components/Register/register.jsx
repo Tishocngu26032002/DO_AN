@@ -12,17 +12,17 @@ const schema = z
   .object({
     firstName: z
       .string()
-      .min(3, "firstName min = 3")
+      .min(2, "firstName min = 2")
       .max(50, "firstName max = 50"),
     lastName: z
       .string()
-      .min(3, "lastName min = 3")
+      .min(2, "lastName min = 2")
       .max(50, "lastName max = 50"),
     email: z.string().email("email invalid"),
     phone: z.string().regex(REGEX.phoneNumber, "phone invalid"),
     password: z.string(),
     confirmPass: z.string(),
-    address: z.string().min(3, "address min = 3").max(50, "address max = 50"),
+    address: z.string().min(2, "address min = 2").max(50, "address max = 50"),
   })
   .refine((data) => data.password === data.confirmPass, {
     message: "Passwords don't match",
@@ -51,16 +51,14 @@ function RegisterForm() {
 
   const { mutate } = useMutation({
     mutationFn: async (data) => {
-      const response = await apiClient.post("/register-module", data);
+      const response = await apiClient.post("/register", data);
       return response.data;
     },
     onSuccess: (response) => {
       // console.log("Email registered:", response);
       if (response && response.success === false) {
         alert("Vui lòng kiểm tra Email nhận OTP");
-        // console.log("email:", email)
         navigate("/otp", { state: { email: email } });
-
       }
     },
     onError: (error) => {
