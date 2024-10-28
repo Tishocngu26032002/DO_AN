@@ -56,7 +56,6 @@ import { LocationUserModule } from './backend/location_user/location_user.module
         synchronize: true,
       }),
     }),
-    LocationUserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
