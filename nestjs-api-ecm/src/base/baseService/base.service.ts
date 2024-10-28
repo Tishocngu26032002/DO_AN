@@ -18,15 +18,25 @@ export class BaseService<T> {
   }
 
   async create(data: DeepPartial<T>, findCondition: any): Promise<T> {
-    const existingRecord = await this.repository.findOne({
-      where: findCondition,
-    });
-    if (existingRecord) {
-      throw new Error('RECORD ALREADY EXISTS!');
+    const queryRunner = this.repository.manager.connection.createQueryRunner();
+    await queryRunner.startTransaction();
+    try {
+      const existingRecord = await this.repository.findOne({
+        where: findCondition,
+      });
+      if (existingRecord) {
+        throw new Error('RECORD ALREADY EXISTS!');
+      }
+      const newRecord = this.repository.create(data);
+      const savedRecord = await queryRunner.manager.save(newRecord);
+      await queryRunner.commitTransaction();
+      return savedRecord;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-    //Object.assign(existingRecord, data);
-    const newRecord = this.repository.create(data);
-    return await this.repository.save(newRecord);
   }
 
   async findOne(id: string): Promise<T> {
@@ -34,15 +44,42 @@ export class BaseService<T> {
   }
 
   async update(data: Partial<T>, id: string): Promise<T> {
-    const existingRecord = await this.repository.findOneBy({ id } as any);
-    if (!existingRecord) {
-      throw new Error('RECORD NOT FOUND!');
+    const queryRunner = this.repository.manager.connection.createQueryRunner();
+    await queryRunner.startTransaction();
+    try {
+      const existingRecord = await this.repository.findOneBy({ id } as any);
+      if (!existingRecord) {
+        throw new Error('RECORD NOT FOUND!');
+      }
+      Object.assign(existingRecord, data);
+      const updatedRecord = await queryRunner.manager.save(existingRecord);
+      await queryRunner.commitTransaction();
+      return updatedRecord;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-    Object.assign(existingRecord, data);
-    return await this.repository.save(existingRecord);
   }
 
   async delete(id: string): Promise<void> {
-    await this.repository.delete(id);
+    const queryRunner = this.repository.manager.connection.createQueryRunner();
+    await queryRunner.startTransaction();
+    try {
+      const existingRecord = await queryRunner.manager.findOne(this.repository.target, {
+        where: { id } as any,
+      });
+      if (!existingRecord) {
+        throw new Error('RECORD NOT FOUND!');
+      }
+      await queryRunner.manager.delete(this.repository.target, id);
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }
