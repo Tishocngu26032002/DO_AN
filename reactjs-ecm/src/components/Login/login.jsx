@@ -110,7 +110,7 @@ function LoginForm() {
               type="submit"
               value="Login"
               disabled={!isDirty}
-              className="disabled:bg-aliceblue h-11 w-full cursor-pointer rounded-md border-none bg-gradient-to-r from-[#f37a65] to-[#d64141] text-base font-medium tracking-wide text-white shadow-md transition-all duration-300 ease-in-out hover:from-[#d64141] hover:to-[#f37a65]"
+              className="disabled:bg-aliceblue h-11 w-full cursor-pointer rounded-md border-2 text-base font-medium tracking-wide shadow-md transition-all duration-300 ease-in-out hover:bg-[#e5a62d] hover:text-white"
             />
           </div>
         </form>
