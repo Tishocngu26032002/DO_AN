@@ -21,7 +21,7 @@ import ManageOrder from "./components/Admin/ManageOrder/manage-order.jsx";
 import ManageProduct from "./components/Admin/ManageProduct/manage-product.jsx";
 import ManageUser from "./components/Admin/ManageUser/manage-user.jsx";
 import Report from "./components/Admin/Report/report.jsx";
-
+import Payment from "./components/Payment/payment.jsx";
 const queryClient = new QueryClient();
 
 const rootElement = document.getElementById("root");
@@ -50,6 +50,7 @@ root.render(
           <Route path="/manage-product" element={<ManageProduct />} />
           <Route path="/manage-user" element={<ManageUser />} />
           <Route path="/report" element={<Report />} />
+          <Route path="/payment" element={<Payment />} />
         </Routes>
       </QueryClientProvider>
     </BrowserRouter>
