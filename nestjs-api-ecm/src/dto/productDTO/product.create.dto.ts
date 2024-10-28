@@ -3,7 +3,7 @@ import { IsNotEmpty } from 'class-validator';
 import { Expose } from 'class-transformer';
 import {ExpirationStatus} from "src/share/Enum/Enum";
 
-export class productCreateDTO {
+export class ProductCreateDTO {
   @ApiProperty()
   @IsNotEmpty()
   @Expose()

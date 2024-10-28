@@ -18,9 +18,6 @@ export class CategoryEntity extends BaseEntity {
   description: string;
 
   @Column()
-  hot: number;
-
-  @Column()
   status: ApplyStatus;
 
   // Mối quan hệ với ProductEntity

@@ -6,12 +6,13 @@ import { CategoryCreateDTO } from '../../dto/categoryDTO/category.create.dto';
 import { categoryUpdateDTO } from '../../dto/categoryDTO/category.update.dto';
 import { BaseService } from '../../base/baseService/base.service';
 import {ApplyStatus, ExpirationStatus} from "src/share/Enum/Enum";
+import {CategoryRepository} from "src/repository/CategoryRepository";
 
 @Injectable()
 export class CategoryService extends BaseService<CategoryEntity> {
   constructor(
     @InjectRepository(CategoryEntity)
-    private readonly categoryRepo: Repository<CategoryEntity>,
+    private readonly categoryRepo: CategoryRepository,
   ) {
     super(categoryRepo);
   }
@@ -56,15 +57,15 @@ export class CategoryService extends BaseService<CategoryEntity> {
     return await super.create(createCate, { name: createCate.name });
   }
 
-  async detail(id: number) {
+  async detail(id: string) {
     return await super.findOne(id);
   }
 
-  async update(categoryUpdateDTO: categoryUpdateDTO, id: number) {
+  async update(categoryUpdateDTO: categoryUpdateDTO, id: string) {
     return await super.update(categoryUpdateDTO, id);
   }
 
-  async delete(id: number) {
-    return super.delete(id);
+  async delete(id: string) {
+    return await super.delete(id);
   }
 }

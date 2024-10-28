@@ -2,11 +2,11 @@ import {Injectable} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {EntityManager} from "typeorm";
 import {ProductEntity} from "src/entities/product_entity/product.entity";
-import {productCreateDTO} from "src/dto/productDTO/product.create.dto";
-import {productUpdateDTO} from "src/dto/productDTO/product.update.dto";
 import {ProductRepository} from "src/repository/ProductRepository";
 import {BaseService} from "src/base/baseService/base.service";
 import {ExpirationStatus} from "src/share/Enum/Enum";
+import {ProductUpdateDTO} from "src/dto/productDTO/product.update.dto";
+import {ProductCreateDTO} from "src/dto/productDTO/product.create.dto";
 
 @Injectable()
 export class ProductService extends BaseService<ProductEntity>{
@@ -50,7 +50,7 @@ export class ProductService extends BaseService<ProductEntity>{
         };
     }
 
-    async create(createProductDto: productCreateDTO) {
+    async create(createProductDto: ProductCreateDTO) {
         if (
             createProductDto.status !== ExpirationStatus.Valid &&
             createProductDto.status !== ExpirationStatus.Expired &&
@@ -61,15 +61,15 @@ export class ProductService extends BaseService<ProductEntity>{
         return await super.create(createProductDto, { name: createProductDto.name });
     }
 
-    async detail(id: number) {
+    async detail(id: string) {
         return await super.findOne(id);
     }
 
-    async update(productUpdateDTO: productUpdateDTO, id: number) {
-        return super.update(productUpdateDTO, id);
+    async update(productUpdateDTO: ProductUpdateDTO, id: string) {
+        return await super.update(productUpdateDTO, id);
     }
 
-    async delete(id: number) {
-        return super.delete(id);
+    async delete(id: string) {
+        return await super.delete(id);
     }
 }

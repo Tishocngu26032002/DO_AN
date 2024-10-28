@@ -22,11 +22,6 @@ export class CategoryCreateDTO {
   @Expose()
   description: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @Expose()
-  hot: number | 0;
-
   @ApiProperty({enum: ApplyStatus})
   @IsNotEmpty()
   @Expose()

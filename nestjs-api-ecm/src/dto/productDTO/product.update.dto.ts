@@ -1,8 +1,6 @@
 import {ApiProperty, PartialType} from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
-import { Expose } from 'class-transformer';
-import {CreateSupplierDto} from "src/dto/supplierDTO/create-supplier.dto";
+import {ProductCreateDTO} from "src/dto/productDTO/product.create.dto";
 
-export class productUpdateDTO extends PartialType(CreateSupplierDto){
+export class ProductUpdateDTO extends PartialType(ProductCreateDTO){
 
 }

@@ -48,18 +48,18 @@ export class SupplierService extends BaseService<SupplierEntity>{
     };
   }
   async create(createSupplierDto: CreateSupplierDto) {
-    return await this.supplierRepo.save(createSupplierDto);
+    return await super.create(createSupplierDto, null);
   }
 
-  async detail(id: number) {
+  async detail(id: string) {
     return await super.findOne(id);
   }
 
-  async update(updateSupplierDto: UpdateSupplierDto, id: number): Promise<SupplierEntity> {
+  async update(updateSupplierDto: UpdateSupplierDto, id: string): Promise<SupplierEntity> {
     return super.update(updateSupplierDto, id);
   }
 
-  async delete(id: number) {
+  async delete(id: string) {
     return super.delete(id);
   }
 }

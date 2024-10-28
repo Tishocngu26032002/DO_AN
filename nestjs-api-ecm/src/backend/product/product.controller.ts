@@ -6,25 +6,31 @@ import {
   Param,
   Patch,
   Post,
-  Query,
+  Query, UseGuards,
 } from '@nestjs/common';
 import { responseHandler } from '../../Until/responseUtil';
 import { ProductService } from './product.service';
-import { categoryUpdateDTO } from '../../dto/categoryDTO/category.update.dto';
-import {productCreateDTO} from "src/dto/productDTO/product.create.dto";
 import {ExpirationStatus} from "src/share/Enum/Enum";
-import {ApiQuery} from "@nestjs/swagger";
+import {ApiBearerAuth, ApiQuery, ApiTags} from "@nestjs/swagger";
+import {AuthGuard} from "src/guards/JwtAuth.guard";
+import {RolesGuard} from "src/guards/Roles.guard";
+import {Roles} from "src/decorator/Role.decorator";
+import {ProductUpdateDTO} from "src/dto/productDTO/product.update.dto";
+import {ProductCreateDTO} from "src/dto/productDTO/product.create.dto";
 
 @Controller('product')
+@UseGuards(AuthGuard, RolesGuard)
+@ApiTags('Product')
+@ApiBearerAuth()
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @Get(':page/:limit')
+  @Get()
   @ApiQuery({
     name: 'status',
-    enum: ExpirationStatus, // Đây là enum của bạn
-    required: false, // Chỉ định nếu tham số này là bắt buộc hay không
-    description: 'Trạng thái sản phẩm (Valid, Expired, ExpiringSoon)',
+    enum: ExpirationStatus,
+    required: false,
+    description: 'Trạng thái sản phẩm (All, Valid, Expired, ExpiringSoon)',
   })
   async getList(
     @Param('page') page: number,
@@ -48,7 +54,8 @@ export class ProductController {
   }
 
   @Post()
-  async create(@Body() createProduct: productCreateDTO) {
+  @Roles('admin')
+  async create(@Body() createProduct: ProductCreateDTO) {
     try {
       const product = await this.productService.create(createProduct);
       return responseHandler.ok(product);
@@ -59,7 +66,7 @@ export class ProductController {
   }
 
   @Get(':id')
-  async detail(@Param('id') id: number) {
+  async detail(@Param('id') id: string) {
     try {
       return responseHandler.ok(await this.productService.detail(id));
     } catch (e) {
@@ -69,12 +76,13 @@ export class ProductController {
   }
 
   @Patch(':id')
+  @Roles('admin')
   async update(
-    @Param('id') id: number,
-    @Body('categoryUpdateDTO') categoryUpdateDTO: categoryUpdateDTO,
+    @Param('id') id: string,
+    @Body() productUpdateDTO: ProductUpdateDTO,
   ) {
     try {
-      const check = await this.productService.update(categoryUpdateDTO, id);
+      const check = await this.productService.update(productUpdateDTO, id);
       return responseHandler.ok(check);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
@@ -83,5 +91,14 @@ export class ProductController {
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: number) {}
+  @Roles('admin')
+  async delete(@Param('id') id: string) {
+    try {
+      const check = await this.productService.delete(id);
+      return responseHandler.ok(check);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
+    }
+  }
 }

@@ -19,7 +19,6 @@ import {SupplierModule} from "src/backend/supplier/supplier.module";
     MenuModule,
     TransactionModule,
     OrderModule,
-    UserModule,
     LoginModuleModule,
     RegisterModuleModule,
     CloudinaryModule,

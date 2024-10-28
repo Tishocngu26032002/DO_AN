@@ -14,7 +14,7 @@ import { UpdateUserDto } from 'src/dto/userDTO/user.update.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @Controller('users')
-@ApiTags('user')
+@ApiTags('User')
 export class UserController {
   constructor(private readonly usersService: UserService) {}
 
@@ -29,7 +29,7 @@ export class UserController {
     }
   }
 
-  @Get(':page/:limit')
+  @Get()
   async findAll(@Param('page') page: number, @Param('limit') limit: number) {
     try {
       const users = await this.usersService.findAll(page, limit);
