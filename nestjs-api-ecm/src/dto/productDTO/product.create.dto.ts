@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
-import { Expose } from 'class-transformer';
+import {IsDate, IsNotEmpty} from 'class-validator';
+import {Expose, Type} from 'class-transformer';
 import {ExpirationStatus} from "src/share/Enum/Enum";
 
 export class ProductCreateDTO {
@@ -13,7 +13,6 @@ export class ProductCreateDTO {
   @IsNotEmpty()
   @Expose()
   priceout: number;
-  slug: string;
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
@@ -48,8 +47,10 @@ export class ProductCreateDTO {
   @Expose()
   supplier_id: string;
 
-  @ApiProperty({ enum: ExpirationStatus })
+  @ApiProperty({ type: String, format: 'date-time' })
   @IsNotEmpty()
+  @IsDate()
+  @Type(() => Date)
   @Expose()
-  status: ExpirationStatus;
+  expire_date: Date;
 }

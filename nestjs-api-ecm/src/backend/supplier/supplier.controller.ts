@@ -16,21 +16,16 @@ import {ApplyStatus} from "src/share/Enum/Enum";
 export class SupplierController {
   constructor(private readonly supplierService: SupplierService) {}
 
-
-  @Get()
+  @Get(':page/:limit')
   @Roles('admin')
   async getList(
       @Param('page') page: number,
       @Param('limit') limit: number,
   ) {
     try {
-      const filters = {
-        status: status !== undefined ? status : '',
-      };
       const listcategory = await this.supplierService.getList(
           page,
           limit,
-          filters,
       );
       return responseHandler.ok(listcategory);
     } catch (e) {

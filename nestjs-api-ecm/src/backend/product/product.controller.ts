@@ -25,7 +25,7 @@ import {ProductCreateDTO} from "src/dto/productDTO/product.create.dto";
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @Get()
+  @Get(':page/:limit')
   @ApiQuery({
     name: 'status',
     enum: ExpirationStatus,

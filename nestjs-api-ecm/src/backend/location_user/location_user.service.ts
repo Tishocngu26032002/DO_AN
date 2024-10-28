@@ -39,9 +39,9 @@ export class LocationUserService extends BaseService<Location_userEntity>{
               user_id: createLocationUserDto.user_id,
               default_location: createLocationUserDto.default_location
           };
-          await this.updateDefaultMethod(filters, createLocationUserDto.user_id);
+          await this.updateDefaultMethod(filters, null);
       }
-        return await super.create(createLocationUserDto, { default_location: true });
+      return await this.locationRepo.save(createLocationUserDto);
     }
 
     async detail(id: string) {

@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany} from 'typeorm';
 import { BaseEntity } from 'src/base/baseEntity/base.entity';
 import { Order_Product } from 'src/entities/order_entity/order_product.entity';
 import { Cart_productEntity } from 'src/entities/cartproduct_entity/cart_product.entity';
@@ -33,8 +33,8 @@ export class ProductEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 36 })
   supplier_id: string;
 
-  @Column({ type: 'varchar', length: 36 })
-  status: ExpirationStatus;
+  @Column({ type: 'timestamp' })
+  expire_date: Date;
 
   // Relation with Order_Product
   @OneToMany(() => Order_Product, (orderProduct) => orderProduct.product)

@@ -26,7 +26,7 @@ import {ApplyStatus, ExpirationStatus} from "src/share/Enum/Enum";
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @Get()
+  @Get(':page/:limit')
   @ApiQuery({
     name: 'status',
     enum: ApplyStatus,

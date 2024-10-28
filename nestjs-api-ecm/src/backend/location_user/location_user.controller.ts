@@ -16,14 +16,14 @@ import {responseHandler} from "src/Until/responseUtil";
 export class LocationUserController {
   constructor(private readonly locationUserService: LocationUserService) {}
 
-  @Get()
+  @Get(':user_id')
   @Roles('user', 'admin')
-  async getAllLocation(@Param('user_id') user_id: string,) {
+  async getAllLocation(@Param('user_id') user_id: string) {
     try{
       const filters = {
         user_id: user_id,
       };
-      const result = this.locationUserService.getList(filters);
+      const result = await this.locationUserService.getList(filters);
       return responseHandler.ok(result);
     }
     catch (e) {
@@ -36,7 +36,7 @@ export class LocationUserController {
   @Roles('user', 'admin')
   async create(@Body() createLocationUserDto: CreateLocationUserDto) {
     try{
-      const data = this.locationUserService.createLocation(createLocationUserDto);
+      const data = await this.locationUserService.createLocation(createLocationUserDto);
       return responseHandler.ok(data);
     }
     catch (e) {

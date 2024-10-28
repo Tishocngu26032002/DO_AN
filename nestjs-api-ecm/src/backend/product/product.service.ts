@@ -29,7 +29,6 @@ export class ProductService extends BaseService<ProductEntity>{
 
         const condition: any = {};
 
-        if (filters.hot) condition.hot = filters.hot;
         if (filters.status && Object.values(ExpirationStatus).includes(filters.status)) {
             condition.status = filters.status;
         }
@@ -51,13 +50,6 @@ export class ProductService extends BaseService<ProductEntity>{
     }
 
     async create(createProductDto: ProductCreateDTO) {
-        if (
-            createProductDto.status !== ExpirationStatus.Valid &&
-            createProductDto.status !== ExpirationStatus.Expired &&
-            createProductDto.status !== ExpirationStatus.ExpiringSoon
-        ) {
-            throw new Error('Invalid status value');
-        }
         return await super.create(createProductDto, { name: createProductDto.name });
     }
 

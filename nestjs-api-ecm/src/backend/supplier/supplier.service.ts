@@ -18,7 +18,7 @@ export class SupplierService extends BaseService<SupplierEntity>{
     super(supplierRepo);
   }
 
-  async getList(page: number = 1, limit: number = 10, filters: any) {
+  async getList(page: number = 1, limit: number = 10) {
     if (page < 1) {
       throw new Error('PAGE NUMBER MUST BE GREATER THAN 0!');
     }
@@ -28,9 +28,6 @@ export class SupplierService extends BaseService<SupplierEntity>{
     }
 
     const condition: any = {};
-
-    if (filters.hot) condition.hot = filters.hot;
-    if (filters.status) condition.status = filters.status;
 
     const [list, total] = await this.supplierRepo.findAndCount({
       where: condition,
@@ -48,7 +45,7 @@ export class SupplierService extends BaseService<SupplierEntity>{
     };
   }
   async create(createSupplierDto: CreateSupplierDto) {
-    return await super.create(createSupplierDto, null);
+    return await super.create(createSupplierDto, {phone: createSupplierDto.phone});
   }
 
   async detail(id: string) {
