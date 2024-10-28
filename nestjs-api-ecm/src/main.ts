@@ -16,6 +16,7 @@ async function bootstrap() {
     .setTitle('Shop Ecommerce')
     .setDescription('API for Shop Ecommerce')
     .setVersion('1.0')
+    .addBearerAuth()
     .addTag('Ecommerce')
     .addBearerAuth()
     .build();
