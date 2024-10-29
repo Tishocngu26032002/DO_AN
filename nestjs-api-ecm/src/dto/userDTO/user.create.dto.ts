@@ -6,7 +6,11 @@ export class CreateUserDto {
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  name: string;
+  firstName: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  @Expose()
+  lastName: string;
   @ApiProperty()
   @IsNotEmpty()
   @IsPhoneNumber('VN')

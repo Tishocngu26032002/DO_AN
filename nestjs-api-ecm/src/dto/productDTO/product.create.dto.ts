@@ -1,31 +1,56 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
-import { Expose } from 'class-transformer';
+import {IsDate, IsNotEmpty} from 'class-validator';
+import {Expose, Type} from 'class-transformer';
+import {ExpirationStatus} from "src/share/Enum/Enum";
 
-export class productCreateDTO {
+export class ProductCreateDTO {
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_name: string;
-  c_slug: string;
+  name: string;
+
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_avatar: string;
+  priceout: number;
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_banner: string;
+  banner: string;
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_description: string;
+  description: string;
+
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_hot: number | 0;
+  stockQuantity: number;
+
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_status: boolean;
+  weight: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @Expose()
+  url_images: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @Expose()
+  category_id: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @Expose()
+  supplier_id: string;
+
+  @ApiProperty({ type: String, format: 'date-time' })
+  @IsNotEmpty()
+  @IsDate()
+  @Type(() => Date)
+  @Expose()
+  expire_date: Date;
 }

@@ -25,11 +25,7 @@ export class UpdateUserDto {
   @IsNotEmpty()
   @Expose()
   address: string;
-  @ApiProperty()
-  @IsNotEmpty()
-  @Expose()
   active: boolean;
-  @ApiProperty()
   @Expose()
   role: string;
 }

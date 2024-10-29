@@ -10,7 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { LoginDTO } from 'src/dto/loginDTO/login.dto';
-import { User } from 'src/entities/userentity/user.entity';
+import { User } from 'src/entities/user_entity/user.entity';
 
 @Injectable()
 export class LoginModuleService {
@@ -34,7 +34,6 @@ export class LoginModuleService {
       loginDTO.password,
       user.password,
     );
-
     if (!isPasswordCorrect) {
       throw new UnauthorizedException('LOGIN.USER.PASSWORD IS NOT VALID!');
     }
@@ -45,6 +44,10 @@ export class LoginModuleService {
       email: user.email,
       role: user.role,
     });
-    return accessToken;
+
+    return {
+      user: user,
+      accessToken: accessToken,
+    };
   }
 }

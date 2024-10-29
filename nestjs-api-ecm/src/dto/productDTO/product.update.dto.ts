@@ -1,31 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
-import { Expose } from 'class-transformer';
+import {ApiProperty, PartialType} from '@nestjs/swagger';
+import {ProductCreateDTO} from "src/dto/productDTO/product.create.dto";
 
-export class productUpdateDTO {
-  @ApiProperty()
-  @IsNotEmpty()
-  @Expose()
-  c_name: string;
-  c_slug: string;
-  @ApiProperty()
-  @IsNotEmpty()
-  @Expose()
-  c_avatar: string;
-  @ApiProperty()
-  @IsNotEmpty()
-  @Expose()
-  c_banner: string;
-  @ApiProperty()
-  @IsNotEmpty()
-  @Expose()
-  c_description: string;
-  @ApiProperty()
-  @IsNotEmpty()
-  @Expose()
-  c_hot: number | 0;
-  @ApiProperty()
-  @IsNotEmpty()
-  @Expose()
-  c_status: boolean;
+export class ProductUpdateDTO extends PartialType(ProductCreateDTO){
+
 }

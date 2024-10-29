@@ -1,11 +1,11 @@
-import { Repository } from 'typeorm';
+import {DeepPartial, Repository} from 'typeorm';
 
-export class baseService<T> {
+export class BaseService<T> {
   constructor(protected readonly repository: Repository<T>) {}
 
   async findAll(
-    limit: number = 10,
-    page: number = 1,
+      limit: number = 10,
+      page: number = 1,
   ): Promise<{ data: T[]; total: number }> {
     const [result, total] = await this.repository.findAndCount({
       take: limit,
@@ -17,21 +17,22 @@ export class baseService<T> {
     };
   }
 
-  async create(data: T, findCondition: any): Promise<T> {
+  async create(data: DeepPartial<T>, findCondition: any): Promise<T> {
     const existingRecord = await this.repository.findOne({
       where: findCondition,
     });
     if (existingRecord) {
       throw new Error('RECORD ALREADY EXISTS!');
     }
-    return await this.repository.save(data);
+    const newRecord = this.repository.create(data);
+    return await this.repository.save(newRecord);
   }
 
-  async findOne(id: number): Promise<T> {
+  async findOne(id: string): Promise<T> {
     return await this.repository.findOneBy({ id } as any);
   }
 
-  async update(data: Partial<T>, id: number): Promise<T> {
+  async update(data: Partial<T>, id: string): Promise<T> {
     const existingRecord = await this.repository.findOneBy({ id } as any);
     if (!existingRecord) {
       throw new Error('RECORD NOT FOUND!');
@@ -40,7 +41,7 @@ export class baseService<T> {
     return await this.repository.save(existingRecord);
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: string): Promise<void> {
     await this.repository.delete(id);
   }
 }

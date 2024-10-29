@@ -4,9 +4,19 @@ import { AppService } from './app.service';
 import { BackendModule } from './backend/backend.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { User } from './entities/userentity/user.entity';
-import { CategoryEntity } from './entities/categoryentity/category.entity';
+import { User } from './entities/user_entity/user.entity';
+import { CategoryEntity } from './entities/category_entity/category.entity';
 import { JwtModule } from '@nestjs/jwt';
+import { ProductEntity } from 'src/entities/product_entity/product.entity';
+import { Order_Product } from 'src/entities/order_entity/order_product.entity';
+import { Cart_productEntity } from 'src/entities/cartproduct_entity/cart_product.entity';
+import { Import_productEntity } from 'src/entities/import_entity/import_product.entity';
+import { ImportEntity } from 'src/entities/import_entity/import.entity';
+import { SupplierEntity } from 'src/entities/supplier_entity/supplier.entity';
+import { Order } from 'src/entities/order_entity/oder.entity';
+import { Location_userEntity } from 'src/entities/user_entity/location_user.entity';
+import {UserModule} from "src/backend/user/user.module";
+import { LocationUserModule } from './backend/location_user/location_user.module';
 
 @Module({
   imports: [
@@ -20,6 +30,7 @@ import { JwtModule } from '@nestjs/jwt';
       }),
     }),
     BackendModule,
+    UserModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -30,7 +41,18 @@ import { JwtModule } from '@nestjs/jwt';
         username: configService.get<string>('MYSQL_USER'),
         password: configService.get<string>('MYSQL_PASS'),
         database: configService.get<string>('MYSQL_DBNAME'),
-        entities: [User, CategoryEntity],
+        entities: [
+          User,
+          CategoryEntity,
+          ProductEntity,
+          Order_Product,
+          Cart_productEntity,
+          Import_productEntity,
+          ImportEntity,
+          SupplierEntity,
+          Order,
+          Location_userEntity,
+        ],
         synchronize: true,
       }),
     }),

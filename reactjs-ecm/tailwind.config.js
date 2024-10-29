@@ -1,12 +1,24 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      screens: {
+        tablet: { max: "799px" },
+        // => @media (max-width: 799px) { ... }
+        mobile: { max: "477px" },
+        // => @media (max-width: 477px) { ... }
+      },
+    },
+    screens: {
+      sm: "576px",
+      md: "799px",
+      lg: "992px",
+      xl: "1200px",
+    },
+    boxShadow: {
+        'custom-dark': '0px 0px 7px 1px rgba(0, 0, 0, 0.55)', // tương đương với #0000008c
+      },
   },
   plugins: [],
-}
-
+};
