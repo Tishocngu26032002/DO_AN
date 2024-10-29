@@ -1,10 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-    // "./src/***/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       screens: {
@@ -20,6 +16,9 @@ export default {
       lg: "992px",
       xl: "1200px",
     },
+    boxShadow: {
+        'custom-dark': '0px 0px 7px 1px rgba(0, 0, 0, 0.55)', // tương đương với #0000008c
+      },
   },
   plugins: [],
 };

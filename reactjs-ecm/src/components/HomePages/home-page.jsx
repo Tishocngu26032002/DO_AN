@@ -626,27 +626,7 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="newsletter section-p1 section-m1 my-[40px] flex flex-wrap items-center justify-between bg-[#041e42] bg-[url('images/banner/b14.png')] bg-[20%_30%] bg-no-repeat px-[80px] py-[40px]">
-        <div className="newstext">
-          <h4 className="text-[22px] font-bold text-white">
-            Sign Up For Newsletter
-          </h4>
-          <p className="my-[15px] mb-[20px] text-[14px] font-semibold text-[#818ea0]">
-            Get E-mail updates about our latest shop and
-            <span className="text-[#ffbd27]">special offers.</span>
-          </p>
-        </div>
-        <div className="form flex w-[40%] tablet:w-[70%]">
-          <input
-            type="text"
-            placeholder="Your email address"
-            className="h-[3.125rem] w-full rounded-l-[4px] border border-transparent px-[1.25rem] text-[14px] outline-none"
-          />
-          <button className="normal cursor-pointer whitespace-nowrap rounded-[4px] rounded-bl-none rounded-tl-none border-0 bg-[#088178] px-[30px] py-[15px] text-[14px] font-semibold text-white outline-none transition duration-200 ease-in-out">
-            Sign Up
-          </button>
-        </div>
-      </section>
+      
       <Footer />
     </div>
   );
