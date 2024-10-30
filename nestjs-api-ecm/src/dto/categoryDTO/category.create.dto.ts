@@ -6,26 +6,26 @@ export class categoryCreateDTO {
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_name: string;
-  c_slug: string;
+  name: string;
+  slug: string;
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_avatar: string;
+  image: string;
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_banner: string;
+  banner: string;
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_description: string;
+  description: string;
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_hot: number | 0;
+  hot: number | 0;
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_status: boolean;
+  status: boolean;
 }

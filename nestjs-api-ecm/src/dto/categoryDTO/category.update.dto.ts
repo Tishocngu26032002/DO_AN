@@ -6,26 +6,26 @@ export class categoryUpdateDTO {
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_name: string;
+  name: string;
   c_slug: string;
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_avatar: string;
+  avatar: string;
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_banner: string;
+  banner: string;
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_description: string;
+  description: string;
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_hot: number | 0;
+  hot: number | 0;
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  c_status: boolean;
+  status: boolean;
 }
