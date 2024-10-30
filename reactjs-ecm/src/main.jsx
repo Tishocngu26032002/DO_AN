@@ -21,6 +21,7 @@ import ManageOrder from "./components/Admin/ManageOrder/manage-order.jsx";
 import ManageProduct from "./components/Admin/ManageProduct/manage-product.jsx";
 import ManageUser from "./components/Admin/ManageUser/manage-user.jsx";
 import Report from "./components/Admin/Report/report.jsx";
+import ProductionStatistics from "./components/Admin/Statistics/production-statistics.jsx";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,10 @@ root.render(
           <Route path="/manage-product" element={<ManageProduct />} />
           <Route path="/manage-user" element={<ManageUser />} />
           <Route path="/report" element={<Report />} />
+          <Route
+            path="/production-statistics"
+            element={<ProductionStatistics />}
+          />
         </Routes>
       </QueryClientProvider>
     </BrowserRouter>

@@ -13,7 +13,7 @@ function OTPPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm({
     defaultValues: {
       otp: "",
@@ -43,33 +43,31 @@ function OTPPage() {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center">
-      <div className="mx-2 my-2 w-full max-w-md overflow-hidden rounded-lg bg-white shadow-md">
-        <div className="bg-gray-100 p-6">
-          <p className="relative text-2xl font-medium">
-            Verify OTP
-            <span className="absolute bottom-0 left-0 h-0.5 w-8 bg-gradient-to-r from-[#f37a65] to-[#d64141]" />
+    <div className="flex h-screen items-center justify-center bg-gray-50">
+      <div className="mx-2 my-2 w-full max-w-md overflow-hidden rounded-lg bg-white shadow-lg">
+        <div className="bg-[#006532] p-6">
+          <p className="relative text-2xl font-medium text-white">
+            Xác minh OTP
+            <span className="absolute bottom-0 left-0 h-0.5 w-16 bg-gradient-to-r from-[#f37a65] to-[#d64141]" />
           </p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6">
           <div className="mb-4">
-            <label className="block text-sm font-medium">
-              Registered Email:
-            </label>
-            <p className="text-base font-semibold text-gray-700">{email}</p>
+            <label className="mb-1 block font-medium">Email đã đăng ký:</label>
+            <p className="text-base font-semibold text-gray-900">{email}</p>
           </div>
 
           <div className="mb-4">
-            <label htmlFor="otp" className="block text-sm font-medium">
-              Enter OTP:
+            <label htmlFor="otp" className="mb-1 block font-medium">
+              Nhập OTP:
             </label>
             <input
               type="text"
               id="otp"
-              placeholder="Enter OTP"
-              {...register("otp", { required: "OTP is required" })}
-              className="h-11 w-full rounded-md bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]"
+              placeholder="Nhập OTP"
+              {...register("otp", { required: "OTP không hợp lệ" })}
+              className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#006532]"
             />
             {errors.otp && (
               <span className="text-red-500">{errors.otp.message}</span>
@@ -80,8 +78,8 @@ function OTPPage() {
           <div>
             <input
               type="submit"
-              value="Verify OTP"
-              className="h-11 w-full cursor-pointer rounded-md border-2 text-base font-medium tracking-wide shadow-md transition-all duration-300 ease-in-out hover:bg-[#e5a62d] hover:text-white"
+              value="Xác minh OTP"
+              className="h-11 w-full cursor-pointer rounded-md bg-[#006532] font-medium tracking-wide text-white shadow-md transition-all duration-300 ease-in-out hover:bg-[#004d26]"
             />
           </div>
         </form>
