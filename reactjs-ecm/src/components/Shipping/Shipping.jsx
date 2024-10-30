@@ -30,11 +30,17 @@ const Shipping = () => {
                         <p>Thông tin đơn hàng: {order.orderDetails}</p>
                         <p>Trạng thái: <span className={order.status === 'Delivered' ? 'text-green-700 font-semibold' : 'text-yellow-500 font-semibold'}>{order.status}</span></p>
 
-                        {/* Button xác nhận giao hàng */}
                         {order.status === 'Confirmed' && (
                             <button
                                 onClick={() => handleDelivered(order.id)}
-                                className="mt-4 px-4 py-2 bg-green-600 text-white font-semibold rounded-md shadow hover:bg-green-700"
+                                className="
+                                    mt-4 px-4 py-2
+                                    bg-green-600 text-white
+                                    font-semibold
+                                    rounded-md
+                                    shadow
+                                    hover:bg-green-700
+                                "
                             >
                                 Xác nhận giao hàng
                             </button>

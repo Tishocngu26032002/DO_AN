@@ -1,12 +1,7 @@
-import React, { useState } from "react";
-import { FaStar, FaShoppingCart } from "react-icons/fa";
-import Footer from "../Footer/footer";
-import Header from "../Header/header";
-// import React, { useState } from "react";
-// import { FaStar, FaShoppingCart } from "react-icons/fa";
-// // import b1 from '../../assets/images/b1.png';
-// // import f1 from "../../assets/images/f1.png";
-// // import b14 from '../../assets/images/b14.png';
+import React, { useState } from 'react';
+import { PiShoppingCart } from "react-icons/pi";
+import Header from '../Header/header';
+import Footer from '../Footer/footer';
 
 const categories = [
   { id: "all", name: "Tất cả các danh mục" },
@@ -139,99 +134,75 @@ const ShopGrid = () => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full text-[#006532]">
       <Header />
-      {/* Page Header */}
-      <section
-        id="page-header"
-        className="flex h-[40vh] w-full flex-col items-center justify-center bg-cover bg-center px-4 text-center"
-        style={{ backgroundImage: "url(images/banner/banner-shop.jpg)" }}
-      >
-        <h2 className="text-[30px] font-bold text-white">Cám nhà Tuyên</h2>
-        <p className="text-white">Đại lý cám số 1 Hiệp Hòa</p>
+
+      {/* Banner */}
+      <section id="page-header" className="h-[292px] bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url("images/banner/image-4.jpg")` }}>
+        <div className="flex h-full w-full items-center justify-center bg-opacity-70 bg-[#006532] text-white">
+          <h2 className="text-4xl font-semibold">Giỏ Hàng Của Bạn</h2>
+        </div>
       </section>
 
       {/* Search bar */}
-      <section id="newsletter" className="section-p1 section-m1">
-        <div className="flex flex-wrap items-center justify-between bg-[#041e42] bg-[url(src/assets/images/b14.png)] bg-[20%_30%] bg-no-repeat p-4">
-          <div className="relative w-1/3">
-            <select
-              className="h-[3.125rem] w-full rounded border border-transparent px-5 text-[14px]"
-              onChange={(e) => handleCategoryChange(e.target.value)}
-              value={selectedCategory}
-            >
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </div>
+      <section id="search-bar" className="py-6 bg-[#e8f6ea]">
+        <div className="mx-auto max-w-[1200px] flex items-center justify-between space-x-4 px-6">
+          <select
+            className="h-12 w-1/3 rounded-lg border border-[#cce7d0] px-4 text-[#006532] text-sm focus:outline-none"
+            onChange={(e) => handleCategoryChange(e.target.value)}
+            value={selectedCategory}
+          >
+            {categories.map(category => (
+              <option key={category.id} value={category.id}>{category.name}</option>
+            ))}
+          </select>
 
-          <div className="flex w-1/3">
-            <input
-              type="text"
-              placeholder="Tìm kiếm..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="h-[3.125rem] w-full rounded border border-transparent px-5 text-[14px]"
-            />
-          </div>
+          <input
+            type="text"
+            placeholder="Tìm kiếm sản phẩm..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="h-12 w-2/3 rounded-lg border border-[#cce7d0] px-4 text-[#006532] text-sm focus:outline-none"
+          />
         </div>
       </section>
 
       {/* Product list */}
-      <section
-        id="product1"
-        className="section-p1 mx-auto w-full max-w-[1200px]"
+      <section id="product1" className="section-p1 mx-auto w-full max-w-[1200px]">
+  <div className="pro-container mt-8 grid grid-cols-1 justify-center gap-4 sm:grid-cols-2 md:grid-cols-3 md:px-8 lg:grid-cols-4 lg:px-8">
+    {currentProducts.map((product) => (
+      <div
+        key={product.id}
+        className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)] bg-white"
       >
-        <div className="pro-container mt-8 grid grid-cols-1 justify-center gap-4 sm:grid-cols-2 md:grid-cols-3 md:px-8 lg:grid-cols-4 lg:px-8">
-          {currentProducts.map((product) => (
-            <div
-              key={product.id}
-              className="relative mb-6 w-full min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] p-3 shadow-lg transition-shadow duration-200 ease-in-out hover:shadow-2xl sm:w-[23%]"
-            >
-              <img
-                src={product.img}
-                alt={product.title}
-                className="w-full rounded-[20px]"
-              />
-              <div className="py-2 text-left">
-                <span className="text-xs text-gray-600">{product.brand}</span>
-                <h5 className="pt-2 text-sm font-medium">{product.title}</h5>
-                {/* <div className="flex text-yellow-400 text-xs">
-                                    <FaStar />
-                                    <FaStar />
-                                    <FaStar />
-                                    <FaStar />
-                                    <FaStar />
-                                </div> */}
-                <h4 className="pt-2 text-base font-bold text-[#088178]">
-                  ${product.price}
-                </h4>
-              </div>
-              <a
-                href="#"
-                className="absolute bottom-5 right-2 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] text-[#088178]"
-              >
-                <FaShoppingCart />
-              </a>
-            </div>
-          ))}
+        <img src={product.img} alt={product.title} className="w-full rounded-xl" />
+        <div className="des pt-3 text-start">
+          <span className="text-sm text-[#006532]">{product.brand}</span>
+          <h5 className="pt-2 text-sm text-[#1a1a1a]">{product.title}</h5>
+          <h4 className="m pt-2 text-lg font-bold text-[#006532]">${product.price}</h4>
         </div>
-      </section>
+        <a
+          href="#"
+          className="cart absolute bottom-5 -mb-3 right-2 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] font-medium leading-10 text-[#006532]"
+        >
+          <PiShoppingCart />
+        </a>
+      </div>
+    ))}
+  </div>
+</section>
 
       {/* Pagination */}
-      <section
-        id="pagination"
-        className="section-p1 flex justify-center space-x-2"
-      >
-        <div className="mt-4 flex justify-center">
+      <section id="pagination" className="my-8 flex justify-center">
+        <div className="space-x-2">
           {Array.from({ length: totalPages }, (_, index) => (
             <button
               key={index + 1}
               onClick={() => handlePageChange(index + 1)}
-              className={`mx-1 rounded p-2 ${currentPage === index + 1 ? "bg-[#088178] text-white" : "bg-gray-200"}`}
+              className={`px-4 py-2 rounded-lg transition ${
+                currentPage === index + 1 ? "bg-[#006532] text-white" : "bg-gray-200 text-[#006532]"
+              }`}
             >
               {index + 1}
             </button>
