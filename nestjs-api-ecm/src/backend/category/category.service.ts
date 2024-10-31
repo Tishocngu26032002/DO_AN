@@ -2,16 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryEntity } from '../../entities/category_entity/category.entity';
 import { Repository } from 'typeorm';
-import { categoryCreateDTO } from '../../dto/categoryDTO/category.create.dto';
-import * as slug from 'slug';
+import { CategoryCreateDTO } from '../../dto/categoryDTO/category.create.dto';
 import { categoryUpdateDTO } from '../../dto/categoryDTO/category.update.dto';
-import { baseService } from '../../base/baseService/base.service';
+import { BaseService } from '../../base/baseService/base.service';
+import {ApplyStatus, ExpirationStatus} from "src/share/Enum/Enum";
+import {CategoryRepository} from "src/repository/CategoryRepository";
 
 @Injectable()
-export class CategoryService extends baseService<CategoryEntity> {
+export class CategoryService extends BaseService<CategoryEntity> {
   constructor(
     @InjectRepository(CategoryEntity)
-    private readonly categoryRepo: Repository<CategoryEntity>,
+    private readonly categoryRepo: CategoryRepository,
   ) {
     super(categoryRepo);
   }
@@ -26,8 +27,6 @@ export class CategoryService extends baseService<CategoryEntity> {
     }
 
     const condition: any = {};
-
-    if (filters.hot) condition.hot = filters.hot;
     if (filters.status) condition.status = filters.status;
 
     const [list, total] = await this.categoryRepo.findAndCount({
@@ -46,20 +45,25 @@ export class CategoryService extends baseService<CategoryEntity> {
     };
   }
 
-  async create(createCate: categoryCreateDTO) {
-    createCate.slug = slug(createCate.name);
+  async create(createCate: CategoryCreateDTO) {
+    if (
+        createCate.status !== ApplyStatus.True &&
+        createCate.status !== ApplyStatus.False
+    ) {
+      throw new Error('Invalid status value');
+    }
     return await super.create(createCate, { name: createCate.name });
   }
 
-  async detail(id: number) {
+  async detail(id: string) {
     return await super.findOne(id);
   }
 
-  async update(categoryUpdateDTO: categoryUpdateDTO, id: number) {
-    return super.update(categoryUpdateDTO, id);
+  async update(categoryUpdateDTO: categoryUpdateDTO, id: string) {
+    return await super.update(categoryUpdateDTO, id);
   }
 
-  async delete(id: number) {
-    return super.delete(id);
+  async delete(id: string) {
+    return await super.delete(id);
   }
 }

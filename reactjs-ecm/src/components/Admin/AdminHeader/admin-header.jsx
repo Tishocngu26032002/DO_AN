@@ -1,12 +1,8 @@
-import { useState } from "react";
-import { NavLink, Link } from "react-router-dom";
-import { PiShoppingCartBold } from "react-icons/pi";
-import { MdOutlineShoppingBag } from "react-icons/md";
+import React, { useState } from "react";
+import { NavLink } from "react-router-dom";
 import { IoMenu, IoClose } from "react-icons/io5";
-import { MdMenuOpen } from "react-icons/md";
-import { FaRegUser } from "react-icons/fa";
 
-function AdminHeader() {
+function HeaderAdmin() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -14,157 +10,112 @@ function AdminHeader() {
   };
 
   return (
-    <div className="sticky top-0 z-50 flex items-center justify-between bg-purple-100 px-12 py-3 shadow-lg">
-      <a href="#">
-        <img src="images/logo.png" className="logo" alt="Logo" />
+    <div className="sticky top-0 z-50 flex flex-col items-end bg-[#225a3e] px-12 py-3 shadow-lg shadow-custom-dark">
+      {/* Logo */}
+      <a href="/home-page" className="-mt-1 absolute left-10">
+        <img
+          src="images/Crops organic farm.png"
+          className="rounded-[0_20px_20px_20px] hover:rounded-[20px_20px_0_20px] shadow-custom-dark transition-all duration-500 ease-in-out p-1 w-20 h-[85px] md:w-[90px] md:h-[95px] bg-white fadeInUp md:border-0 border-2 border-[#006633]"
+          alt="Logo"
+        />
       </a>
-
-      <div className="flex items-center">
-        <ul
-          id="navbar"
-          className={`hidden items-center md:flex ${isMenuOpen ? "block" : "hidden"} md:block`}
-        >
-          <li className="px-4">
-            <NavLink
-              to="/manage-user"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-xl font-bold text-gray-800"
-                  : "text-xl font-semibold text-gray-800"
-              }
-            >
-              Manage User
-            </NavLink>
-          </li>
-          <li className="px-4">
-            <NavLink
-              to="/manage-category"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-xl font-bold text-gray-800"
-                  : "text-xl font-semibold text-gray-800"
-              }
-            >
-              Manage Category
-            </NavLink>
-          </li>
-          <li className="px-4">
-            <NavLink
-              to="/manage-product"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-xl font-bold text-gray-800"
-                  : "text-xl font-semibold text-gray-800"
-              }
-            >
-              Manage Product
-            </NavLink>
-          </li>
-          <li className="px-4">
-            <NavLink
-              to="/manage-order"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-xl font-bold text-gray-800"
-                  : "text-xl font-semibold text-gray-800"
-              }
-            >
-              Manage Order
-            </NavLink>
-          </li>
-          <li className="px-4">
-            <NavLink
-              to="/report"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-xl font-bold text-gray-800"
-                  : "text-xl font-semibold text-gray-800"
-              }
-            >
-              Report
-            </NavLink>
-          </li>
-        </ul>
-      </div>
-
-      <div id="mobile" className="flex items-center md:hidden">
+      <div className="flex items-center -mt-5 pt-6">
         <button id="bar" className="px-4" onClick={toggleMenu}>
           {isMenuOpen ? (
-            <IoClose
-              className="h-[35px] w-[35px] text-gray-800"
-              aria-hidden="true"
-            />
+            <IoClose className="h-[35px] w-[35px] text-white" aria-hidden="true" />
           ) : (
-            <IoMenu
-              className="h-[40px] w-[30px] text-gray-800"
-              aria-hidden="true"
-            />
+            <IoMenu className="h-[40px] w-[30px] text-white" aria-hidden="true" />
           )}
         </button>
       </div>
 
+      {/* Sidebar Menu */}
       <div
-        className={`md:hidden ${isMenuOpen ? "block" : "hidden"} absolute -right-0 top-20 h-[669px] w-[250px] border border-t-2 bg-purple-100 shadow-md`}
+        className={`fixed top-0 left-0 z-50 h-full w-[250px] bg-white shadow-lg transform transition-transform duration-300 ease-in-out border-r-2 border-[#006532] ${
+          isMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
-        <ul className="flex flex-col items-start pl-9">
-          <li className="py-2">
+        {/* Logo in Sidebar */}
+        <a href="/home-page" className="block p-6 bg-white border-b-2 border-[#006532]">
+          <img
+            src="images/Crops organic farm.png"
+            className="w-24 h-auto rounded-[0_30px_30px_30px] mx-auto"
+            alt="Logo"
+          />
+        </a>
+
+        {/* Navigation Links */}
+        <ul className="flex flex-col items-start text-[#006532] font-semibold">
+          <li className="w-full px-6 py-4 border-b border-[#006532] hover:bg-[#80c9a4] hover:text-white transition-colors duration-300">
             <NavLink
               to="/manage-user"
               className={({ isActive }) =>
                 isActive
-                  ? "text-xl font-bold text-gray-800"
-                  : "text-xl font-semibold text-gray-800"
+                  ? "text-[#006532] border-l-4 border-[#006532] pl-2"
+                  : "text-[#006532] hover:text-white"
               }
             >
               Manage User
             </NavLink>
           </li>
-          <li className="py-2">
+          <li className="w-full px-6 py-4 border-b border-[#006532] hover:bg-[#80c9a4] hover:text-white transition-colors duration-300">
             <NavLink
               to="/manage-category"
               className={({ isActive }) =>
                 isActive
-                  ? "text-xl font-bold text-gray-800"
-                  : "text-xl font-semibold text-gray-800"
+                  ? "text-[#006532] border-l-4 border-[#006532] pl-2"
+                  : "text-[#006532] hover:text-white"
               }
             >
               Manage Category
             </NavLink>
           </li>
-          <li className="py-2">
+          <li className="w-full px-6 py-4 border-b border-[#006532] hover:bg-[#80c9a4] hover:text-white transition-colors duration-300">
             <NavLink
               to="/manage-product"
               className={({ isActive }) =>
                 isActive
-                  ? "text-xl font-bold text-gray-800"
-                  : "text-xl font-semibold text-gray-800"
+                  ? "text-[#006532] border-l-4 border-[#006532] pl-2"
+                  : "text-[#006532] hover:text-white"
               }
             >
               Manage Product
             </NavLink>
           </li>
-          <li className="py-2">
+          <li className="w-full px-6 py-4 border-b border-[#006532] hover:bg-[#80c9a4] hover:text-white transition-colors duration-300">
             <NavLink
               to="/manage-order"
               className={({ isActive }) =>
                 isActive
-                  ? "text-xl font-bold text-gray-800"
-                  : "text-xl font-semibold text-gray-800"
+                  ? "text-[#006532] border-l-4 border-[#006532] pl-2"
+                  : "text-[#006532] hover:text-white"
               }
             >
               Manage Order
             </NavLink>
           </li>
-          <li className="py-2">
+          <li className="w-full px-6 py-4 border-b border-[#006532] hover:bg-[#80c9a4] hover:text-white transition-colors duration-300">
             <NavLink
-              to="/report"
+              to="/manage-supplier"
               className={({ isActive }) =>
                 isActive
-                  ? "text-xl font-bold text-gray-800"
-                  : "text-xl font-semibold text-gray-800"
+                  ? "text-[#006532] border-l-4 border-[#006532] pl-2"
+                  : "text-[#006532] hover:text-white"
               }
             >
-              Report
+              Manage Supplier
+            </NavLink>
+          </li>
+          <li className="w-full px-6 py-4 border-b border-[#006532] hover:bg-[#80c9a4] hover:text-white transition-colors duration-300">
+            <NavLink
+              to="/dashboard"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-[#006532] border-l-4 border-[#006532] pl-2"
+                  : "text-[#006532] hover:text-white"
+              }
+            >
+              Dashboard
             </NavLink>
           </li>
         </ul>
@@ -173,4 +124,4 @@ function AdminHeader() {
   );
 }
 
-export default AdminHeader;
+export default HeaderAdmin;
