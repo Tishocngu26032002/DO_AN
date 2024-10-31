@@ -9,6 +9,8 @@ import { MenuModule } from './menu/menu.module';
 import { LoginModuleModule } from './auth/login-module/login-module.module';
 import { RegisterModuleModule } from './auth/register-module/register-module.module';
 import { CloudinaryModule } from 'src/backend/cloudinary/cloudinary.module';
+import {SupplierModule} from "src/backend/supplier/supplier.module";
+import {LocationUserModule} from "src/backend/location_user/location_user.module";
 
 @Module({
   imports: [
@@ -18,10 +20,11 @@ import { CloudinaryModule } from 'src/backend/cloudinary/cloudinary.module';
     MenuModule,
     TransactionModule,
     OrderModule,
-    UserModule,
     LoginModuleModule,
     RegisterModuleModule,
     CloudinaryModule,
+    SupplierModule,
+    LocationUserModule
   ],
 })
 export class BackendModule {}
