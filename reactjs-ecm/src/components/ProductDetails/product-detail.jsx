@@ -10,7 +10,7 @@ const Image = ({ mainImage, setMainImage, productImages }) => {
   };
 
   return (
-    <div className="single-pro-image md:mr-12 md:w-2/5 xl:mr-12 xl:w-full">
+    <div className="single-pro-image md:mr-12 md:w-1/3 xl:mr-12 xl:w-2/3">
       <div>
         <img
           src={mainImage}
@@ -41,9 +41,9 @@ const Image = ({ mainImage, setMainImage, productImages }) => {
 const ProductDetail = () => {
   const productImages = [
     "/images/product/range_cubes.jpg",
-    "/images/product/264.png",
-    "/images/product/266.png",
-    "/images/product/262.png", // Bạn có thể thêm nhiều ảnh khác tại đây
+    "/images/product/range_cubes.jpg",
+    "/images/product/range_cubes.jpg",
+    "/images/product/range_cubes.jpg", // Bạn có thể thêm nhiều ảnh khác tại đây
   ];
 
   // State to hold the main product image
@@ -79,7 +79,7 @@ const ProductDetail = () => {
           productImages={productImages}
         />
 
-        <div className="single-pro-details pt-8 md:w-1/2 xl:w-full">
+        <div className="single-pro-details pt-8 md:w-2/3 xl:w-full">
           <h4 className="py-5 text-4xl font-bold text-[#006532]">Range Cube</h4>
           <h2 className="text-2xl font-semibold text-[#006532]">$139</h2>
           <select className="mb-2 mt-4 block border text-[#777777] border-[#006532] p-1">
