@@ -106,8 +106,4 @@ export class CartController {
       return responseHandler.error(errorMessage);
     }
   }
-  /*@Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cartService.remove(id);
-  }*/
 }
