@@ -37,6 +37,7 @@ export class ProductService extends BaseService<ProductEntity>{
             where: condition,
             skip: (page - 1) * limit,
             take: limit,
+            relations: ['category'],
         });
 
         if (!list) throw new Error('NO PRODUCT!');

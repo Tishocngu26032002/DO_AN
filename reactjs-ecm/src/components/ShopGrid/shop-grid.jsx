@@ -14,7 +14,7 @@ const products = [
   {
     id: 1,
     category: "pig",
-    img: "images/products/f1.png",
+    img: "images/products/262.png",
     brand: "adidas",
     title: "Pig1",
     price: 78,
@@ -22,7 +22,7 @@ const products = [
   {
     id: 2,
     category: "pig",
-    img: "images/products/f1.png",
+    img: "images/products/264.png",
     brand: "adidas",
     title: "Pig2",
     price: 78,
@@ -30,7 +30,7 @@ const products = [
   {
     id: 3,
     category: "pig",
-    img: "images/products/f1.png",
+    img: "images/products/262.png",
     brand: "adidas",
     title: "Pig3",
     price: 78,
@@ -38,7 +38,7 @@ const products = [
   {
     id: 4,
     category: "poultry",
-    img: "images/products/f1.png",
+    img: "images/products/266.png",
     brand: "adidas",
     title: "Poultry1",
     price: 78,
@@ -46,7 +46,7 @@ const products = [
   {
     id: 5,
     category: "poultry",
-    img: "images/products/f1.png",
+    img: "images/products/262.png",
     brand: "adidas",
     title: "Poultry2",
     price: 78,
@@ -54,7 +54,7 @@ const products = [
   {
     id: 6,
     category: "poultry",
-    img: "images/products/f1.png",
+    img: "images/products/264.png",
     brand: "adidas",
     title: "Poutry3",
     price: 78,
@@ -62,7 +62,7 @@ const products = [
   {
     id: 7,
     category: "fishery",
-    img: "images/products/f1.png",
+    img: "images/products/266.png",
     brand: "adidas",
     title: "Fishery1",
     price: 78,
@@ -70,7 +70,7 @@ const products = [
   {
     id: 8,
     category: "fishery",
-    img: "images/products/f1.png",
+    img: "images/products/262.png",
     brand: "adidas",
     title: "Fishery2",
     price: 78,
@@ -78,7 +78,7 @@ const products = [
   {
     id: 9,
     category: "poultry",
-    img: "images/products/f1.png",
+    img: "images/products/264.png",
     brand: "adidas",
     title: "Poutry4",
     price: 78,
@@ -86,7 +86,7 @@ const products = [
   {
     id: 10,
     category: "fishery",
-    img: "images/products/f1.png",
+    img: "images/products/266.png",
     brand: "adidas",
     title: "Fishery3",
     price: 78,
@@ -94,7 +94,7 @@ const products = [
   {
     id: 11,
     category: "fishery",
-    img: "images/products/f1.png",
+    img: "images/products/262.png",
     brand: "adidas",
     title: "Fishery4",
     price: 78,
