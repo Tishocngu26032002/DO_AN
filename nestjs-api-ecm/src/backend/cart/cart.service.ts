@@ -57,16 +57,14 @@ export class CartService extends BaseService<Cart_productEntity> {
     }
 
     async create(createCart: CreateCartDto) {
-        const condition = {
+        const condition: any = {
             product_id: createCart.product_id,
             user_id: createCart.user_id,
         };
-        const productInDB = await this.cartRepo.find({
-            where: condition,
-        });
-        if (productInDB.length == 1) {
-            productInDB[0].quantity += createCart.quantity;
-            return await super.update(productInDB[0], productInDB[0].id);
+        const productInDB = await this.cartRepo.findOneBy(condition);
+        if (productInDB != null) {
+            productInDB.quantity += createCart.quantity;
+            return await super.update(productInDB, productInDB.id);
         }
         return await super.create(createCart, condition);
     }
