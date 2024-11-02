@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-// import "./style.css";
+// import "../../css/register.css";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { REGEX } from "../../constants/regex";
@@ -55,7 +55,6 @@ function RegisterForm() {
       return response.data;
     },
     onSuccess: (response) => {
-      // console.log("Email registered:", response);
       if (response && response.success === false) {
         alert("Vui lòng kiểm tra Email nhận OTP");
         navigate("/otp", { state: { email: email } });
@@ -74,7 +73,54 @@ function RegisterForm() {
     mutate(registerData);
   };
 
-  return (
+  // return (
+  //   <div className="flex items-center justify-center">
+  //     <div className="mx-2 my-2 w-full max-w-lg overflow-hidden rounded-lg bg-white shadow-md">
+  //       <div className="bg-gray-100 p-6">
+  //         <p className="relative text-2xl font-medium">
+  //           Registration
+  //           <span className="absolute bottom-0 left-0 h-0.5 w-8 bg-gradient-to-r from-[#f37a65] to-[#d64141]" />
+  //         </p>
+  //       </div>
+
+  //       <form onSubmit={handleSubmit(onSubmit)} className="p-6">
+  //         <div className="flex flex-wrap justify-between gap-5">
+  //           <div className="mb-3 w-full md:w-[calc(50%-20px)]">
+  //             <label htmlFor="firstName" className="form-label">
+  //               First Name <span className="text-red-500">*</span>
+  //             </label>
+  //             <input
+  //               type="text"
+  //               id="firstName"
+  //               placeholder="Enter your firstName"
+  //               {...register("firstName")}
+  //               className="form-input"
+  //             />
+  //             {errors.firstName && (
+  //               <span className="form-error">{errors.firstName.message}</span>
+  //             )}
+  //           </div>
+  //           {/* Repeat similar structure for other input fields */}
+  //         </div>
+
+  //         <div className="p-6">
+  //           <input
+  //             type="submit"
+  //             value="Register"
+  //             disabled={!isDirty}
+  //             className="submit-btn"
+  //           />
+  //         </div>
+  //       </form>
+
+  //       <Link to="/login" className="flex justify-center hover:font-bold">
+  //         Login
+  //       </Link>
+  //     </div>
+  //   </div>
+  // );
+
+   return (
     <div className="flex items-center justify-center">
       <div className="mx-2 my-2 w-full max-w-lg overflow-hidden rounded-lg bg-white shadow-md">
         <div className="bg-gray-100 p-6">
@@ -96,7 +142,15 @@ function RegisterForm() {
                 id="firstName"
                 placeholder="Enter your firstName"
                 {...register("firstName")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]"
+                className="
+                  h-11 w-full
+                  rounded-md border-none
+                  bg-gray-100 pl-3
+                  text-base
+                  shadow-sm outline-none
+                  transition-all duration-120 ease-out
+                  focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]
+                "
               />
               {errors.firstName && (
                 <span className="text-red-500">{errors.firstName.message}</span>
@@ -112,7 +166,15 @@ function RegisterForm() {
                 id="lastName"
                 placeholder="Enter your lastName"
                 {...register("lastName")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]"
+                className="
+                  h-11 w-full
+                  rounded-md border-none
+                  bg-gray-100 pl-3
+                  text-base
+                  shadow-sm outline-none
+                  transition-all duration-120 ease-out
+                  focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]
+                "
               />
               {errors.lastName && (
                 <span className="text-red-500">{errors.lastName.message}</span>
@@ -128,7 +190,15 @@ function RegisterForm() {
                 id="email"
                 placeholder="Enter your email"
                 {...register("email")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]"
+                className="
+                  h-11 w-full
+                  rounded-md border-none
+                  bg-gray-100 pl-3
+                  text-base
+                  shadow-sm outline-none
+                  transition-all duration-120 ease-out
+                  focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]
+                "
               />
               {errors.email && (
                 <span className="text-red-500">{errors.email.message}</span>
@@ -143,7 +213,15 @@ function RegisterForm() {
                 id="phone"
                 placeholder="Enter your number"
                 {...register("phone")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]"
+                className="
+                  h-11 w-full
+                  rounded-md border-none
+                  bg-gray-100 pl-3
+                  text-base
+                  shadow-sm outline-none
+                  transition-all duration-120 ease-out
+                  focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]
+                "
               />
               {errors.phone && (
                 <span className="text-red-500">{errors.phone.message}</span>
@@ -159,7 +237,15 @@ function RegisterForm() {
                 id="password"
                 placeholder="Enter your password"
                 {...register("password")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]"
+                className="
+                  h-11 w-full
+                  rounded-md border-none
+                  bg-gray-100 pl-3
+                  text-base
+                  shadow-sm outline-none
+                  transition-all duration-120 ease-out
+                  focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]
+                "
               />
               {errors.password && (
                 <span className="text-red-500">{errors.password.message}</span>
@@ -175,7 +261,15 @@ function RegisterForm() {
                 id="address"
                 placeholder="Enter your address"
                 {...register("address")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]"
+                className="
+                  h-11 w-full
+                  rounded-md border-none
+                  bg-gray-100 pl-3
+                  text-base
+                  shadow-sm outline-none
+                  transition-all duration-120 ease-out
+                  focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]
+                "
               />
               {errors.address && (
                 <span className="text-red-500">{errors.address.message}</span>
@@ -191,7 +285,15 @@ function RegisterForm() {
                 id="confirmPass"
                 placeholder="Confirm your password"
                 {...register("confirmPass")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]"
+                className="
+                  h-11 w-full
+                  rounded-md border-none
+                  bg-gray-100 pl-3
+                  text-base
+                  shadow-sm outline-none
+                  transition-all duration-120 ease-out
+                  focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]
+                "
               />
               {errors.confirmPass && (
                 <span className="text-red-500">
@@ -205,7 +307,16 @@ function RegisterForm() {
               type="submit"
               value="Register"
               disabled={!isDirty}
-              className="disabled:bg-aliceblue h-11 w-full cursor-pointer rounded-md border-none bg-gradient-to-r from-[#f37a65] to-[#d64141] text-base font-medium tracking-wide text-white shadow-md transition-all duration-300 ease-in-out hover:from-[#d64141] hover:to-[#f37a65]"
+              className="
+                h-11 w-full cursor-pointer
+                rounded-md border-none
+                bg-gradient-to-r from-[#f37a65] to-[#d64141]
+                text-base font-medium tracking-wide text-white
+                shadow-md
+                transition-all duration-300 ease-in-out
+                hover:from-[#d64141] hover:to-[#f37a65]
+                disabled:bg-aliceblue
+              "
             />
           </div>
         </form>

@@ -2,15 +2,15 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./index.css";
-import Cart from "./components/Cart/cart.jsx";
 import Home from "./components/HomePages/home-page.jsx";
 import ProductDetail from "./components/ProductDetails/product-detail.jsx";
+import './index.css';
+import Cart from "./components/Cart/cart.jsx";
 import RegisterForm from "./components/Register/register.jsx";
 import LoginForm from "./components/Login/login.jsx";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Shipping from "./components/Shipping/shipping.jsx";
 import Admin from "./components/Admin/admin.jsx";
 import OTPPage from "./components/OTP/otp.jsx";
 import ShopGrid from "./components/ShopGrid/shop-grid.jsx";
@@ -22,6 +22,10 @@ import ManageProduct from "./components/Admin/ManageProduct/manage-product.jsx";
 import ManageUser from "./components/Admin/ManageUser/manage-user.jsx";
 import Report from "./components/Admin/Report/report.jsx";
 import Payment from "./components/Payment/payment.jsx";
+import ShipOrder from "./components/Shipping/ship-order.jsx";
+import ShipHistory from "./components/Shipping/ship-history.jsx";
+
+// Create a client
 const queryClient = new QueryClient();
 
 const rootElement = document.getElementById("root");
@@ -38,7 +42,8 @@ root.render(
           <Route path="/otp" element={<OTPPage />} />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/shipping" element={<Shipping />} />
+          <Route path="/ship-order" element={<ShipOrder />} />
+          <Route path="/ship-history" element={<ShipHistory />} />
           <Route path="/home-page" element={<Home />} />
           <Route path="/products" element={<ShopGrid />} />
           <Route path="/product-detail" element={<ProductDetail />} />
