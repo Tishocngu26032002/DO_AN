@@ -60,34 +60,48 @@ function OTPPage() {
             <p className="text-base font-semibold text-gray-700">{email}</p>
           </div>
 
-          <div className="mb-4">
-            <label htmlFor="otp" className="block text-sm font-medium">
-              Enter OTP:
-            </label>
-            <input
-              type="text"
-              id="otp"
-              placeholder="Enter OTP"
-              {...register("otp", { required: "OTP is required" })}
-              className="h-11 w-full rounded-md bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]"
-            />
-            {errors.otp && (
-              <span className="text-red-500">{errors.otp.message}</span>
-            )}
-            {otpError && <span className="text-red-500">{otpError}</span>}
-          </div>
+                    <div className="mb-4">
+                        <label htmlFor="otp" className="block text-sm font-medium">
+                            Enter OTP:
+                        </label>
+                        <input
+                            type="text"
+                            id="otp"
+                            placeholder="Enter OTP"
+                            {...register("otp", { required: "OTP is required" })}
+                            className="
+                                h-11 w-full
+                                rounded-md bg-gray-100 pl-3
+                                text-base outline-none
+                                shadow-sm transition-all ease-out
+                                focus:shadow-lg focus:ring-2 focus:ring-[#ac8ece]
+                            "
+                        />
+                        {errors.otp && (
+                            <span className="text-red-500">{errors.otp.message}</span>
+                        )}
+                        {otpError && <span className="text-red-500">{otpError}</span>}
+                    </div>
 
-          <div>
-            <input
-              type="submit"
-              value="Verify OTP"
-              className="h-11 w-full cursor-pointer rounded-md bg-gradient-to-r from-[#f37a65] to-[#d64141] text-base font-medium tracking-wide text-white shadow-md transition-all duration-300 ease-in-out hover:from-[#d64141] hover:to-[#f37a65]"
-            />
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+                    <div>
+                        <input
+                            type="submit"
+                            value="Verify OTP"
+                            className="
+                                h-11 w-full cursor-pointer
+                                rounded-md
+                                bg-gradient-to-r from-[#f37a65] to-[#d64141]
+                                text-base font-medium tracking-wide text-white
+                                shadow-md
+                                transition-all duration-300 ease-in-out
+                                hover:from-[#d64141] hover:to-[#f37a65]
+                            "
+                        />
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
 }
 
 export default OTPPage;
