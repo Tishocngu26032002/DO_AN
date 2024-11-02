@@ -35,11 +35,7 @@ export class LocationUserService extends BaseService<Location_userEntity>{
 
     async createLocation(createLocationUserDto: CreateLocationUserDto) {
       if(createLocationUserDto.default_location){
-          const filters = {
-              user_id: createLocationUserDto.user_id,
-              default_location: createLocationUserDto.default_location
-          };
-          await this.updateDefaultMethod(filters, null);
+          await this.updateDefaultMethod(createLocationUserDto, null);
       }
       return await this.locationRepo.save(createLocationUserDto);
     }
@@ -49,7 +45,7 @@ export class LocationUserService extends BaseService<Location_userEntity>{
     }
 
     async update(locationUpdateDTO: UpdateLocationUserDto, id: string, updateDefault: boolean = false) {
-      if(updateDefault){
+      if(updateDefault == true){
           await this.updateDefaultMethod(locationUpdateDTO, id);
       }
       return await super.update(locationUpdateDTO, id);
@@ -64,7 +60,7 @@ export class LocationUserService extends BaseService<Location_userEntity>{
         });
         if(locationDefaultInDB != null){
             locationDefaultInDB.default_location = false;
-            await super.update(locationDefaultInDB, id);
+            await super.update(locationDefaultInDB, locationDefaultInDB.id);
         }
         locationUpdateDTO.default_location = true;
     }

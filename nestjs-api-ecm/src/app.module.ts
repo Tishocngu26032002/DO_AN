@@ -16,7 +16,6 @@ import { SupplierEntity } from 'src/entities/supplier_entity/supplier.entity';
 import { Order } from 'src/entities/order_entity/oder.entity';
 import { Location_userEntity } from 'src/entities/user_entity/location_user.entity';
 import {UserModule} from "src/backend/user/user.module";
-import { LocationUserModule } from './backend/location_user/location_user.module';
 
 @Module({
   imports: [

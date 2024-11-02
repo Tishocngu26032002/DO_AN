@@ -1,0 +1,109 @@
+import {Injectable} from '@nestjs/common';
+import {CreateCartDto} from '../../dto/cart_product/create-cart.dto';
+import {UpdateCartDto} from '../../dto/cart_product/update-cart.dto';
+import {InjectRepository} from "@nestjs/typeorm";
+import {CartRepository} from "src/repository/CartRepository";
+import {Cart_productEntity} from "src/entities/cartproduct_entity/cart_product.entity";
+import {BaseService} from "src/base/baseService/base.service";
+import any = jasmine.any;
+
+@Injectable()
+export class CartService extends BaseService<Cart_productEntity> {
+
+    constructor(
+        @InjectRepository(Cart_productEntity)
+        private readonly cartRepo: CartRepository,
+    ) {
+        super(cartRepo);
+    }
+
+    async getList(page: number = 1, limit: number = 10) {
+        if (page < 1) {
+            throw new Error('PAGE NUMBER MUST BE GREATER THAN 0!');
+        }
+
+        if (limit < 1) {
+            throw new Error('LIMIT MUST BE GREATER THAN 0!');
+        }
+
+        const [list, total] = await this.cartRepo.findAndCount({
+            /*where: condition,*/
+            skip: (page - 1) * limit,
+            take: limit,
+        });
+
+        if (!list) throw new Error('NO cart!');
+
+        return {
+            data: list,
+            total,
+            page,
+            limit,
+        };
+    }
+
+    async getListProduct(filters: any) {
+        const condition: any = {};
+        if (filters.user_id) condition.user_id = filters.user_id;
+        const [list, total] = await this.cartRepo.findAndCount({
+            where: condition,
+            relations: ['product']
+        });
+        if (!list) throw new Error('No product!');
+        return {
+            cart: list,
+            total,
+        };
+    }
+
+    async create(createCart: CreateCartDto) {
+        const condition = {
+            product_id: createCart.product_id,
+            user_id: createCart.user_id,
+        };
+        const productInDB = await this.cartRepo.find({
+            where: condition,
+        });
+        if (productInDB.length == 1) {
+            productInDB[0].quantity += createCart.quantity;
+            return await super.update(productInDB[0], productInDB[0].id);
+        }
+        return await super.create(createCart, condition);
+    }
+
+    async detail(filters: any) {
+        const condition: any = {};
+        if(filters.user_id) condition.user_id = filters.user_id;
+        if(filters.product_id) condition.product_id = filters.product_id;
+        return await this.cartRepo.findOneBy(condition);
+    }
+
+    async update(cartUpdateDTO: UpdateCartDto, id: string) {
+        return await super.update(cartUpdateDTO, id);
+    }
+
+    async delete(id: string) {
+        return await super.delete(id);
+    }
+
+    async incDecQuantity(filters: any, isIncrease: boolean, isDecrease: boolean ){
+        try{
+            const cartProduct = await this.detail(filters);
+            if(cartProduct){
+                if(isIncrease){
+                    cartProduct.quantity += 1;
+                }
+                else{
+                    cartProduct.quantity -= 1;
+                }
+            }
+            else return {
+                error: "Does not exist in cart",
+            };
+            return await this.cartRepo.update(cartProduct.id, cartProduct);
+        }
+        catch (e){
+            throw new Error('Cannot change quantity!')
+        }
+    }
+}
