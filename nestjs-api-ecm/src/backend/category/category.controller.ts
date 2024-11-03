@@ -9,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import {ApiBearerAuth, ApiQuery, ApiTags} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/guards/JwtAuth.guard';
 import { RolesGuard } from 'src/guards/Roles.guard';
 import { Roles } from 'src/decorator/Role.decorator';
@@ -17,7 +17,7 @@ import { responseHandler } from 'src/Until/responseUtil';
 import { CategoryCreateDTO } from 'src/dto/categoryDTO/category.create.dto';
 import { CategoryService } from 'src/backend/category/category.service';
 import { categoryUpdateDTO } from 'src/dto/categoryDTO/category.update.dto';
-import {ApplyStatus, ExpirationStatus} from "src/share/Enum/Enum";
+import { ApplyStatus, ExpirationStatus } from 'src/share/Enum/Enum';
 
 @Controller('category')
 @ApiTags('Category')
@@ -33,7 +33,6 @@ export class CategoryController {
     required: false,
     description: 'Trạng thái áp dụng (All, True, False)',
   })
-  @Roles('admin')
   async getList(
     @Param('page') page: number,
     @Param('limit') limit: number,

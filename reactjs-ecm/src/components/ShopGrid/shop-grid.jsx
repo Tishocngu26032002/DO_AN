@@ -1,213 +1,207 @@
-import React, { useState } from 'react';
-import { PiShoppingCart } from "react-icons/pi";
-import Header from '../Header/header';
-import Footer from '../Footer/footer';
-
-const categories = [
-  { id: "all", name: "Tất cả các danh mục" },
-  { id: "pig", name: "Thức ăn cho lợn" },
-  { id: "poultry", name: "Thức ăn cho gia cầm" },
-  { id: "fishery", name: "Thức ăn cho thủy sản" },
-];
-
-const products = [
-  {
-    id: 1,
-    category: "pig",
-    img: "images/products/262.png",
-    brand: "adidas",
-    title: "Pig1",
-    price: 78,
-  },
-  {
-    id: 2,
-    category: "pig",
-    img: "images/products/264.png",
-    brand: "adidas",
-    title: "Pig2",
-    price: 78,
-  },
-  {
-    id: 3,
-    category: "pig",
-    img: "images/products/262.png",
-    brand: "adidas",
-    title: "Pig3",
-    price: 78,
-  },
-  {
-    id: 4,
-    category: "poultry",
-    img: "images/products/266.png",
-    brand: "adidas",
-    title: "Poultry1",
-    price: 78,
-  },
-  {
-    id: 5,
-    category: "poultry",
-    img: "images/products/262.png",
-    brand: "adidas",
-    title: "Poultry2",
-    price: 78,
-  },
-  {
-    id: 6,
-    category: "poultry",
-    img: "images/products/264.png",
-    brand: "adidas",
-    title: "Poutry3",
-    price: 78,
-  },
-  {
-    id: 7,
-    category: "fishery",
-    img: "images/products/266.png",
-    brand: "adidas",
-    title: "Fishery1",
-    price: 78,
-  },
-  {
-    id: 8,
-    category: "fishery",
-    img: "images/products/262.png",
-    brand: "adidas",
-    title: "Fishery2",
-    price: 78,
-  },
-  {
-    id: 9,
-    category: "poultry",
-    img: "images/products/264.png",
-    brand: "adidas",
-    title: "Poutry4",
-    price: 78,
-  },
-  {
-    id: 10,
-    category: "fishery",
-    img: "images/products/266.png",
-    brand: "adidas",
-    title: "Fishery3",
-    price: 78,
-  },
-  {
-    id: 11,
-    category: "fishery",
-    img: "images/products/262.png",
-    brand: "adidas",
-    title: "Fishery4",
-    price: 78,
-  },
-];
+import React, { useEffect, useState } from "react";
+import { PER_PAGE } from "../../services/constants";
+import { createCart, getCarts, updateCart } from "../../services/cart-api";
+import { getProducts } from "../../services/product-api";
+import { getQueryString } from "../../util/utils";
+import Header from "../Header/header";
+import Footer from "../Footer/footer";
+import { Link, useNavigate } from "react-router-dom";
+import { FaStar } from "react-icons/fa";
+import { PiShoppingCartBold } from "react-icons/pi";
 
 const ShopGrid = () => {
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 8;
+  const navigate = useNavigate();
+  const [params, setParams] = useState({
+    _limit: PER_PAGE,
+    _page: 1,
+    _totalRows: 0,
+    title_like: "",
+  });
+  const [products, setProducts] = useState([]);
+  const [carts, setCarts] = useState([]);
 
-  const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
+  useEffect(() => {
+    // Gọi hàm khi trang được render lần đầu
+    getProductsOnPage();
+  }, [params._page, params.title_like]); // Chỉ chạy lại khi _page hoặc title_like thay đổi
+
+  useEffect(() => {
+    getCartsOnPage();
+  }, []);
+
+  const getProductsOnPage = async () => {
+    try {
+      const { data, pagination } = await getProducts(getQueryString(params));
+      // console.log("data:", data);
+      // console.log("pagination:", pagination);
+      setProducts(data);
+
+      // Kiểm tra nếu _totalRows thay đổi thì mới cập nhật params
+      if (pagination._totalRows !== params._totalRows) {
+        setParams((prev) => ({
+          ...prev,
+          _totalRows: pagination._totalRows,
+        }));
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const filteredProducts = products.filter((product) => {
-    const matchesCategory =
-      selectedCategory === "all" || product.category === selectedCategory;
-    const matchesSearchTerm = product.title
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearchTerm;
-  });
+  const getCartsOnPage = async () => {
+    try {
+      const cartsData = await getCarts({ isUser: "abc" });
+      setCarts(cartsData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = filteredProducts.slice(
-    indexOfFirstProduct,
-    indexOfLastProduct,
-  );
+  const handlePageChange = (page) => {
+    setParams((prev) => ({ ...prev, _page: page }));
+  };
 
-  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  const handleAddToCart = async (productId) => {
+    const product = products.find((prod) => prod.id === Number(productId));
+    const cartIndex = carts.findIndex((cart) => cart.productId === product.id);
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+    if (cartIndex !== -1) {
+      await updateCart({
+        ...carts[cartIndex],
+        quantity: carts[cartIndex].quantity + 1,
+      });
+    } else {
+      await createCart({
+        ...product,
+        productId: product.id,
+        quantity: 1,
+        userId: "abc",
+        id: null,
+      });
+    }
+    getCartsOnPage();
+  };
+
+  const handleSearch = (e) => {
+    setParams((prev) => ({
+      ...prev,
+      title_like: e.target.value.trim(),
+      _page: 1,
+    }));
+  };
+
+  const renderProducts = () => {
+    if (products.length === 0) return;
+
+    return products.map((product) => (
+      <div
+        className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
+        key={product.id}
+        onClick={() => navigate(`/product-detail`)}
+      >
+        <img src={product.images[0]} alt={product.name} />
+        <div className="des py-[10px] text-start">
+          <span className="text-[12px] text-[#606063]">
+            {product.category.name}
+          </span>
+          <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
+            {product.title}
+          </h5>
+          <div className="star flex">
+            {[...Array(5)].map((_, index) => (
+              <FaStar
+                key={index}
+                className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"
+              />
+            ))}
+          </div>
+          <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
+            ${product.price}
+          </h4>
+        </div>
+
+        <Link to="">
+          <PiShoppingCartBold
+            data-id={product.id}
+            className="add-to-cart fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAddToCart(product.id);
+            }}
+          />
+        </Link>
+      </div>
+    ));
+  };
+
+  const renderPagination = () => {
+    if (params._totalRows < PER_PAGE) return null;
+
+    const totalPages = Math.ceil(params._totalRows / PER_PAGE);
+    return (
+      <div id="pagination" className="section-p1">
+        {[...Array(totalPages)].map((_, index) => (
+          <a
+            key={index + 1}
+            data-page={index + 1}
+            className={`page ${
+              params._page === index + 1
+                ? "active bg-[#088178] text-white"
+                : "bg-gray-200"
+            } mx-1 rounded p-2`}
+            onClick={() => handlePageChange(index + 1)}
+          >
+            {index + 1}
+          </a>
+        ))}
+      </div>
+    );
   };
 
   return (
-    <div className="w-full text-[#006532]">
+    <div>
       <Header />
-
-      {/* Banner */}
-      <section id="page-header" className="h-[292px] bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url("images/banner/image-4.jpg")` }}>
-        <div className="flex h-full w-full items-center justify-center bg-opacity-70 bg-[#006532] text-white">
-          <h2 className="text-4xl font-semibold">Giỏ Hàng Của Bạn</h2>
-        </div>
-      </section>
-
-      {/* Search bar */}
-      <section id="search-bar" className="py-6 bg-[#e8f6ea]">
-        <div className="mx-auto max-w-[1200px] flex items-center justify-between space-x-4 px-6">
-          <select
-            className="h-12 w-1/3 rounded-lg border border-[#cce7d0] px-4 text-[#006532] text-sm focus:outline-none"
-            onChange={(e) => handleCategoryChange(e.target.value)}
-            value={selectedCategory}
-          >
-            {categories.map(category => (
-              <option key={category.id} value={category.id}>{category.name}</option>
-            ))}
-          </select>
-
-          <input
-            type="text"
-            placeholder="Tìm kiếm sản phẩm..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="h-12 w-2/3 rounded-lg border border-[#cce7d0] px-4 text-[#006532] text-sm focus:outline-none"
-          />
-        </div>
-      </section>
-
-      {/* Product list */}
-      <section id="product1" className="section-p1 mx-auto w-full max-w-[1200px]">
-  <div className="pro-container mt-8 grid grid-cols-1 justify-center gap-4 sm:grid-cols-2 md:grid-cols-3 md:px-8 lg:grid-cols-4 lg:px-8">
-    {currentProducts.map((product) => (
-      <div
-        key={product.id}
-        className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)] bg-white"
+      <section
+        id="page-header"
+        className="flex h-[40vh] w-full flex-col items-center justify-center bg-cover bg-center px-4 text-center"
+        style={{ backgroundImage: "url(images/banner/banner-shop.jpg)" }}
       >
-        <img src={product.img} alt={product.title} className="w-full rounded-xl" />
-        <div className="des pt-3 text-start">
-          <span className="text-sm text-[#006532]">{product.brand}</span>
-          <h5 className="pt-2 text-sm text-[#1a1a1a]">{product.title}</h5>
-          <h4 className="m pt-2 text-lg font-bold text-[#006532]">${product.price}</h4>
-        </div>
-        <a
-          href="#"
-          className="cart absolute bottom-5 -mb-3 right-2 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] font-medium leading-10 text-[#006532]"
-        >
-          <PiShoppingCart />
-        </a>
-      </div>
-    ))}
-  </div>
-</section>
+        <h2 className="text-[30px] font-bold text-white">Cám nhà Tuyên</h2>
+        <p className="text-white">Đại lý cám số 1 Hiệp Hòa</p>
+      </section>
 
-      {/* Pagination */}
-      <section id="pagination" className="my-8 flex justify-center">
-        <div className="space-x-2">
-          {Array.from({ length: totalPages }, (_, index) => (
-            <button
-              key={index + 1}
-              onClick={() => handlePageChange(index + 1)}
-              className={`px-4 py-2 rounded-lg transition ${
-                currentPage === index + 1 ? "bg-[#006532] text-white" : "bg-gray-200 text-[#006532]"
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
+      <section id="newsletter" className="section-p1 section-m1">
+        <div className="flex flex-wrap items-center justify-between bg-[#041e42] bg-[url(src/assets/images/b14.png)] bg-[20%_30%] bg-no-repeat p-4">
+          <div className="relative w-1/3">
+            <select className="h-[3.125rem] w-full rounded border border-transparent px-5 text-[14px]"></select>
+          </div>
+
+          <div className="form flex w-1/3">
+            <input
+              type="text"
+              placeholder="Tìm kiếm..."
+              id="search"
+              onInput={handleSearch}
+              className="h-[3.125rem] w-full rounded border border-transparent px-5 text-[14px]"
+            />
+          </div>
         </div>
+      </section>
+
+      <section id="product1" className="section-p1 px-[80px] py-[40px]">
+        <div
+          className="pro-container flex flex-wrap justify-between pt-[20px] tablet:justify-center"
+          id="product-render"
+        >
+          {renderProducts()}
+        </div>
+      </section>
+
+      <section
+        id="pagination"
+        className="section-p1 flex justify-center space-x-2"
+      >
+        <div className="mt-4 flex justify-center">{renderPagination()}</div>
       </section>
 
       <Footer />
