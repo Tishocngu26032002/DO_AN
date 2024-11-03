@@ -66,9 +66,56 @@ function RegisterForm() {
     mutate(registerData);
   };
 
+  // return (
+  //   <div className="flex items-center justify-center">
+  //     <div className="mx-2 my-2 w-full max-w-lg overflow-hidden rounded-lg bg-white shadow-md">
+  //       <div className="bg-gray-100 p-6">
+  //         <p className="relative text-2xl font-medium">
+  //           Registration
+  //           <span className="absolute bottom-0 left-0 h-0.5 w-8 bg-gradient-to-r from-[#f37a65] to-[#d64141]" />
+  //         </p>
+  //       </div>
+
+  //       <form onSubmit={handleSubmit(onSubmit)} className="p-6">
+  //         <div className="flex flex-wrap justify-between gap-5">
+  //           <div className="mb-3 w-full md:w-[calc(50%-20px)]">
+  //             <label htmlFor="firstName" className="form-label">
+  //               First Name <span className="text-red-500">*</span>
+  //             </label>
+  //             <input
+  //               type="text"
+  //               id="firstName"
+  //               placeholder="Enter your firstName"
+  //               {...register("firstName")}
+  //               className="form-input"
+  //             />
+  //             {errors.firstName && (
+  //               <span className="form-error">{errors.firstName.message}</span>
+  //             )}
+  //           </div>
+  //           {/* Repeat similar structure for other input fields */}
+  //         </div>
+
+  //         <div className="p-6">
+  //           <input
+  //             type="submit"
+  //             value="Register"
+  //             disabled={!isDirty}
+  //             className="submit-btn"
+  //           />
+  //         </div>
+  //       </form>
+
+  //       <Link to="/login" className="flex justify-center hover:font-bold">
+  //         Login
+  //       </Link>
+  //     </div>
+  //   </div>
+  // );
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="mx-2 my-2 w-full max-w-lg overflow-hidden rounded-lg bg-white shadow-lg">
+      <div className="shadow-lg mx-2 my-2 w-full max-w-lg overflow-hidden rounded-lg bg-white">
         <div className="bg-[#006532] p-6 text-white">
           <h2 className="text-2xl font-semibold">
             Đăng ký
@@ -88,7 +135,7 @@ function RegisterForm() {
                 id="firstName"
                 placeholder="Nhập họ của bạn"
                 {...register("firstName")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#006532]"
+                className="duration-120 shadow-sm focus:shadow-lg h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base outline-none transition-all ease-out focus:ring-2 focus:ring-[#006532]"
               />
               {errors.firstName && (
                 <span className="text-red-500">{errors.firstName.message}</span>
@@ -104,7 +151,7 @@ function RegisterForm() {
                 id="lastName"
                 placeholder="Nhập tên của bạn"
                 {...register("lastName")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#006532]"
+                className="duration-120 shadow-sm focus:shadow-lg h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base outline-none transition-all ease-out focus:ring-2 focus:ring-[#006532]"
               />
               {errors.lastName && (
                 <span className="text-red-500">{errors.lastName.message}</span>
@@ -120,7 +167,7 @@ function RegisterForm() {
                 id="email"
                 placeholder="Nhập email của bạn"
                 {...register("email")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#006532]"
+                className="duration-120 shadow-sm focus:shadow-lg h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base outline-none transition-all ease-out focus:ring-2 focus:ring-[#006532]"
               />
               {errors.email && (
                 <span className="text-red-500">{errors.email.message}</span>
@@ -135,7 +182,7 @@ function RegisterForm() {
                 id="phone"
                 placeholder="Nhập số điện thoại của bạn"
                 {...register("phone")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#006532]"
+                className="duration-120 shadow-sm focus:shadow-lg h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base outline-none transition-all ease-out focus:ring-2 focus:ring-[#006532]"
               />
               {errors.phone && (
                 <span className="text-red-500">{errors.phone.message}</span>
@@ -151,7 +198,7 @@ function RegisterForm() {
                 id="password"
                 placeholder="Nhập mật khẩu của bạn"
                 {...register("password")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#006532]"
+                className="duration-120 shadow-sm focus:shadow-lg h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base outline-none transition-all ease-out focus:ring-2 focus:ring-[#006532]"
               />
               {errors.password && (
                 <span className="text-red-500">{errors.password.message}</span>
@@ -167,7 +214,7 @@ function RegisterForm() {
                 id="address"
                 placeholder="Nhập địa chỉ của bạn"
                 {...register("address")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#006532]"
+                className="duration-120 shadow-sm focus:shadow-lg h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base outline-none transition-all ease-out focus:ring-2 focus:ring-[#006532]"
               />
               {errors.address && (
                 <span className="text-red-500">{errors.address.message}</span>
@@ -183,7 +230,7 @@ function RegisterForm() {
                 id="confirmPass"
                 placeholder="Xác nhận mật khẩu của bạn"
                 {...register("confirmPass")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#006532]"
+                className="duration-120 shadow-sm focus:shadow-lg h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base outline-none transition-all ease-out focus:ring-2 focus:ring-[#006532]"
               />
               {errors.confirmPass && (
                 <span className="text-red-500">
@@ -196,7 +243,7 @@ function RegisterForm() {
             <input
               type="submit"
               value="Đăng ký"
-              className="h-11 w-full cursor-pointer rounded-md bg-[#006532] font-medium tracking-wide text-white shadow-md transition-all duration-300 ease-in-out hover:bg-[#004d26] disabled:bg-gray-300"
+              className="shadow-md h-11 w-full cursor-pointer rounded-md bg-[#006532] font-medium tracking-wide text-white transition-all duration-300 ease-in-out hover:bg-[#004d26] disabled:bg-gray-300"
             />
           </div>
         </form>

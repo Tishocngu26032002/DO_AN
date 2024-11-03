@@ -10,7 +10,7 @@ const Image = ({ mainImage, setMainImage, productImages }) => {
   };
 
   return (
-    <div className="single-pro-image md:mr-12 md:w-2/5 xl:mr-12 xl:w-full">
+    <div className="single-pro-image md:mr-12  md:w-2/3">
       <div>
         <img
           src={mainImage}
@@ -41,9 +41,9 @@ const Image = ({ mainImage, setMainImage, productImages }) => {
 const ProductDetail = () => {
   const productImages = [
     "/images/product/range_cubes.jpg",
-    "/images/product/264.png",
-    "/images/product/266.png",
-    "/images/product/262.png", // Bạn có thể thêm nhiều ảnh khác tại đây
+    "/images/product/range_cubes.jpg",
+    "/images/product/range_cubes.jpg",
+   // Bạn có thể thêm nhiều ảnh khác tại đây
   ];
 
   // State to hold the main product image
@@ -71,7 +71,7 @@ const ProductDetail = () => {
       </section>
       <section
         id="prodetails"
-        className="mx-10 mt-5 flex flex-col md:flex-row xl:mx-28"
+        className=" container mx-auto mt-5 flex flex-col md:flex-row "
       >
         <Image
           mainImage={mainImage}
@@ -79,15 +79,13 @@ const ProductDetail = () => {
           productImages={productImages}
         />
 
-        <div className="single-pro-details pt-8 md:w-1/2 xl:w-full">
+        <div className="single-pro-details pt-8 mr-4 md:w-full">
           <h4 className="py-5 text-4xl font-bold text-[#006532]">Range Cube</h4>
-          <h2 className="text-2xl font-semibold text-[#006532]">$139</h2>
-          <select className="mb-2 mt-4 block border text-[#777777] border-[#006532] p-1">
-            <option>Select Size</option>
-            {["S", "M", "L", "XL", "XXL"].map((size, index) => (
-              <option key={index}>{size}</option>
-            ))}
-          </select>
+          <h2 className="text-2xl font-semibold flex text-[#006532]"><div className="underline text-[17px] mr-[1px] mt-[1px]">đ</div>139</h2>
+          <div className="mb-2 mt-4 text-xl flex text-[#777777]">
+           <div className="font-semibold mr-2">Bao:</div> 10kg
+            
+          </div>
           <div className="mt-4 flex">
             <QuantityInput />
             <button className="ml-4 h-12 rounded bg-[#006532] px-4 py-2 text-white">
@@ -95,7 +93,7 @@ const ProductDetail = () => {
             </button>
           </div>
           <h4 className="pb-5 pt-10 text-2xl font-semibold text-[#777777]">Product Details</h4>
-          <p className="text-l leading-[25px] text-[#777777]">
+          <p className="text-l container  leading-[25px] text-[#777777]">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga quis
             molestiae ullam distinctio minus quisquam cupiditate vero in
             laboriosam optio. ipsum dolor sit amet consectetur adipisicing elit.
@@ -111,7 +109,7 @@ const ProductDetail = () => {
         <div className="text-[46px] font-semibold leading-[54px] text-[#006532]">
           Newest Products
         </div>
-        <div className="pro-container flex flex-wrap justify-evenly pt-5">
+        <div className=" container mx-auto flex flex-wrap justify-evenly pt-5">
           {[...Array(4)].map((_, index) => (
             <div
               key={index}
@@ -123,19 +121,14 @@ const ProductDetail = () => {
                 className="w-full rounded-xl"
               />
               <div className="des pt-3 text-start">
-                <span className="text-sm text-[#006532]">Adidas</span>
-                <h5 className="pt-2 text-sm text-[#1a1a1a]">
+                <span className=" text-[13px] text-[#1a1a1a]">Adidas</span>
+                <h5 className="pt-2 text-[15px] font-semibold text-[#006532]">
                   Cotton shirts pure cotton
                 </h5>
-                <div className="star mt-2 flex">
-                  {[...Array(5)].map((_, starIndex) => (
-                    <i
-                      key={starIndex}
-                      className="fas fa-star mr-1 text-xs text-yellow-500"
-                    ></i>
-                  ))}
-                </div>
-                <h4 className="m pt-2 text-lg font-bold text-[#006532]">$78</h4>
+                <h5 className="pt-2 text-[13px] text-[#1a1a1a]">
+                  Bao: 20kg
+                </h5>
+                <h4 className="pt-2 flex text-[16px] font-semibold text-[#006532]"><p className='underline text-sm mr-1 mt-[2px] font-normal'>đ</p>78000</h4>
               </div>
               <a
                 href="#"

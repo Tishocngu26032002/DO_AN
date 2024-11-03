@@ -44,7 +44,7 @@ function OTPPage() {
 
   return (
     <div className="flex h-screen items-center justify-center bg-gray-50">
-      <div className="mx-2 my-2 w-full max-w-md overflow-hidden rounded-lg bg-white shadow-lg">
+      <div className="shadow-lg mx-2 my-2 w-full max-w-md overflow-hidden rounded-lg bg-white">
         <div className="bg-[#006532] p-6">
           <p className="relative text-2xl font-medium text-white">
             Xác minh OTP
@@ -67,7 +67,7 @@ function OTPPage() {
               id="otp"
               placeholder="Nhập OTP"
               {...register("otp", { required: "OTP không hợp lệ" })}
-              className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#006532]"
+              className="duration-120 shadow-sm focus:shadow-lg h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base outline-none transition-all ease-out focus:ring-2 focus:ring-[#006532]"
             />
             {errors.otp && (
               <span className="text-red-500">{errors.otp.message}</span>
@@ -79,7 +79,7 @@ function OTPPage() {
             <input
               type="submit"
               value="Xác minh OTP"
-              className="h-11 w-full cursor-pointer rounded-md bg-[#006532] font-medium tracking-wide text-white shadow-md transition-all duration-300 ease-in-out hover:bg-[#004d26]"
+              className="shadow-md h-11 w-full cursor-pointer rounded-md bg-[#006532] font-medium tracking-wide text-white transition-all duration-300 ease-in-out hover:bg-[#004d26]"
             />
           </div>
         </form>
