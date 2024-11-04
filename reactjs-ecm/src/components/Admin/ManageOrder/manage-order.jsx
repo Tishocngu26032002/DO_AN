@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import AdminHeader from "../AdminHeader/admin-header.jsx";
-import { FaSave, FaTrash, FaEye,FaSearch, FaFilter } from 'react-icons/fa';
+import { FaSave, FaTrash, FaEye,FaSearch, FaFilter, FaSort } from 'react-icons/fa';
 import { FiEdit } from 'react-icons/fi';
+import { MdOutlineInbox, MdOutlineCancel } from "react-icons/md";
 // import { AiOutlineSearch } from 'react-icons/ai'; // Icon tìm kiếm
 // import { BiDownArrow } from 'react-icons/bi'; // Icon dropdown
 
@@ -18,7 +19,7 @@ const initialOrders = [
     status: 'In Delivery',
     updatedDate: '2024-10-21',
     deliveryPerson: 'Trần Văn B',
-    paymentStatus: 'Pending Payment',
+    paymentStatus: 'Pending',
   },
   {
     userid: 2,
@@ -30,6 +31,34 @@ const initialOrders = [
     orderDate: '2024-10-21',
     orderId: 'ORD002',
     status: 'Delivered',
+    updatedDate: '2024-10-22',
+    deliveryPerson: 'Nguyễn Văn D',
+    paymentStatus: 'Paid',
+  },
+  {
+    userid: 4,
+    name: 'Trần Thịff C',
+    productName: 'Product2 2',
+    quantity: 1,
+    priceOut: 150000,
+    address: '456 XYZ Street, District 2',
+    orderDate: '2024-10-21',
+    orderId: 'ORD0022',
+    status: 'Pending',
+    updatedDate: '2024-10-22',
+    deliveryPerson: 'Nguyễn Văn D',
+    paymentStatus: 'Cash on Delivery',
+  },
+  {
+    userid: 4,
+    name: 'Trần Thịff C',
+    productName: 'Product2 2',
+    quantity: 1,
+    priceOut: 150000,
+    address: '456 XYZ Street, District 2',
+    orderDate: '2024-10-21',
+    orderId: 'ORD0012',
+    status: 'Confirmed',
     updatedDate: '2024-10-22',
     deliveryPerson: 'Nguyễn Văn D',
     paymentStatus: 'Paid',
@@ -48,10 +77,35 @@ const ManageOrder = () => {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState('');
   const [selectedDeliveryPerson, setSelectedDeliveryPerson] = useState('');
+  const [selectedOrders, setSelectedOrders] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const sortedOrders = React.useMemo(() => {
+    let sortableOrders = [...orders];
+    if (sortConfig !== null) {
+      sortableOrders.sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableOrders;
+  }, [orders, sortConfig]);
 
-  const handleCancelOrder = (userid) => {
+  const requestSort = key => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const handleCancelOrder = (orderId) => {
     const updatedOrders = orders.map(order =>
-      order.userid === userid ? { ...order, status: 'Canceled' } : order
+      order.orderId === orderId ? { ...order, status: 'Canceled' } : order
     );
     setOrders(updatedOrders);
   };
@@ -79,9 +133,19 @@ const ManageOrder = () => {
     setCurrentOrder(order);
     setShowViewPopup(true);
   };
-
+  const handleSelectOrder = (id) => {
+    if (selectedOrders.includes(id)) {
+      setSelectedOrders(selectedOrders.filter(orId => orId !== orderId));
+    } else {
+      setSelectedOrders([...selectedOrders, id]);
+    }
+  };
+  const handleDeleteSelectedOrders = () => {
+    setOrders(orders.filter(order => !selectedOrders.includes(order.orderId)));
+    setSelectedOrders([]); // Reset selected users
+  };
   // Hàm để lọc đơn hàng
-  const filteredOrders = orders.filter(order => {
+  const filteredOrders =  sortedOrders.filter(order => {
     const matchesSearch = order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           order.productName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = selectedStatus ? order.status === selectedStatus : true;
@@ -98,27 +162,52 @@ const ManageOrder = () => {
         <h1 className="text-4xl font-bold mb-8 mt-4 text-[#006532] text-center">Manage Order</h1>
 
         {/* Tìm kiếm và lọc */}
-        <div className="mb-4 flex flex-wrap sm:flex-row-reverse md:flex-row md:justify-between ">
-          <div className="relative w-full md:w-1/3  mb-4">
-            
-            <input 
-              type="text" 
-              placeholder="Search ...." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="border rounded-lg px-4 py-2 w-full"
-            />
-            <FaSearch className="absolute top-3 right-4 text-gray-400" />
+        <div className="flex items-center flex-col md:flex-row  mt-4 mb-3 px-6 py-3 bg-white rounded-lg">
+          <div className="flex items-center space-x-2 w-1/5 ">
+            <div className='pr-4 mt-1 tablet:absolute tablet:mt-[148px] tablet:left-10 '>
+              <input 
+                      type="checkbox" 
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedOrders(orders.map(order => order.orderId));
+                        } else {
+                          setSelectedOrders([]);
+                        }
+                      }}
+                    
+                    />
+              </div>
+            <div className=' tablet:mt-36 tablet:left-16 tablet:absolute'>
+            {selectedOrders.length > 0 && (
+              <FaTrash 
+                onClick={handleDeleteSelectedOrders} 
+                className='text-gray-400 hover:text-red-500  ' 
+              />
+            )}
           </div>
-
-          <div className="flex space-x-4 mb-4">
-            <div className="relative w-1/3">
+          </div>
+          <div className="flex items-center  space-x-2 mb-2 md:mb-0 w-full md:w-2/5 ">
+            <div className="relative w-full ">
+              <input 
+                type="text" 
+                placeholder="Search ...." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="border rounded-lg px-4 py-2 w-full"
+              />
+              <FaSearch className="absolute top-3 right-4 text-gray-400" />
+            </div>
+          </div>
+          <div className="flex items-center space-x-2 w-2/5 tablet:w-full justify-end">
+            <div className=" relative w-1/4">
               <select 
                 value={selectedStatus} 
                 onChange={(e) => setSelectedStatus(e.target.value)} 
                 className="border rounded-lg px-3 py-2 w-full appearance-none pr-8"
               >
                 <option value="">All Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Confirmed">Confirmed</option>
                 <option value="In Delivery">In Delivery</option>
                 <option value="Delivered">Delivered</option>
                 <option value="Canceled">Canceled</option>
@@ -132,20 +221,21 @@ const ManageOrder = () => {
                 onChange={(e) => setSelectedPaymentStatus(e.target.value)} 
                 className="border rounded-lg px-3 py-2 w-full appearance-none pr-8"
               >
-                <option value="">All Payment Status</option>
-                <option value="Pending Payment">Pending Payment</option>
+                <option value="">All Payment</option>
+                <option value="Pending">Pending</option>
                 <option value="Paid">Paid</option>
+                <option value="Cash on Delivery">Cash on Delivery</option>
               </select>
               <FaFilter className="absolute top-3 right-2 text-gray-400" />
             </div>
 
-            <div className="relative w-1/3  ">
+            <div className="relative w-1/4  ">
               <select 
                 value={selectedDeliveryPerson} 
                 onChange={(e) => setSelectedDeliveryPerson(e.target.value)} 
                 className="border rounded-lg px-3 py-2 w-full appearance-none pr-8"
               >
-                <option value="">All Delivery Persons</option>
+                <option value="">All Shipper</option>
                 <option value="Trần Văn B">Trần Văn B</option>
                 <option value="Nguyễn Văn D">Nguyễn Văn D</option>
               </select>
@@ -158,37 +248,73 @@ const ManageOrder = () => {
           <table className="min-w-full bg-white shadow-lg rounded-lg overflow-hidden">
             <thead className="bg-[#006532] text-white">
               <tr>
-                <th className="py-3 px-6 text-left">Order ID</th>
-                <th className="py-3 px-6 text-left">User ID</th>
-                <th className="py-3 px-6 text-left">Name</th>
-                <th className="py-3 px-6 text-left">Product Name</th>
-                <th className="py-3 px-6 text-left">Status</th>
-                <th className="py-3 px-6 text-left">Payment Status</th>
+              <th className="py-3 px-6 text-left">
+                  {/*  */}
+                  <MdOutlineInbox />
+                </th>
+                <th className="py-3 pr-6 text-left">STT </th> 
+                <th className="py-3 px-6 text-left">Order ID <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('orderId')}/></th>
+                <th className="py-3 px-6 text-left hidden sm:table-cell">User ID <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('userid')}/></th>
+                <th className="py-3 px-6 text-left hidden sm:table-cell">Name <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('name')}/></th>
+                <th className="py-3 px-6 text-left hidden md:table-cell">Product Name <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('productName')}/></th>
+                <th className="py-3 px-6 text-left hidden lg:table-cell">Status <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('status')}/></th>
+                <th className="py-3 px-6 text-left hidden lg:table-cell">Payment Status <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('paymentStatus')}/></th>
                 <th className="py-3 px-6 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredOrders.map((order, index) => (
                 <tr key={index} className="border-b hover:bg-indigo-50">
+                <td className="py-4 px-6">
+                    <input 
+                      type="checkbox" 
+                      checked={selectedOrders.includes(order.orderId)} 
+                      onChange={() => handleSelectOrder(order.orderId)} 
+                    />
+                  </td>
+                  <td className="py-3 pr-6">{index+1}</td>
                   <td className="py-3 px-6">{order.orderId}</td>
-                  <td className="py-3 px-6">{order.userid}</td>
-                  <td className="py-3 px-6">{order.name}</td>
-                  <td className="py-3 px-6">{order.productName}</td>
-                  <td className="py-3 px-6">{order.status}</td>
-                  <td className="py-3 px-6">{order.paymentStatus}</td>
+                  <td className="py-3 px-6 hidden sm:table-cell">{order.userid}</td>
+                  <td className="py-3 px-6 hidden sm:table-cell">{order.name}</td>
+                  <td className="py-3 px-6 hidden md:table-cell">{order.productName}</td>
+                  <td className="py-3 pl-1 pr-10 hidden lg:table-cell"><p
+                  className={`text-center rounded-md ${
+                    order.status === 'Pending'
+                      ? 'bg-[#F29339] text-white'
+                      : order.status === 'Confirmed'
+                      ? 'bg-[#286daa] text-white'
+                      : order.status === 'In Delivery'
+                      ? 'bg-[#ad402a] text-white'
+                      : order.status === 'Delivered'
+                      ? 'bg-[#006532] text-white'
+                      : 'bg-gray-300 text-black'
+                  }`}
+                >
+                  {order.status}</p></td>
+                  <td className="py-3 px-6  hidden lg:table-cell"><p
+                  className={`text-center  rounded-md  ${
+                    order.paymentStatus === 'Pending'
+                      ? 'bg-[#F29339] text-white xl:w-40'
+                      : order.paymentStatus === 'Cash on Delivery'
+                      ? 'bg-[#3cc9dc] text-white  xl:w-40'
+                      : order.paymentStatus === 'Paid'
+                      ? 'bg-[#006532] text-white  xl:w-40'
+                      : 'bg-gray-300 text-black'
+                  }`}
+                >{order.paymentStatus}</p></td>
                   <td className="py-3 px-6">
                     <div className="flex space-x-4">
                       <button 
                         onClick={() => handleViewOrder(order)} 
-                        className="text-blue-600 hover:text-blue-700"
+                        className="text-gray-400 hover:text-gray-600"
                       >
                         <FaEye size={18} />
                       </button>
                       <button 
-                        onClick={() => handleCancelOrder(order.userid)} 
+                        onClick={() => handleCancelOrder(order.orderId)} 
                         className="text-red-600 hover:text-red-700"
                       >
-                        <FaTrash size={18} />
+                        <MdOutlineCancel size={18} />
                       </button>
                       <button 
                         onClick={() => handleUpdateOrder(order)} 
@@ -253,8 +379,9 @@ const ManageOrder = () => {
                 onChange={(e) => setCurrentOrder({ ...currentOrder, paymentStatus: e.target.value })}
                 className="border rounded-lg px-2 py-1 w-full mb-4"
               >
-                <option value="Pending Payment">Pending Payment</option>
+                <option value="Pending" >Pending</option>
                 <option value="Paid">Paid</option>
+                <option value="Cash on Delivery">Cash on Delivery</option>
               </select>
 
               <button 

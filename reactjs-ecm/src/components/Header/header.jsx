@@ -21,7 +21,7 @@ function Header() {
         />
       </a>
 
-      <div className="flex items-center pt-3 pb-5 xl:mr-28">
+      <div className="flex items-center pt-3 pb-3 xl:mr-28">
         <ul id="navbar" className={`hidden items-center md:flex ${isMenuOpen ? "block" : "hidden"} md:block`}>
           <li className="px-4">
             <NavLink
@@ -32,7 +32,7 @@ function Header() {
                   : "text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out hover:text-[#80c9a4]"
               }
             >
-              HOME
+              TRANG CHỦ
             </NavLink>
           </li>
           <li className="px-4">
@@ -44,21 +44,10 @@ function Header() {
                   : "text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out hover:text-[#80c9a4]"
               }
             >
-              SHOP
+              SẢN PHẨM
             </NavLink>
           </li>
-          <li className="px-4">
-            <NavLink
-              to="/blog"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out border-b-2 border-b-[#006532]"
-                  : "text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out hover:text-[#80c9a4]"
-              }
-            >
-              BLOG
-            </NavLink>
-          </li>
+          
           <li className="px-4">
             <NavLink
               to="/about"
@@ -68,7 +57,7 @@ function Header() {
                   : "text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out hover:text-[#80c9a4]"
               }
             >
-              ABOUT
+              VỀ CHÚNG TÔI
             </NavLink>
           </li>
           <li className="px-4">
@@ -80,7 +69,7 @@ function Header() {
                   : "text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out hover:text-[#80c9a4]"
               }
             >
-              CONTACT
+              LIÊN HỆ
             </NavLink>
           </li>
           <li id="lg-bag" className="md:mb-2 md:h-5 md:px-4">
@@ -132,7 +121,7 @@ function Header() {
                   : "text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out hover:text-[#80c9a4]"
               }
             >
-              HOME
+              TRANG CHỦ
             </NavLink>
           </li>
           <li className="py-2">
@@ -144,7 +133,7 @@ function Header() {
                   : "text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out hover:text-[#80c9a4]"
               }
             >
-              SHOP
+              SẢN PHẨM
             </NavLink>
           </li>
           <li className="py-2">
@@ -168,7 +157,7 @@ function Header() {
                   : "text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out hover:text-[#80c9a4]"
               }
             >
-              ABOUT
+              VỀ CHÚNG TÔI
             </NavLink>
           </li>
           <li className="py-2">
@@ -180,7 +169,7 @@ function Header() {
                   : "text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out hover:text-[#80c9a4]"
               }
             >
-              CONTACT
+              LIÊN HỆ
             </NavLink>
           </li>
         </ul>

@@ -3,7 +3,7 @@ import AdminHeader from "../AdminHeader/admin-header.jsx";
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaFilter } from 'react-icons/fa';
 
 const initialCategories = [
-  { id: 1, c_name: 'Category 1', c_avatar: '/images/product/262.png', c_banner: '', c_description: 'Description 1...Description 1...Description 1...Description 1...Description 1...', c_hot: 0, c_status: true },
+  { id: 1, c_name: 'Category 1', c_avatar: '/images/product/262.png', c_banner: '', c_description: 'Description 1....', c_hot: 0, c_status: true },
   { id: 2, c_name: 'Category 2', c_avatar: '/images/product/264.png', c_banner: '', c_description: 'Description 2...', c_hot: 1, c_status: false },
 ];
 
@@ -29,7 +29,7 @@ const ManageCategory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterHot, setFilterHot] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
-
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewCategory({ ...newCategory, [name]: value });
@@ -74,7 +74,17 @@ const ManageCategory = () => {
       [id]: !prevState[id]
     }));
   };
-
+  const handleSelectCategory = (id) => {
+    if (selectedCategories.includes(id)) {
+      setSelectedCategories(selectedCategories.filter(cateId => cateId !== id));
+    } else {
+      setSelectedCategories([...selectedCategories, id]);
+    }
+  };
+  const handleDeleteSelectedCategories = () => {
+    setCategories(categories.filter(category => !selectedCategories.includes(category.id)));
+    setSelectedCategories([]); // Reset selected users
+  };
   const filteredCategories = categories.filter(category => {
     const matchesSearch = category.c_name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesHot = filterHot ? category.c_hot === parseInt(filterHot) : true;
@@ -85,7 +95,7 @@ const ManageCategory = () => {
   return (
     <div className="bg-gray-100 min-h-screen">
       <AdminHeader />
-      <div className="container mx-auto p-4">
+      <div className=" lg:mx-12 p-4">
         <h1 className="text-4xl font-bold mb-8 mt-4 text-[#006532] text-center">Manage Categories</h1>
 
         <Modal showModal={showModal} setShowModal={setShowModal}>
@@ -148,22 +158,47 @@ const ManageCategory = () => {
         </Modal>
 
         {/* Thanh tìm kiếm và lọc */}
-        <div className="flex flex-wrap items-center justify-between mt-4">
-          <div className="relative mb-2" >
-            <input 
-              type="text" 
-              placeholder="Search by name" 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} 
-              className="border border-[#006532] p-2 rounded pl-3 w-full md:w-[400px]"
-            />
-            <FaSearch className="absolute right-3 top-3 text-gray-500" />
-          </div>
-          <div className="flex items-center space-x-2 mb-2 ">
+        <div className="flex items-center flex-col md:flex-row  mt-4 mb-3 px-6 py-3 bg-white rounded-lg">
+          <div className="flex items-center space-x-2 w-1/5 ">
+              <div className='pr-4 mt-1 tablet:absolute tablet:mt-[148px] tablet:left-10 '>
+                <input 
+                        type="checkbox" 
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedCategories(categories.map(category => category.id));
+                          } else {
+                            setSelectedCategories([]);
+                          }
+                        }}
+                      
+                      />
+                </div>
+              <div className=' tablet:mt-36 tablet:left-16 tablet:absolute'>
+              {selectedCategories.length > 0 && (
+                <FaTrash 
+                  onClick={handleDeleteSelectedCategories} 
+                  className='text-gray-400 hover:text-red-500  ' 
+                />
+              )}
+              </div>
+            </div>
+            <div className="flex items-center  space-x-2 mb-2 md:mb-0 w-full md:w-2/5 ">
+              <div className="relative w-full " >
+                <input 
+                  type="text" 
+                  placeholder="Search by name" 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)} 
+                  className="border border-[#00653287] rounded-lg px-4 py-2 w-full"
+                />
+                <FaSearch className="absolute top-3 right-4 text-gray-400" />
+              </div>
+            </div> 
+          <div className="flex items-center space-x-2 w-2/5 tablet:w-full justify-end">
             <select 
               value={filterHot} 
               onChange={(e) => setFilterHot(e.target.value)} 
-              className="border border-[#006532] p-2 rounded"
+              className="border border-[#00653287] p-2 rounded"
             >
               <option value="">All Hot Levels</option>
               <option value="0">0</option>
@@ -172,7 +207,7 @@ const ManageCategory = () => {
             <select 
               value={filterStatus} 
               onChange={(e) => setFilterStatus(e.target.value)} 
-              className="border border-[#006532] p-2 rounded"
+              className="border border-[#00653287] p-2 rounded"
             >
               <option value="">All Status</option>
               <option value="1">Active</option>
@@ -183,7 +218,7 @@ const ManageCategory = () => {
 
         <div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-5">
             {filteredCategories.map(category => (
               <div key={category.id} className="bg-white shadow-md p-6 rounded-lg border border-[#e0e0e0] hover:shadow-custom-dark transition-shadow duration-300 ease-in-out border-t-4 border-t-[#006532]">
                 <h3 className="text-xl font-semibold text-[#006532] mb-2">{category.c_name}</h3>
@@ -204,9 +239,15 @@ const ManageCategory = () => {
                 <p className="text-gray-600 mb-2"><strong>Hot Level:</strong> {category.c_hot}</p>
                 <p className="text-gray-600 mb-2"><strong>Status:</strong> {category.c_status ? 'Active' : 'Inactive'}</p>
                 <div className="flex items-center mt-4 space-x-3">
+                <input 
+                      type="checkbox" 
+                      checked={selectedCategories.includes(category.id)} 
+                      onChange={() => handleSelectCategory(category.id)} 
+                      className='size-[14px] mt-[2px]'
+                    />
                   <button 
                     onClick={() =>handleEditCategory(category)} 
-                    className=" text-[#006532] py-1 rounded hover:text-[#56bb89]"
+                    className="pl-1 text-[#006532] py-1 rounded hover:text-[#56bb89]"
                   >
                     <FaEdit /> 
                   </button>

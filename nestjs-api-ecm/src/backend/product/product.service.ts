@@ -1,6 +1,6 @@
 import {Injectable} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
-import {EntityManager} from "typeorm";
+import {EntityManager, In, Like} from "typeorm";
 import {ProductEntity} from "src/entities/product_entity/product.entity";
 import {ProductRepository} from "src/repository/ProductRepository";
 import {BaseService} from "src/base/baseService/base.service";
@@ -37,15 +37,39 @@ export class ProductService extends BaseService<ProductEntity>{
             where: condition,
             skip: (page - 1) * limit,
             take: limit,
+            relations: ['category'],
         });
 
         if (!list) throw new Error('NO PRODUCT!');
 
         return {
-            data: list,
+            products: list,
             total,
             page,
             limit,
+        };
+    }
+
+    async searchProducts(page: number, limit: number, filters: any): Promise<{ products: ProductEntity[]; total: number }> {
+        const whereConditions: any = {};
+        if (filters.name) {
+            whereConditions.name = Like(`%${filters.name}%`);
+        }
+        if (filters.category_id) {
+            whereConditions.category_id = Array.isArray(filters.category_id)
+                ? In(filters.category_id)
+                : filters.category_id;
+        }
+        const [result, total] = await this.productsRepo.findAndCount({
+            where: whereConditions,
+            take: limit,
+            skip: (page - 1) * limit,
+            relations: ['category']
+        });
+
+        return {
+            products: result,
+            total,
         };
     }
 
