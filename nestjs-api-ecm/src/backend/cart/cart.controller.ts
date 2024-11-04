@@ -67,7 +67,7 @@ export class CartController {
   }
 
   @Patch()
-  @Roles('admin')
+  @Roles('user')
   async update(@Body() updateCartDto: UpdateCartDto) {
     try {
       const productUpdate = await this.cartService.update(updateCartDto, updateCartDto.id);
