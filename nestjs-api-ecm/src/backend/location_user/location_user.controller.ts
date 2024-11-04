@@ -46,15 +46,13 @@ export class LocationUserController {
     }
   }
 
-  @Patch(':id')
+  @Patch()
   @Roles('user', 'admin')
   async update(
-      @Param('id') id: string,
       @Body() updateLocationUserDto: UpdateLocationUserDto,
-      @Query('update-default', ParseBooleanPipe) updateDefault: boolean,
   ) {
     try{
-      const check = await this.locationUserService.update(updateLocationUserDto, id, updateDefault);
+      const check = await this.locationUserService.update(updateLocationUserDto);
       return responseHandler.ok(check);
     }
     catch (e) {

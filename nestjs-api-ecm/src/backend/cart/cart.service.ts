@@ -63,7 +63,7 @@ export class CartService extends BaseService<Cart_productEntity> {
         };
         const productInDB = await this.cartRepo.findOneBy(condition);
         if (productInDB != null) {
-            productInDB.quantity += createCart.quantity;
+            productInDB.quantity = createCart.quantity;
             return await super.update(productInDB, productInDB.id);
         }
         return await super.create(createCart, condition);
@@ -82,26 +82,5 @@ export class CartService extends BaseService<Cart_productEntity> {
 
     async delete(id: string) {
         return await super.delete(id);
-    }
-
-    async incDecQuantity(filters: any, isIncrease: boolean, isDecrease: boolean ){
-        try{
-            const cartProduct = await this.detail(filters);
-            if(cartProduct){
-                if(isIncrease){
-                    cartProduct.quantity += 1;
-                }
-                else{
-                    cartProduct.quantity -= 1;
-                }
-            }
-            else return {
-                error: "Does not exist in cart",
-            };
-            return await this.cartRepo.update(cartProduct.id, cartProduct);
-        }
-        catch (e){
-            throw new Error('Cannot change quantity!')
-        }
     }
 }

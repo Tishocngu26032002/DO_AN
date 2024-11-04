@@ -33,7 +33,6 @@ export class CategoryController {
     required: false,
     description: 'Trạng thái áp dụng (All, True, False)',
   })
-  @Roles('admin')
   async getList(
     @Param('page') page: number,
     @Param('limit') limit: number,

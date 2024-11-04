@@ -38,7 +38,7 @@ export class CartController {
   }
 
   @Post('add-to-cart')
-  @Roles('admin', 'user')
+  @Roles('user')
   async addToCart(@Body() createCartDto: CreateCartDto) {
     try {
       const addToCart = await this.cartService.create(createCartDto);
@@ -50,9 +50,9 @@ export class CartController {
   }
 
   @Get('all-product-in-cart')
-  @Roles('admin', 'user')
+  @Roles('user')
   async getAllProductInCart(
-      @Param('user_id') user_id: string,
+      @Query('user_id') user_id: string,
   ) {
     try {
       const filters = {
@@ -64,39 +64,22 @@ export class CartController {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
       return responseHandler.error(errorMessage);
     }
-    return this.cartService.findAll();
   }
 
-  @Post('inc-dec-quantity')
-  @Roles('admin', 'user')
-  async incrDecrQuantity(@Body() updateCartDto: UpdateCartDto,
-                         @Query('increase', ParseBooleanPipe) increase: boolean,
-                         @Query('decrease', ParseBooleanPipe) decrease: boolean,) {
+  @Patch()
+  @Roles('admin')
+  async update(@Body() updateCartDto: UpdateCartDto) {
     try {
-      const filters = {
-        user_id: updateCartDto.user_id,
-        product_id: updateCartDto.product_id,
-      };
-      if (increase && decrease) {
-        return responseHandler.error('Only one of increase or decrease should be set to true.');
-      } else if (!increase && !decrease) {
-        return responseHandler.error('One of increase or decrease should be set to true.');
-      }
-      const result = await this.cartService.incDecQuantity(filters, !!increase, !!decrease);
-      return responseHandler.ok(result);
+      const productUpdate = await this.cartService.update(updateCartDto, updateCartDto.id);
+      return responseHandler.ok(productUpdate);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
       return responseHandler.error(errorMessage);
     }
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCartDto: UpdateCartDto) {
-    return this.cartService.update(updateCartDto, id);
-  }
-
   @Delete(':id')
-  @Roles('admin', 'user')
+  @Roles('user')
   async delete(@Param('id') id: string) {
     try {
       const check = await this.cartService.delete(id);
