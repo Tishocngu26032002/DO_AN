@@ -7,15 +7,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { User } from './entities/user_entity/user.entity';
 import { CategoryEntity } from './entities/category_entity/category.entity';
 import { JwtModule } from '@nestjs/jwt';
-import { ProductEntity } from './entities/product_entity/product.entity';
-import { Order_Product } from './entities/order_entity/order_product.entity';
-import { Cart_productEntity } from './entities/cartproduct_entity/cart_product.entity';
-import { Import_productEntity } from './entities/import_entity/import_product.entity';
-import { ImportEntity } from './entities/import_entity/import.entity';
-import { SupplierEntity } from './entities/supplier_entity/supplier.entity';
-import { Order } from './entities/order_entity/oder.entity';
-import { Location_userEntity } from './entities/user_entity/location_user.entity';
-import { UserModule } from './backend/user/user.module';
+import { ProductEntity } from 'src/entities/product_entity/product.entity';
+import { Order_Product } from 'src/entities/order_entity/order_product.entity';
+import { Cart_productEntity } from 'src/entities/cartproduct_entity/cart_product.entity';
+import { Import_productEntity } from 'src/entities/import_entity/import_product.entity';
+import { ImportEntity } from 'src/entities/import_entity/import.entity';
+import { SupplierEntity } from 'src/entities/supplier_entity/supplier.entity';
+import { Order } from 'src/entities/order_entity/oder.entity';
+import { Location_userEntity } from 'src/entities/user_entity/location_user.entity';
+import {UserModule} from "src/backend/user/user.module";
 
 @Module({
   imports: [

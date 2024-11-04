@@ -11,6 +11,7 @@ import { RegisterModuleModule } from './auth/register-module/register-module.mod
 import { CloudinaryModule } from 'src/backend/cloudinary/cloudinary.module';
 import {SupplierModule} from "src/backend/supplier/supplier.module";
 import {LocationUserModule} from "src/backend/location_user/location_user.module";
+import {CartModule} from "src/backend/cart/cart.module";
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import {LocationUserModule} from "src/backend/location_user/location_user.module
     RegisterModuleModule,
     CloudinaryModule,
     SupplierModule,
-    LocationUserModule
+    LocationUserModule,
+    CartModule
   ],
 })
 export class BackendModule {}

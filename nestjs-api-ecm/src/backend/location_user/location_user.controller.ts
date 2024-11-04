@@ -8,6 +8,7 @@ import {ApiBearerAuth, ApiQuery, ApiTags} from "@nestjs/swagger";
 import {Roles} from "src/decorator/Role.decorator";
 import {ExpirationStatus} from "src/share/Enum/Enum";
 import {responseHandler} from "src/Until/responseUtil";
+import {ParseBooleanPipe} from "src/share/ParseBooleanPipe";
 
 @Controller('location-user')
 @UseGuards(AuthGuard, RolesGuard)
@@ -45,15 +46,13 @@ export class LocationUserController {
     }
   }
 
-  @Patch(':id')
+  @Patch()
   @Roles('user', 'admin')
   async update(
-      @Param('id') id: string,
       @Body() updateLocationUserDto: UpdateLocationUserDto,
-      @Query('update-default') updateDefault: boolean = false,
   ) {
     try{
-      const check = await this.locationUserService.update(updateLocationUserDto, id, updateDefault);
+      const check = await this.locationUserService.update(updateLocationUserDto);
       return responseHandler.ok(check);
     }
     catch (e) {
