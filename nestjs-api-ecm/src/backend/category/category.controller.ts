@@ -77,14 +77,13 @@ export class CategoryController {
     }
   }
 
-  @Patch(':id')
+  @Patch()
   @Roles('admin')
   async update(
-    @Param('id') id: string,
-    @Body('categoryUpdateDTO') categoryUpdateDTO: categoryUpdateDTO,
+    @Body() categoryUpdateDTO: categoryUpdateDTO,
   ) {
     try {
-      const check = await this.categoryService.update(categoryUpdateDTO, id);
+      const check = await this.categoryService.update(categoryUpdateDTO, categoryUpdateDTO.id);
       return responseHandler.ok(check);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
