@@ -8,15 +8,15 @@ import { User } from './entities/user_entity/user.entity';
 import { CategoryEntity } from './entities/category_entity/category.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ProductEntity } from 'src/entities/product_entity/product.entity';
-import { Order_Product } from 'src/entities/order_entity/order_product.entity';
 import { Cart_productEntity } from 'src/entities/cartproduct_entity/cart_product.entity';
 import { Import_productEntity } from 'src/entities/import_entity/import_product.entity';
 import { ImportEntity } from 'src/entities/import_entity/import.entity';
 import { SupplierEntity } from 'src/entities/supplier_entity/supplier.entity';
-import { Order } from 'src/entities/order_entity/oder.entity';
+import { OrderEntity } from 'src/entities/order_entity/oder.entity';
 import { Location_userEntity } from 'src/entities/user_entity/location_user.entity';
-import {UserModule} from "src/backend/user/user.module";
+import { UserModule } from 'src/backend/user/user.module';
 import { LocationUserModule } from './backend/location_user/location_user.module';
+import { Order_productEntity } from 'src/entities/order_entity/order_product.entity';
 
 @Module({
   imports: [
@@ -45,12 +45,12 @@ import { LocationUserModule } from './backend/location_user/location_user.module
           User,
           CategoryEntity,
           ProductEntity,
-          Order_Product,
+          Order_productEntity,
           Cart_productEntity,
           Import_productEntity,
           ImportEntity,
           SupplierEntity,
-          Order,
+          OrderEntity,
           Location_userEntity,
         ],
         synchronize: true,

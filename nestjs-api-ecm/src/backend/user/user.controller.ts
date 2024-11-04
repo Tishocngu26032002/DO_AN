@@ -12,7 +12,7 @@ import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
 import { responseHandler } from 'src/Until/responseUtil';
 import { UpdateUserDto } from 'src/dto/userDTO/user.update.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import {Roles} from "src/decorator/Role.decorator";
+import { Roles } from 'src/decorator/Role.decorator';
 
 @Controller('users')
 @ApiBearerAuth()
@@ -22,9 +22,7 @@ export class UserController {
 
   @Get(':page/:limit')
   @Roles('admin')
-  async findAll(
-      @Param('page') page: number,
-      @Param('limit') limit: number) {
+  async findAll(@Param('page') page: number, @Param('limit') limit: number) {
     try {
       const users = await this.usersService.findAll(page, limit);
       console.log(users);
@@ -48,7 +46,7 @@ export class UserController {
   }
 
   @Get(':id')
-  @Roles('user','admin')
+  @Roles('user', 'admin')
   async findOne(@Param('id') id: string) {
     try {
       const user = await this.usersService.findOne(id);
@@ -60,7 +58,7 @@ export class UserController {
   }
 
   @Patch(':id')
-  @Roles('user','admin')
+  @Roles('user', 'admin')
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     try {
       const user = await this.usersService.update(id, updateUserDto);
