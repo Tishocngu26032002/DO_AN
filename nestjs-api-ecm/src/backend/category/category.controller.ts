@@ -17,7 +17,7 @@ import { responseHandler } from 'src/Until/responseUtil';
 import { CategoryCreateDTO } from 'src/dto/categoryDTO/category.create.dto';
 import { CategoryService } from 'src/backend/category/category.service';
 import { categoryUpdateDTO } from 'src/dto/categoryDTO/category.update.dto';
-import { ApplyStatus, ExpirationStatus } from 'src/share/Enum/Enum';
+import { ApplyStatus } from 'src/share/Enum/Enum';
 
 @Controller('category')
 @ApiTags('Category')
@@ -77,14 +77,14 @@ export class CategoryController {
     }
   }
 
-  @Patch(':id')
+  @Patch()
   @Roles('admin')
-  async update(
-    @Param('id') id: string,
-    @Body('categoryUpdateDTO') categoryUpdateDTO: categoryUpdateDTO,
-  ) {
+  async update(@Body() categoryUpdateDTO: categoryUpdateDTO) {
     try {
-      const check = await this.categoryService.update(categoryUpdateDTO, id);
+      const check = await this.categoryService.update(
+        categoryUpdateDTO,
+        categoryUpdateDTO.id,
+      );
       return responseHandler.ok(check);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
