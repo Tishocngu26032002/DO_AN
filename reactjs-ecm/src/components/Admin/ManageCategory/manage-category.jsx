@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import AdminHeader from "../AdminHeader/admin-header.jsx";
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaFilter } from "react-icons/fa";
-import axios from "axios";
+import { FaPlus, FaEdit, FaTrash, FaSearch } from "react-icons/fa";
+import {
+  createCategory,
+  deleteCategories,
+  deleteCategory,
+  getCategory,
+  updateCategory,
+} from "../../../services/category-service.js";
+import { authLocal } from "../../../util/auth-local.js";
 
 const Modal = ({ children, showModal, setShowModal }) =>
   showModal ? (
@@ -34,25 +41,22 @@ const ManageCategory = () => {
   const [filterStatus, setFilterStatus] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [page, setPage] = useState(1); // Trang hiện tại
-  const [limit, setLimit] = useState(10); // Giới hạn số mục mỗi trang
+  const [limit, setLimit] = useState(4); // Giới hạn số mục mỗi trang
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Hàm gọi API để lấy danh mục
   const fetchCategories = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:6006/category/${page}/${limit}`,
-      );
-      if (response.data.success) {
-        setCategories(response.data.data.data); // Cập nhật dữ liệu danh mục
-      }
-    } catch (error) {
-      console.error("Error fetching categories:", error);
+    const response = await getCategory(page, limit);
+    if (response.success) {
+      setCategories(response.data.data); // Cập nhật dữ liệu danh mục
+      setTotalPages(Math.ceil(response.data.total / limit));
     }
   };
 
   useEffect(() => {
     fetchCategories();
-  }, [page, limit]); // Gọi lại API khi trang hoặc giới hạn thay đổi
+  }, [page, limit, showModal]); // Gọi lại API khi trang hoặc giới hạn thay đổi
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -67,27 +71,14 @@ const ManageCategory = () => {
   };
 
   const addCategory = async (categoryData) => {
-    let token = localStorage.getItem("token"); // Lấy token từ localStorage
+    let token = authLocal.getToken();
     token = token.replace(/^"|"$/g, "");
-    // console.log(token);
-    try {
-      categoryData.status = "Áp dụng";
-      const response = await axios.post(
-        "http://localhost:6006/category",
-        categoryData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Gửi token trong header
-          },
-        },
-      );
-      if (response.data.success) {
-        setCategories([...categories, response.data.data]); // Thêm danh mục mới vào danh sách
-        setShowModal(false);
-      }
-      console.log("Category added:", response.data);
-    } catch (error) {
-      console.error("Error adding category:", error);
+
+    categoryData.status = "Áp dụng";
+    const response = await createCategory(categoryData, token);
+    if (response.success) {
+      setCategories([...categories, response.data]);
+      setShowModal(false);
     }
   };
 
@@ -102,29 +93,17 @@ const ManageCategory = () => {
     });
   };
 
-  const deleteCategory = async (id) => {
-    let token = localStorage.getItem("token");
+  const deleteOneCategory = async (id) => {
+    let token = authLocal.getToken();
     token = token.replace(/^"|"$/g, "");
-
-    try {
-      const response = await axios.delete(
-        `http://localhost:6006/category/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      if (response.data.success) {
-        setCategories(categories.filter((category) => category.id !== id));
-      }
-    } catch (error) {
-      console.error("Error deleting category:", error);
+    const response = await deleteCategory(id, token);
+    if (response.success) {
+      setCategories(categories.filter((category) => category.id !== id));
     }
   };
 
   const handleDeleteCategory = (id) => {
-    deleteCategory(id);
+    deleteOneCategory(id);
   };
 
   const handleEditCategory = (category) => {
@@ -133,45 +112,27 @@ const ManageCategory = () => {
     setShowModal(true);
   };
 
-  const updateCategory = async (categoryData) => {
-    console.log("categoryData", categoryData);
-    let token = localStorage.getItem("token");
+  const updateOneCategory = async (categoryData) => {
+    let token = authLocal.getToken();
     token = token.replace(/^"|"$/g, "");
-    console.log("editingCategory.id", editingCategory.id);
-    try {
-      const response = await axios.patch(
-        `http://localhost:6006/category/${editingCategory.id}`,
-        categoryData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+
+    const response = await updateCategory(categoryData, token);
+    if (response.success) {
+      // Cập nhật danh sách categories
+      setCategories((prevCategories) =>
+        prevCategories.map((category) =>
+          category.id === editingCategory.id ? response.data : category,
+        ),
       );
-
-      // Kiểm tra response
-      console.log("Update response:", response.data);
-
-      if (response.data.success) {
-        // Cập nhật danh sách categories
-        setCategories((prevCategories) =>
-          prevCategories.map((category) =>
-            category.id === editingCategory.id ? response.data.data : category,
-          ),
-        );
-        setEditingCategory(null);
-        setShowModal(false); // Đóng modal sau khi cập nhật thành công
-      } else {
-        console.error("Failed to update category:", response.data.message);
-      }
-    } catch (error) {
-      console.error("Error updating category:", error);
+      setEditingCategory(null);
+      setShowModal(false); // Đóng modal sau khi cập nhật thành công
+    } else {
+      console.error("Failed to update category:", response.message);
     }
   };
 
   const handleUpdateCategory = () => {
-    console.log("Updating category with data:", newCategory);
-    updateCategory(newCategory);
+    updateOneCategory(newCategory);
     setNewCategory({
       name: "",
       image: "",
@@ -198,11 +159,12 @@ const ManageCategory = () => {
   };
 
   const deleteSelectedCategories = async () => {
+    let token = authLocal.getToken();
+    token = token.replace(/^"|"$/g, "");
+
     try {
       await Promise.all(
-        selectedCategories.map((id) =>
-          axios.delete(`http://localhost:6006/category/${id}`),
-        ),
+        selectedCategories.map((id) => deleteCategories(id, token)),
       );
       setCategories(
         categories.filter(
@@ -233,6 +195,10 @@ const ManageCategory = () => {
 
     return matchesSearch && matchesStatus;
   });
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -339,7 +305,7 @@ const ManageCategory = () => {
               onChange={(e) => setFilterStatus(e.target.value)}
               className="rounded border border-[#00653287] p-2"
             >
-              <option value="">All Status</option>
+              <option value="">Tất cả</option>
               <option value="Áp dụng">Áp dụng</option>
               <option value="Không áp dụng">Không áp dụng</option>
             </select>
@@ -411,6 +377,24 @@ const ManageCategory = () => {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Nút phân trang */}
+        <div className="mt-4 flex justify-center">
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => handlePageChange(index + 1)}
+              className={`mx-1 rounded px-3 py-1 ${
+                index + 1 === page
+                  ? "bg-[#006532] text-white"
+                  : "bg-gray-200 text-gray-800 hover:bg-blue-200"
+              }`}
+              disabled={index + 1 === page}
+            >
+              {index + 1}
+            </button>
+          ))}
         </div>
 
         <button

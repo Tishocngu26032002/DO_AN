@@ -38,6 +38,10 @@ function LoginForm() {
           "token",
           JSON.stringify(response?.data.accessToken),
         );
+
+        // Lưu userId vào localStorage
+        localStorage.setItem("userId", JSON.stringify(response?.data.user.id));
+
         const role = response?.data.user.role;
         if (role === "admin") {
           setTimeout(() => {
@@ -62,7 +66,7 @@ function LoginForm() {
 
   return (
     <div className="flex h-screen items-center justify-center bg-gray-50">
-      <div className="mx-2 my-2 w-full max-w-lg overflow-hidden rounded-lg bg-white shadow-lg">
+      <div className="shadow-lg mx-2 my-2 w-full max-w-lg overflow-hidden rounded-lg bg-white">
         <div className="bg-[#006532] p-6">
           <p className="relative text-2xl font-medium text-white">
             Đăng nhập
@@ -82,7 +86,7 @@ function LoginForm() {
                 id="email"
                 placeholder="Nhập email của bạn"
                 {...register("email")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#006532]"
+                className="duration-120 shadow-sm focus:shadow-lg h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base outline-none transition-all ease-out focus:ring-2 focus:ring-[#006532]"
               />
               {errors.email && (
                 <span className="text-red-500">{errors.email.message}</span>
@@ -99,7 +103,7 @@ function LoginForm() {
                 id="password"
                 placeholder="Nhập mật khẩu của bạn"
                 {...register("password")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#006532]"
+                className="duration-120 shadow-sm focus:shadow-lg h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base outline-none transition-all ease-out focus:ring-2 focus:ring-[#006532]"
               />
               {errors.password && (
                 <span className="text-red-500">{errors.password.message}</span>
@@ -111,7 +115,7 @@ function LoginForm() {
             <input
               type="submit"
               value="Đăng nhập"
-              className={`h-11 w-full cursor-pointer rounded-md bg-[#006532] font-medium tracking-wide text-white shadow-md transition-all duration-300 ease-in-out hover:bg-[#004d26] disabled:bg-gray-300`}
+              className={`shadow-md h-11 w-full cursor-pointer rounded-md bg-[#006532] font-medium tracking-wide text-white transition-all duration-300 ease-in-out hover:bg-[#004d26] disabled:bg-gray-300`}
             />
           </div>
         </form>

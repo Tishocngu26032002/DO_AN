@@ -1,46 +1,86 @@
 import React, { useEffect, useState } from "react";
-import { PER_PAGE } from "../../services/constants";
-import { createCart, getCarts, updateCart } from "../../services/cart-api";
-import { getProducts } from "../../services/product-api";
-import { getQueryString } from "../../util/utils";
+import { PER_PAGE } from "../../constants/per-page";
+import { createCart, getCarts, updateCart } from "../../services/cart-service";
+import { getProducts, getQueryProducts } from "../../services/product-service";
 import Header from "../Header/header";
 import Footer from "../Footer/footer";
 import { Link, useNavigate } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
 import { PiShoppingCartBold } from "react-icons/pi";
+import { getCategory } from "../../services/category-service";
+import { authLocal, userIdLocal } from "../../util/auth-local";
 
 const ShopGrid = () => {
   const navigate = useNavigate();
+
   const [params, setParams] = useState({
-    _limit: PER_PAGE,
-    _page: 1,
-    _totalRows: 0,
-    title_like: "",
+    limit: PER_PAGE,
+    page: 1,
+    total: 0,
+    name: "",
+    category_id: "",
   });
+
+  const [category, setCategory] = useState([]);
+
   const [products, setProducts] = useState([]);
+
   const [carts, setCarts] = useState([]);
 
   useEffect(() => {
-    // Gọi hàm khi trang được render lần đầu
     getProductsOnPage();
-  }, [params._page, params.title_like]); // Chỉ chạy lại khi _page hoặc title_like thay đổi
+    getCategoryOnPage();
+  }, []);
 
   useEffect(() => {
-    getCartsOnPage();
-  }, []);
+    getCartsOnPage(); // Cập nhật giỏ hàng sau mỗi lần tải lại sản phẩm
+  }, [params.page]);
+
+  useEffect(() => {
+    getQueryProductsOnPage();
+  }, [params.name, params.category_id, params.page]);
+
+  const getCategoryOnPage = async () => {
+    try {
+      const response = await getCategory(1, 20);
+
+      setCategory(response.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const getProductsOnPage = async () => {
     try {
-      const { data, pagination } = await getProducts(getQueryString(params));
-      // console.log("data:", data);
-      // console.log("pagination:", pagination);
-      setProducts(data);
+      const response = await getProducts(params.page, params.limit);
+      setProducts(response.data.products);
 
-      // Kiểm tra nếu _totalRows thay đổi thì mới cập nhật params
-      if (pagination._totalRows !== params._totalRows) {
+      if (response.data.total !== params.total) {
         setParams((prev) => ({
           ...prev,
-          _totalRows: pagination._totalRows,
+          total: response.data.total,
+        }));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getQueryProductsOnPage = async () => {
+    try {
+      const response = await getQueryProducts(
+        params.page,
+        params.limit,
+        params.name,
+        params.category_id,
+      );
+
+      setProducts(response.data.products);
+
+      if (response.data.total !== params.total) {
+        setParams((prev) => ({
+          ...prev,
+          total: response.data.total,
         }));
       }
     } catch (error) {
@@ -50,34 +90,54 @@ const ShopGrid = () => {
 
   const getCartsOnPage = async () => {
     try {
-      const cartsData = await getCarts({ isUser: "abc" });
-      setCarts(cartsData);
+      let token = authLocal.getToken();
+      token = token.replace(/^"|"$/g, "");
+
+      let userId = userIdLocal.getUserId();
+      userId = userId.replace(/^"|"$/g, "");
+
+      if (userId) {
+        const cartsData = await getCarts(userId, token);
+
+        setCarts(cartsData.data.data.cart);
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
   const handlePageChange = (page) => {
-    setParams((prev) => ({ ...prev, _page: page }));
+    setParams((prev) => ({ ...prev, page: page }));
   };
 
   const handleAddToCart = async (productId) => {
-    const product = products.find((prod) => prod.id === Number(productId));
-    const cartIndex = carts.findIndex((cart) => cart.productId === product.id);
+    const product = products.find((prod) => prod.id === productId);
+    const cartIndex = carts.findIndex((cart) => cart.product_id === product.id);
+
+    let token = authLocal.getToken();
+    token = token.replace(/^"|"$/g, "");
+
+    let userId = userIdLocal.getUserId();
+    userId = userId.replace(/^"|"$/g, "");
 
     if (cartIndex !== -1) {
-      await updateCart({
-        ...carts[cartIndex],
-        quantity: carts[cartIndex].quantity + 1,
-      });
+      await updateCart(
+        {
+          ...carts[cartIndex],
+          quantity: carts[cartIndex].quantity + 1,
+        },
+        token,
+      );
     } else {
-      await createCart({
-        ...product,
-        productId: product.id,
-        quantity: 1,
-        userId: "abc",
-        id: null,
-      });
+      await createCart(
+        {
+          ...product,
+          product_id: product.id,
+          quantity: 1,
+          user_id: userId,
+        },
+        token,
+      );
     }
     getCartsOnPage();
   };
@@ -85,8 +145,16 @@ const ShopGrid = () => {
   const handleSearch = (e) => {
     setParams((prev) => ({
       ...prev,
-      title_like: e.target.value.trim(),
-      _page: 1,
+      name: e.target.value.trim(),
+      page: 1,
+    }));
+  };
+
+  const handleFilter = (e) => {
+    setParams((prev) => ({
+      ...prev,
+      category_id: e.target.value.trim(),
+      page: 1,
     }));
   };
 
@@ -99,13 +167,13 @@ const ShopGrid = () => {
         key={product.id}
         onClick={() => navigate(`/product-detail`)}
       >
-        <img src={product.images[0]} alt={product.name} />
+        <img src={product.url_images} alt={product.name} />
         <div className="des py-[10px] text-start">
           <span className="text-[12px] text-[#606063]">
             {product.category.name}
           </span>
           <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-            {product.title}
+            {product.name}
           </h5>
           <div className="star flex">
             {[...Array(5)].map((_, index) => (
@@ -116,7 +184,7 @@ const ShopGrid = () => {
             ))}
           </div>
           <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-            ${product.price}
+            ${product.priceout}
           </h4>
         </div>
 
@@ -126,6 +194,7 @@ const ShopGrid = () => {
             className="add-to-cart fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"
             onClick={(e) => {
               e.stopPropagation();
+              e.preventDefault();
               handleAddToCart(product.id);
             }}
           />
@@ -135,9 +204,9 @@ const ShopGrid = () => {
   };
 
   const renderPagination = () => {
-    if (params._totalRows < PER_PAGE) return null;
+    if (params.total < PER_PAGE) return null;
 
-    const totalPages = Math.ceil(params._totalRows / PER_PAGE);
+    const totalPages = Math.ceil(params.total / PER_PAGE);
     return (
       <div id="pagination" className="section-p1">
         {[...Array(totalPages)].map((_, index) => (
@@ -145,7 +214,7 @@ const ShopGrid = () => {
             key={index + 1}
             data-page={index + 1}
             className={`page ${
-              params._page === index + 1
+              params.page === index + 1
                 ? "active bg-[#088178] text-white"
                 : "bg-gray-200"
             } mx-1 rounded p-2`}
@@ -173,7 +242,17 @@ const ShopGrid = () => {
       <section id="newsletter" className="section-p1 section-m1">
         <div className="flex flex-wrap items-center justify-between bg-[#041e42] bg-[url(src/assets/images/b14.png)] bg-[20%_30%] bg-no-repeat p-4">
           <div className="relative w-1/3">
-            <select className="h-[3.125rem] w-full rounded border border-transparent px-5 text-[14px]"></select>
+            <select
+              onChange={handleFilter}
+              className="h-[3.125rem] w-full rounded border border-transparent px-5 text-[14px]"
+            >
+              <option value="">Tất cả</option>
+              {category.map((cate) => (
+                <option key={cate.id} value={cate.id}>
+                  {cate.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="form flex w-1/3">

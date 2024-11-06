@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { FaStar } from "react-icons/fa";
 import { PiShoppingCartBold } from "react-icons/pi";
 import Footer from "../Footer/footer";
 import { Link, useNavigate } from "react-router-dom";
-import { getProducts } from "../../services/service";
+import { getProducts } from "../../services/home-service";
 import Header from "../Header/header";
 
 function HomePage() {
