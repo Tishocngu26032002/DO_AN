@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import AdminHeader from "../AdminHeader/admin-header.jsx";
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaFilter } from "react-icons/fa";
 import {
-  createCategory,
-  deleteCategories,
-  deleteCategory,
-  getCategory,
-  updateCategory,
-} from "../../../services/category-service.js";
+  createSupplier,
+  deleteSuppliers,
+  deleteSupplier,
+  getSupplier,
+  updateSupplier,
+} from "../../../services/supplier-service.js";
 import { authLocal } from "../../../util/auth-local.js";
 
 const Modal = ({ children, showModal, setShowModal }) =>
@@ -25,175 +25,165 @@ const Modal = ({ children, showModal, setShowModal }) =>
     </div>
   ) : null;
 
-const ManageCategory = () => {
-  const [categories, setCategories] = useState([]);
-  const [newCategory, setNewCategory] = useState({
+const ManageSupplier = () => {
+  const [suppliers, setSuppliers] = useState([]);
+  const [newSupplier, setNewSupplier] = useState({
     name: "",
     image: "",
-    banner: "",
-    description: "",
-    status: "Áp dụng",
+    phone: "",
+    address: "",
+
   });
-  const [editingCategory, setEditingCategory] = useState(null);
+  const [editingSupplier, setEditingSupplier] = useState(null);
   const [expandedDescription, setExpandedDescription] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedSuppliers, setSelectedSuppliers] = useState([]);
   const [page, setPage] = useState(1); // Trang hiện tại
   const [limit, setLimit] = useState(4); // Giới hạn số mục mỗi trang
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Hàm gọi API để lấy danh mục
-  const fetchCategories = async () => {
-    const response = await getCategory(page, limit);
+  const fetchSuppliers = async () => {
+    const response = await getSupplier(page, limit);
     if (response.success) {
-      setCategories(response.data.data); // Cập nhật dữ liệu danh mục
+      setSuppliers(response.data.data); // Cập nhật dữ liệu danh mục
       setTotalPages(Math.ceil(response.data.total / limit));
     }
   };
 
   useEffect(() => {
-    fetchCategories();
+    fetchSuppliers();
   }, [page, limit, showModal]); // Gọi lại API khi trang hoặc giới hạn thay đổi
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewCategory({ ...newCategory, [name]: value });
+    setNewSupplier({ ...newSupplier, [name]: value });
   };
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     if (files.length > 0) {
-      setNewCategory({ ...newCategory, [name]: URL.createObjectURL(files[0]) });
+      setNewSupplier({ ...newSupplier, [name]: URL.createObjectURL(files[0]) });
     }
   };
 
-  const addCategory = async (categoryData) => {
+  const addSupplier = async (supplierData) => {
     let token = authLocal.getToken();
     token = token.replace(/^"|"$/g, "");
 
-    categoryData.status = "Áp dụng";
-    const response = await createCategory(categoryData, token);
+    const response = await createSupplier(supplierData, token);
     if (response.success) {
-      setCategories([...categories, response.data]);
+      setSuppliers([...suppliers, response.data]);
       setShowModal(false);
     }
   };
 
-  const handleAddCategory = () => {
-    addCategory(newCategory);
-    setNewCategory({
+  const handleAddSupplier = () => {
+    addSupplier(newSupplier);
+    setNewSupplier({
       name: "",
       image: "",
-      banner: "",
-      description: "",
-      status: "Áp dụng",
+      phone: "",
+      address: "",
+ 
     });
   };
 
-  const deleteOneCategory = async (id) => {
+  const deleteOneSupplier = async (id) => {
     let token = authLocal.getToken();
     token = token.replace(/^"|"$/g, "");
-    const response = await deleteCategory(id, token);
+    const response = await deleteSupplier(id, token);
     if (response.success) {
-      setCategories(categories.filter((category) => category.id !== id));
+      setSuppliers(suppliers.filter((supplier) => supplier.id !== id));
     }
   };
 
-  const handleDeleteCategory = (id) => {
-    deleteOneCategory(id);
+  const handleDeleteSupplier = (id) => {
+    deleteOneSupplier(id);
   };
 
-  const handleEditCategory = (category) => {
-    setEditingCategory(category);
-    setNewCategory(category);
+  const handleEditSupplier = (supplier) => {
+    setEditingSupplier(supplier);
+    setNewSupplier(supplier);
     setShowModal(true);
   };
 
-  const updateOneCategory = async (categoryData) => {
+  const updateOneSupplier = async (supplierData) => {
     let token = authLocal.getToken();
     token = token.replace(/^"|"$/g, "");
 
-    const response = await updateCategory(categoryData, token);
+    const response = await updateSupplier(supplierData, token);
     if (response.success) {
-      // Cập nhật danh sách categories
-      setCategories((prevCategories) =>
-        prevCategories.map((category) =>
-          category.id === editingCategory.id ? response.data : category,
+      // Cập nhật danh sách suppliers
+      setSuppliers((prevSuppliers) =>
+        prevSuppliers.map((supplier) =>
+          supplier.id === editingSupplier.id ? response.data : supplier,
         ),
       );
-      setEditingCategory(null);
+      setEditingSupplier(null);
       setShowModal(false); // Đóng modal sau khi cập nhật thành công
     } else {
-      console.error("Failed to update category:", response.message);
+      console.error("Failed to update supplier:", response.message);
     }
   };
 
-  const handleUpdateCategory = () => {
-    updateOneCategory(newCategory);
-    setNewCategory({
+  const handleUpdateSupplier = () => {
+    updateOneSupplier(newSupplier);
+    setNewSupplier({
       name: "",
       image: "",
-      banner: "",
-      description: "",
-      status: "Áp dụng",
+      phone: "",
+      address: "",
+
     });
   };
 
-  const toggleDescription = (id) => {
-    setExpandedDescription((prevState) => ({
-      ...prevState,
-      [id]: !prevState[id],
-    }));
-  };
-  const handleSelectCategory = (id) => {
-    if (selectedCategories.includes(id)) {
-      setSelectedCategories(
-        selectedCategories.filter((cateId) => cateId !== id),
+  const handleSelectSupplier = (id) => {
+    if (selectedSuppliers.includes(id)) {
+      setSelectedSuppliers(
+        selectedSuppliers.filter((cateId) => cateId !== id),
       );
     } else {
-      setSelectedCategories([...selectedCategories, id]);
+      setSelectedSuppliers([...selectedSuppliers, id]);
     }
   };
 
-  const deleteSelectedCategories = async () => {
+  const deleteSelectedSuppliers = async () => {
     let token = authLocal.getToken();
     token = token.replace(/^"|"$/g, "");
 
     try {
       await Promise.all(
-        selectedCategories.map((id) => deleteCategories(id, token)),
+        selectedSuppliers.map((id) => deleteSuppliers(id, token)),
       );
-      setCategories(
-        categories.filter(
-          (category) => !selectedCategories.includes(category.id),
+      setSuppliers(
+        suppliers.filter(
+          (supplier) => !selectedSuppliers.includes(supplier.id),
         ),
       );
-      setSelectedCategories([]);
+      setSelectedSuppliers([]);
     } catch (error) {
-      console.error("Error deleting selected categories:", error);
+      console.error("Error deleting selected suppliers:", error);
     }
   };
 
-  const handleDeleteSelectedCategories = () => {
-    deleteSelectedCategories();
+  const handleDeleteSelectedSuppliers = () => {
+    deleteSelectedSuppliers();
   };
 
-  // Hàm lọc danh sách categories
-  const filteredCategories = categories.filter((category) => {
-    if (!category.name) return false;
+  // Hàm lọc danh sách suppliers
+  const filteredSuppliers = suppliers.filter((supplier) => {
+    if (!supplier.name) return false;
 
-    const matchesSearch = category.name
+    const matchesSearch = supplier.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
 
-    const matchesStatus = filterStatus
-      ? category.status === filterStatus
-      : true;
-
-    return matchesSearch && matchesStatus;
+    
+    return matchesSearch ;
   });
 
   const handlePageChange = (newPage) => {
@@ -205,20 +195,20 @@ const ManageCategory = () => {
       <AdminHeader />
       <div className="p-4 lg:mx-12">
       <h1 className="mb-8 mt-4 text-center text-4xl font-bold text-[#006532]">
-          Manage Categories
+          Manage Suppliers
         </h1>
 
         <Modal showModal={showModal} setShowModal={setShowModal}>
           <h2 className="mb-4 text-2xl font-semibold text-[#006532]">
-            {editingCategory ? "Update Category" : "Add New Category"}
+            {editingSupplier ? "Update Supplier" : "Add New Supplier"}
           </h2>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <input
               type="text"
               name="name"
-              value={newCategory.name}
+              value={newSupplier.name}
               onChange={handleInputChange}
-              placeholder="Category Name"
+              placeholder="Supplier Name"
               className="rounded border p-2"
             />
             <input
@@ -229,59 +219,51 @@ const ManageCategory = () => {
             />
             <input
               type="text"
-              name="banner"
-              value={newCategory.banner}
+              name="phone"
+              value={newSupplier.phone}
               onChange={handleInputChange}
-              placeholder="Category Banner"
+              placeholder="Supplier Phone"
               className="rounded border p-2"
             />
             <input
               type="text"
-              name="description"
-              value={newCategory.description}
+              name="address"
+              value={newSupplier.address}
               onChange={handleInputChange}
-              placeholder="Category Description"
+              placeholder="Supplier Address"
               className="rounded border p-2"
             />
-            <select
-              name="status"
-              value={newCategory.status}
-              onChange={handleInputChange}
-              className="rounded border p-2"
-            >
-              <option value={"Áp dụng"}>Áp dụng</option>
-              <option value={"Không áp dụng"}>Không áp dụng</option>
-            </select>
+         
           </div>
           <button
-            onClick={editingCategory ? handleUpdateCategory : handleAddCategory}
+            onClick={editingSupplier ? handleUpdateSupplier : handleAddSupplier}
             className="shadow mt-4 rounded bg-[#006532] px-4 py-2 text-white hover:bg-[#005a2f]"
           >
-            {editingCategory ? "Update Category" : "Add Category"}
+            {editingSupplier ? "Update Supplier" : "Add Supplier"}
           </button>
         </Modal>
 
         {/* Thanh tìm kiếm và lọc */}
-        <div className="mb-3 mt-4 flex flex-col items-center rounded-lg bg-white px-6 py-3 md:flex-row">
+        <div className="mb-3 mt-4 flex flex-col justify-between rounded-lg bg-white px-6 py-3 md:flex-row">
           <div className="flex w-1/5 items-center space-x-2">
             <div className="mt-1 pr-4 tablet:absolute tablet:left-10 tablet:mt-[148px]">
               <input
                 type="checkbox"
                 onChange={(e) => {
                   if (e.target.checked) {
-                    setSelectedCategories(
-                      categories.map((category) => category.id),
+                    setSelectedSuppliers(
+                      suppliers.map((supplier) => supplier.id),
                     );
                   } else {
-                    setSelectedCategories([]);
+                    setSelectedSuppliers([]);
                   }
                 }}
               />
             </div>
             <div className="tablet:absolute tablet:left-16 tablet:mt-36">
-              {selectedCategories.length > 0 && (
+              {selectedSuppliers.length > 0 && (
                 <FaTrash
-                  onClick={handleDeleteSelectedCategories}
+                  onClick={handleDeleteSelectedSuppliers}
                   className="text-gray-400 hover:text-red-500"
                 />
               )}
@@ -299,76 +281,56 @@ const ManageCategory = () => {
               <FaSearch className="absolute right-4 top-3 text-gray-400" />
             </div>
           </div>
-          <div className="flex w-2/5 items-center justify-end space-x-2 tablet:w-full">
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="rounded border border-[#00653287] p-2"
-            >
-              <option value="">Tất cả</option>
-              <option value="Áp dụng">Áp dụng</option>
-              <option value="Không áp dụng">Không áp dụng</option>
-            </select>
-          </div>
+        
         </div>
 
         <div>
           <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {filteredCategories.map((category) => (
+            {filteredSuppliers.map((supplier) => (
               <div
-                key={category.id}
+                key={supplier.id}
                 className="shadow-md rounded-lg border border-t-4 border-[#e0e0e0] border-t-[#006532] bg-white p-6 transition-shadow duration-300 ease-in-out hover:shadow-custom-dark"
               >
                 <h3 className="mb-2 text-xl font-semibold text-[#006532]">
-                  {category.name}
+                  {supplier.name}
                 </h3>
                 <p className="mb-2 text-gray-600">
                   <strong>Avatar:</strong>{" "}
                   <img
-                    src={category.image}
-                    alt={category.name}
+                    src={supplier.image}
+                    alt={supplier.name}
                     className="h-16 w-16 rounded"
                   />
                 </p>
                 <p className="mb-2 text-gray-600">
-                  <strong>Banner:</strong> {category.banner}
+                  <strong>Banner:</strong> {supplier.phone}
                 </p>
                 <p className="mb-2 text-gray-600">
                   <strong>Description:</strong>
                   <span className="block">
-                    {expandedDescription[category.id]
-                      ? category.description
-                      : `${category.description.substring(0, 100)}...`}
+             
+                       {supplier.address}
+                      
                   </span>
-                  <button
-                    onClick={() => toggleDescription(category.id)}
-                    className="text-[#006532] transition-colors duration-300 hover:text-[#005a2f]"
-                  >
-                    {expandedDescription[category.id]
-                      ? "Show Less"
-                      : "Show More"}
-                  </button>
+                  
                 </p>
 
-                <p className="mb-2 text-gray-600">
-                  <strong>Status:</strong>{" "}
-                  {category.status === "Áp dụng" ? "Áp dụng" : "Không áp dụng"}
-                </p>
+              
                 <div className="mt-4 flex items-center space-x-3">
                   <input
                     type="checkbox"
-                    checked={selectedCategories.includes(category.id)}
-                    onChange={() => handleSelectCategory(category.id)}
+                    checked={selectedSuppliers.includes(supplier.id)}
+                    onChange={() => handleSelectSupplier(supplier.id)}
                     className="mt-[2px] size-[14px]"
                   />
                   <button
-                    onClick={() => handleEditCategory(category)}
+                    onClick={() => handleEditSupplier(supplier)}
                     className="rounded py-1 pl-1 text-[#006532] hover:text-[#56bb89]"
                   >
                     <FaEdit />
                   </button>
                   <button
-                    onClick={() => handleDeleteCategory(category.id)}
+                    onClick={() => handleDeleteSupplier(supplier.id)}
                     className="rounded py-1 pl-1 text-red-700 hover:text-red-500"
                   >
                     <FaTrash />
@@ -399,14 +361,14 @@ const ManageCategory = () => {
 
         <button
           onClick={() => {
-            setNewCategory({
+            setNewSupplier({
               name: "",
               image: "",
-              banner: "",
-              description: "",
-              status: "Áp dụng",
+              phone: "",
+              address: "",
+            
             });
-            setEditingCategory(null);
+            setEditingSupplier(null);
             setShowModal(true);
           }}
           className="shadow-lg fixed bottom-10 right-10 rounded-full bg-[#006532] p-4 text-white transition-colors duration-300 hover:bg-[#4d9d75]"
@@ -418,4 +380,4 @@ const ManageCategory = () => {
   );
 };
 
-export default ManageCategory;
+export default ManageSupplier;

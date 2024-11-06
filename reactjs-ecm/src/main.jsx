@@ -22,7 +22,7 @@ import ManageProduct from "./components/Admin/ManageProduct/manage-product.jsx";
 import ManageUser from "./components/Admin/ManageUser/manage-user.jsx";
 import Report from "./components/Admin/Report/report.jsx";
 import ProductionStatistics from "./components/Admin/Statistics/production-statistics.jsx";
-
+import ManageSupplier from "./components/Admin/ManageSupplier/manage-supplier.jsx";
 import Payment from "./components/Payment/payment.jsx";
 import ShipOrder from "./components/Shipping/ship-order.jsx";
 import ShipHistory from "./components/Shipping/ship-history.jsx";
@@ -48,20 +48,19 @@ root.render(
           <Route path="/ship-history" element={<ShipHistory />} />
           <Route path="/home-page" element={<Home />} />
           <Route path="/products" element={<ShopGrid />} />
-          <Route path="/product-detail" element={<ProductDetail />} />
+          <Route path="/product-detail/:productId" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/order-history" element={<OrderHistory />} />
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/manage-category" element={<ManageCategory />} />
           <Route path="/manage-order" element={<ManageOrder />} />
           <Route path="/manage-product" element={<ManageProduct />} />
-          <Route path="/manage-user" element={<ManageUser />} />
+          <Route path="/manage-user/:currentPage/:usersPerPage" element={<ManageUser />} />
           <Route path="/report" element={<Report />} />
-          <Route
-            path="/production-statistics"
-            element={<ProductionStatistics />}
-          />
+          <Route path="/production-statistics" element={<ProductionStatistics />}/>
           <Route path="/payment" element={<Payment />} />
+          <Route path="/manage-supplier" element={<ManageSupplier />} />
+          {/* <Route path="/manage-user" element={<ManageUser />} /> */}
         </Routes>
       </QueryClientProvider>
     </BrowserRouter>
