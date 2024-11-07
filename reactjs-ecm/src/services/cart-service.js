@@ -26,3 +26,11 @@ export const updateCart = async (data, token) => {
     },
   });
 };
+
+export async function deleteCart(user_id, token) {
+  return await axios.delete(`http://localhost:6006/cart/${user_id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
