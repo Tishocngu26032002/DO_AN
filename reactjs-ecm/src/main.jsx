@@ -21,6 +21,8 @@ import ManageOrder from "./components/Admin/ManageOrder/manage-order.jsx";
 import ManageProduct from "./components/Admin/ManageProduct/manage-product.jsx";
 import ManageUser from "./components/Admin/ManageUser/manage-user.jsx";
 import Report from "./components/Admin/Report/report.jsx";
+import ProductionStatistics from "./components/Admin/Statistics/production-statistics.jsx";
+
 import Payment from "./components/Payment/payment.jsx";
 import ShipOrder from "./components/Shipping/ship-order.jsx";
 import ShipHistory from "./components/Shipping/ship-history.jsx";
@@ -55,6 +57,10 @@ root.render(
           <Route path="/manage-product/:currentPage/:productsPerPage" element={<ManageProduct />} />
           <Route path="/manage-user" element={<ManageUser />} />
           <Route path="/report" element={<Report />} />
+          <Route
+            path="/production-statistics"
+            element={<ProductionStatistics />}
+          />
           <Route path="/payment" element={<Payment />} />
         </Routes>
       </QueryClientProvider>

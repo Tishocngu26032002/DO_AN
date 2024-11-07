@@ -35,38 +35,33 @@ export class LocationUserService extends BaseService<Location_userEntity>{
 
     async createLocation(createLocationUserDto: CreateLocationUserDto) {
       if(createLocationUserDto.default_location){
-          const filters = {
-              user_id: createLocationUserDto.user_id,
-              default_location: createLocationUserDto.default_location
-          };
-          await this.updateDefaultMethod(filters, null);
+          await this.updateDefaultMethod(createLocationUserDto);
       }
-      return await this.locationRepo.save(createLocationUserDto);
+      return await super.create(createLocationUserDto, {default_location: createLocationUserDto.default_location});
     }
 
     async detail(id: string) {
         return await super.findOne(id);
     }
 
-    async update(locationUpdateDTO: UpdateLocationUserDto, id: string, updateDefault: boolean = false) {
-      if(updateDefault){
-          await this.updateDefaultMethod(locationUpdateDTO, id);
+    async update(locationUpdateDTO: UpdateLocationUserDto) {
+      if(locationUpdateDTO.default_location == true){
+          await this.updateDefaultMethod(locationUpdateDTO);
       }
-      return await super.update(locationUpdateDTO, id);
+      return await super.update(locationUpdateDTO, locationUpdateDTO.id);
     }
 
-    async updateDefaultMethod(locationUpdateDTO: UpdateLocationUserDto, id: string){
+    async updateDefaultMethod(locationDTO: any){
         const locationDefaultInDB = await this.locationRepo.findOne({
             where: {
                 default_location: true,
-                user_id: locationUpdateDTO.user_id,
+                user_id: locationDTO.user_id,
             },
         });
         if(locationDefaultInDB != null){
             locationDefaultInDB.default_location = false;
-            await super.update(locationDefaultInDB, id);
+            await super.update(locationDefaultInDB, locationDefaultInDB.id);
         }
-        locationUpdateDTO.default_location = true;
     }
 
     async delete(id: string) {

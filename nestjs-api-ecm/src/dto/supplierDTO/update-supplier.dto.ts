@@ -4,5 +4,8 @@ import {IsNotEmpty} from "class-validator";
 import {Expose} from "class-transformer";
 
 export class UpdateSupplierDto extends PartialType(CreateSupplierDto) {
-
+    @ApiProperty()
+    @IsNotEmpty()
+    @Expose()
+    id: string;
 }
