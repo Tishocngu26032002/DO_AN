@@ -45,14 +45,14 @@ root.render(
           <Route path="/ship-order" element={<ShipOrder />} />
           <Route path="/ship-history" element={<ShipHistory />} />
           <Route path="/home-page" element={<Home />} />
-          <Route path="/products" element={<ShopGrid />} />
-          <Route path="/product-detail" element={<ProductDetail />} />
+          <Route path="/products/:currentPage/:productsPerPage" element={<ShopGrid />} />
+          <Route path="/product-detail/:productId" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/order-history" element={<OrderHistory />} />
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/manage-category" element={<ManageCategory />} />
           <Route path="/manage-order" element={<ManageOrder />} />
-          <Route path="/manage-product" element={<ManageProduct />} />
+          <Route path="/manage-product/:currentPage/:productsPerPage" element={<ManageProduct />} />
           <Route path="/manage-user" element={<ManageUser />} />
           <Route path="/report" element={<Report />} />
           <Route path="/payment" element={<Payment />} />

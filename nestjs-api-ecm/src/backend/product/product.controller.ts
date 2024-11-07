@@ -46,6 +46,7 @@ export class ProductController {
         limit,
         filters,
       );
+      console.log('Fetched listProduct:', listProduct);
       return responseHandler.ok(listProduct);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);

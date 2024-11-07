@@ -1,4 +1,4 @@
-const AUTH_KEY = "ecommerce-auth";
+const AUTH_KEY = "token";
 
 export const authLocal = {
   setToken: (token) => {
