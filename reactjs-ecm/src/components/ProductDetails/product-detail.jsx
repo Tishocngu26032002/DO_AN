@@ -4,6 +4,7 @@ import axios from "axios";
 import Header from "../Header/header.jsx";
 import { PiShoppingCart } from "react-icons/pi";
 import QuantityInput from "../Button/quantity-selector-buttom.jsx";
+import { fetchProductDetail } from '../../services/product-service.js';
 import Footer from "../Footer/footer.jsx";
 
 // Tách Image component
@@ -33,7 +34,7 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const { data: { data } } = await axios.get(`http://localhost:6006/product/${productId}`);
+        const data = await fetchProductDetail(productId); // Gọi hàm từ service
         if (data) {
           setProduct(data);
           setMainImage(data.url_images || "");

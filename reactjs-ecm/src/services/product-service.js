@@ -7,6 +7,17 @@ const getToken = () => {
   return token ? token.replace(/"/g, '') : null; // Xóa dấu ngoặc kép nếu có
 };
 
+// Hàm lấy chi tiết sản phẩm
+export const fetchProductDetail = async (productId) => {
+  try {
+    const response = await axios.get(`http://localhost:6006/product/${productId}`);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching product detail:", error);
+    throw error;
+  }
+};
+
 // Hàm lấy danh sách sản phẩm
 export const fetchProducts = async (currentPage, productsPerPage) => {
   try {

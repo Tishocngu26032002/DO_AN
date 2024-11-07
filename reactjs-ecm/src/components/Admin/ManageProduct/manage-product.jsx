@@ -130,7 +130,7 @@ const ManageProduct = () => {
           <table className="table-auto w-full text-left border-collapse border border-gray-300">
             <thead className="bg-[#225a3e] text-white">
               <tr>
-                <th className="border px-4 py-2">ID</th>
+                <th className="border px-4 py-2">STT</th>
                 <th className="border px-4 py-2">Tên sản phẩm</th>
                 <th className="border px-4 py-2">Giá</th>
                 <th className="border px-4 py-2">Mô tả</th>
