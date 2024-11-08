@@ -10,10 +10,16 @@ export class OrderEntity extends BaseEntity {
   status: number;
   @Column({ type: 'tinyint' })
   payment_method: number;
-  @Column({ type: 'varchar', length: 36 })
+  @Column({ nullable: true, type: 'varchar', length: 36 })
   employee_id: string;
   @Column({ type: 'varchar', length: 36 })
   user_id: string;
+
+  @Column({ type: 'varchar', length: 10 })
+  phone: string;
+
+  @Column({ type: 'varchar' })
+  address: string;
 
   // user_id: ID of the person who placed the order
   @ManyToOne(() => User, (user) => user.orders)
