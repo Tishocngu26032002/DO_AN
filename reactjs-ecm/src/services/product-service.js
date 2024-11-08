@@ -7,6 +7,23 @@ const getToken = () => {
   return token ? token.replace(/"/g, '') : null; // Xóa dấu ngoặc kép nếu có
 };
 
+// Hàm lấy chi tiết sản phẩm
+export const fetchProductDetail = async (productId) => {
+  try {
+    const response = await axios.get(`http://localhost:6006/product/${productId}`);
+    console.log(response.data);
+    if (response.status === 200 && response.data && response.data.data) {  
+      return response.data.data; // Trả về dữ liệu khi thành công
+    } else {  
+      console.error("No data received from server.");
+      return null; // Trả về null khi không có dữ liệu
+    }
+  } catch (error) {
+    console.error("Error fetching product detail:", error);
+    throw error;
+  }
+};
+
 // Hàm lấy danh sách sản phẩm
 export const fetchProducts = async (currentPage, productsPerPage) => {
   try {
