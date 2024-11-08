@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import Header from "../Header/header.jsx";
 import { PiShoppingCart } from "react-icons/pi";
 import QuantityInput from "../Button/quantity-selector-buttom.jsx";

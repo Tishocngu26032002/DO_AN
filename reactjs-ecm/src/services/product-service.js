@@ -11,7 +11,13 @@ const getToken = () => {
 export const fetchProductDetail = async (productId) => {
   try {
     const response = await axios.get(`http://localhost:6006/product/${productId}`);
-    return response.data.data;
+    console.log(response.data);
+    if (response.status === 200 && response.data && response.data.data) {  
+      return response.data.data; // Trả về dữ liệu khi thành công
+    } else {  
+      console.error("No data received from server.");
+      return null; // Trả về null khi không có dữ liệu
+    }
   } catch (error) {
     console.error("Error fetching product detail:", error);
     throw error;
