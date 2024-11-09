@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import AdminHeader from "../AdminHeader/admin-header.jsx";
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaFilter } from "react-icons/fa";
-import {
-  createSupplier,
-  deleteSuppliers,
-  deleteSupplier,
-  getSupplier,
-  updateSupplier,
-} from "../../../services/supplier-service.js";
+import { createSupplier,deleteSuppliers,deleteSupplier, getSupplier,updateSupplier,} from "../../../services/supplier-service.js";
 import { authLocal } from "../../../util/auth-local.js";
+import { uploadImage } from "../../../services/image-service.js";
+import { ClipLoader } from 'react-spinners';
 
 const Modal = ({ children, showModal, setShowModal }) =>
   showModal ? (
@@ -26,6 +23,8 @@ const Modal = ({ children, showModal, setShowModal }) =>
   ) : null;
 
 const ManageSupplier = () => {
+  const { page: paramPage, limit: paramLimit } = useParams(); 
+  const navigate = useNavigate(); // Hook điều hướng
   const [suppliers, setSuppliers] = useState([]);
   const [newSupplier, setNewSupplier] = useState({
     name: "",
@@ -35,63 +34,137 @@ const ManageSupplier = () => {
 
   });
   const [editingSupplier, setEditingSupplier] = useState(null);
-  const [expandedDescription, setExpandedDescription] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [selectedSuppliers, setSelectedSuppliers] = useState([]);
-  const [page, setPage] = useState(1); // Trang hiện tại
-  const [limit, setLimit] = useState(4); // Giới hạn số mục mỗi trang
+  const [page, setPage] = useState(Number(paramPage) || 1);
+  const [limit, setLimit] = useState(Number(paramLimit) || 4);
   const [totalPages, setTotalPages] = useState(1);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(false);
 
-  // Hàm gọi API để lấy danh mục
   const fetchSuppliers = async () => {
     const response = await getSupplier(page, limit);
     if (response.success) {
-      setSuppliers(response.data.data); // Cập nhật dữ liệu danh mục
+      setSuppliers(response.data.data); 
       setTotalPages(Math.ceil(response.data.total / limit));
     }
   };
 
   useEffect(() => {
     fetchSuppliers();
-  }, [page, limit, showModal]); // Gọi lại API khi trang hoặc giới hạn thay đổi
+  }, [page, limit, showModal]);
+
+  useEffect(() => {
+    navigate(`/manage-supplier/${page}/${limit}`); 
+  }, [page, limit]);
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewSupplier({ ...newSupplier, [name]: value });
   };
 
-  const handleFileChange = (e) => {
+
+  const handleFileChange = async (e) => {
     const { name, files } = e.target;
+    setLoading(true); 
     if (files.length > 0) {
-      setNewSupplier({ ...newSupplier, [name]: URL.createObjectURL(files[0]) });
+      try {
+  
+        const response = await uploadImage(files[0]); 
+        if (response && Array.isArray(response) && response.length > 0) {
+          
+          setNewSupplier({ ...newSupplier, [name]: response[0] }); 
+          console.log("Uploaded image URL:", response[0]); 
+        } else {
+          console.error("No URL returned from the server.");
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }finally {
+        setLoading(false); 
+      }
     }
   };
-
+  
   const addSupplier = async (supplierData) => {
     let token = authLocal.getToken();
-    token = token.replace(/^"|"$/g, "");
-
-    const response = await createSupplier(supplierData, token);
-    if (response.success) {
-      setSuppliers([...suppliers, response.data]);
-      setShowModal(false);
+    token = token.replace(/^"|"$/g, ""); 
+    
+    try {
+      const response = await createSupplier(supplierData, token);
+      if (response.success) {
+        setSuppliers([...suppliers, response.data]);
+        setShowModal(false);
+        setNewSupplier({
+          name: "",
+          image: "",
+          phone: "",
+          address: "",
+        }); 
+      }
+    } catch (error) {
+      console.error("Failed to add supplier:", error);
+      
     }
   };
-
+  
   const handleAddSupplier = () => {
+    if (!newSupplier.image) {
+      console.error("Image is required for adding supplier.");
+      return; 
+    }
     addSupplier(newSupplier);
-    setNewSupplier({
-      name: "",
-      image: "",
-      phone: "",
-      address: "",
- 
-    });
   };
 
+  const updateOneSupplier = async (supplierData) => {
+    let token = authLocal.getToken();
+    token = token.replace(/^"|"$/g, ""); 
+    const supplierId = supplierData.id; 
+    console.log(supplierId);
+    try {
+      const response = await updateSupplier(supplierId, supplierData, token);
+      if (response.success) {
+    
+        setSuppliers((prevSuppliers) =>
+          prevSuppliers.map((supplier) =>
+            supplier.id === supplierData.id ? response.data : supplier
+          ),
+        );
+        setEditingSupplier(null); 
+        setShowModal(false); 
+      }
+    } catch (error) {
+      console.error("Failed to update supplier:", error);
+    }
+  };
+  
+  const handleUpdateSupplier = () => {
+    if (editingSupplier) {
+      if (!newSupplier.image) {
+        console.error("Image is required for updating supplier.");
+        return; // Nếu không có ảnh, không thực hiện cập nhật
+      }
+  
+      newSupplier.id = editingSupplier.id; 
+      console.log(newSupplier);
+      updateOneSupplier(newSupplier); 
+  
+
+      setNewSupplier({
+        name: "",
+        image: "",
+        phone: "",
+        address: "",
+        id: "", 
+      });
+    }
+  };
+  
   const deleteOneSupplier = async (id) => {
     let token = authLocal.getToken();
     token = token.replace(/^"|"$/g, "");
@@ -103,6 +176,7 @@ const ManageSupplier = () => {
 
   const handleDeleteSupplier = (id) => {
     deleteOneSupplier(id);
+    window.location.reload();
   };
 
   const handleEditSupplier = (supplier) => {
@@ -111,36 +185,8 @@ const ManageSupplier = () => {
     setShowModal(true);
   };
 
-  const updateOneSupplier = async (supplierData) => {
-    let token = authLocal.getToken();
-    token = token.replace(/^"|"$/g, "");
 
-    const response = await updateSupplier(supplierData, token);
-    if (response.success) {
-      // Cập nhật danh sách suppliers
-      setSuppliers((prevSuppliers) =>
-        prevSuppliers.map((supplier) =>
-          supplier.id === editingSupplier.id ? response.data : supplier,
-        ),
-      );
-      setEditingSupplier(null);
-      setShowModal(false); // Đóng modal sau khi cập nhật thành công
-    } else {
-      console.error("Failed to update supplier:", response.message);
-    }
-  };
-
-  const handleUpdateSupplier = () => {
-    updateOneSupplier(newSupplier);
-    setNewSupplier({
-      name: "",
-      image: "",
-      phone: "",
-      address: "",
-
-    });
-  };
-
+  
   const handleSelectSupplier = (id) => {
     if (selectedSuppliers.includes(id)) {
       setSelectedSuppliers(
@@ -165,6 +211,7 @@ const ManageSupplier = () => {
         ),
       );
       setSelectedSuppliers([]);
+      window.location.reload();
     } catch (error) {
       console.error("Error deleting selected suppliers:", error);
     }
@@ -181,14 +228,10 @@ const ManageSupplier = () => {
     const matchesSearch = supplier.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
-
-    
-    return matchesSearch ;
+    return matchesSearch;
   });
 
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
-  };
+  
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -202,6 +245,11 @@ const ManageSupplier = () => {
           <h2 className="mb-4 text-2xl font-semibold text-[#006532]">
             {editingSupplier ? "Update Supplier" : "Add New Supplier"}
           </h2>
+          {loading && (
+            <div className="fixed inset-0 z-50 flex justify-center items-center bg-gray-900 bg-opacity-50">
+              <ClipLoader color="#006532" size={50} loading={loading} />
+            </div>
+            )}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <input
               type="text"
@@ -217,6 +265,7 @@ const ManageSupplier = () => {
               onChange={handleFileChange}
               className="rounded border p-2"
             />
+            
             <input
               type="text"
               name="phone"
@@ -225,6 +274,7 @@ const ManageSupplier = () => {
               placeholder="Supplier Phone"
               className="rounded border p-2"
             />
+            
             <input
               type="text"
               name="address"
@@ -233,7 +283,6 @@ const ManageSupplier = () => {
               placeholder="Supplier Address"
               className="rounded border p-2"
             />
-         
           </div>
           <button
             onClick={editingSupplier ? handleUpdateSupplier : handleAddSupplier}
@@ -281,7 +330,7 @@ const ManageSupplier = () => {
               <FaSearch className="absolute right-4 top-3 text-gray-400" />
             </div>
           </div>
-        
+         
         </div>
 
         <div>
@@ -303,17 +352,10 @@ const ManageSupplier = () => {
                   />
                 </p>
                 <p className="mb-2 text-gray-600">
-                  <strong>Banner:</strong> {supplier.phone}
+                  <strong>Phone:</strong> {supplier.phone}
                 </p>
                 <p className="mb-2 text-gray-600">
-                  <strong>Description:</strong>
-                  <span className="block">
-             
-                       {supplier.address}
-                      
-                  </span>
-                  
-                </p>
+                  <strong>Address:</strong>{supplier.address}</p>
 
               
                 <div className="mt-4 flex items-center space-x-3">
@@ -343,21 +385,21 @@ const ManageSupplier = () => {
 
         {/* Nút phân trang */}
         <div className="mt-4 flex justify-center">
-          {Array.from({ length: totalPages }, (_, index) => (
-            <button
-              key={index + 1}
-              onClick={() => handlePageChange(index + 1)}
-              className={`mx-1 rounded px-3 py-1 ${
-                index + 1 === page
-                  ? "bg-[#006532] text-white"
-                  : "bg-gray-200 text-gray-800 hover:bg-blue-200"
-              }`}
-              disabled={index + 1 === page}
-            >
-              {index + 1}
-            </button>
-          ))}
-        </div>
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index + 1}
+            onClick={() => handlePageChange(index + 1)}
+            className={`mx-1 rounded px-3 py-1 ${
+              index + 1 === page
+                ? "bg-[#006532] text-white"
+                : "bg-gray-200 text-gray-800 hover:bg-blue-200"
+            }`}
+            disabled={index + 1 === page}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
 
         <button
           onClick={() => {
@@ -366,7 +408,7 @@ const ManageSupplier = () => {
               image: "",
               phone: "",
               address: "",
-            
+        
             });
             setEditingSupplier(null);
             setShowModal(true);

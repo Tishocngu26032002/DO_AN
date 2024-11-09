@@ -26,8 +26,13 @@ import ManageSupplier from "./components/Admin/ManageSupplier/manage-supplier.js
 import Payment from "./components/Payment/payment.jsx";
 import ShipOrder from "./components/Shipping/ship-order.jsx";
 import ShipHistory from "./components/Shipping/ship-history.jsx";
+import  NotificationsPage from './components/Notification/notification.jsx'
 
-// Create a client
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+
 const queryClient = new QueryClient();
 
 const rootElement = document.getElementById("root");
@@ -59,9 +64,12 @@ root.render(
           <Route path="/report" element={<Report />} />
           <Route path="/production-statistics" element={<ProductionStatistics />}/>
           <Route path="/payment" element={<Payment />} />
-          <Route path="/manage-supplier" element={<ManageSupplier />} />
-          {/* <Route path="/manage-user" element={<ManageUser />} /> */}
+     
+          <Route path="/manage-supplier/:page/:limit" element={<ManageSupplier />} />
+          <Route path="/test-notification" element={< NotificationsPage />} />
+        
         </Routes>
+       
       </QueryClientProvider>
     </BrowserRouter>
   </React.StrictMode>,

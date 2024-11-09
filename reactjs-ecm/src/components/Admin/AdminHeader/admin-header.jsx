@@ -108,7 +108,7 @@ function HeaderAdmin() {
           </li>
           <li className="w-full px-6 py-4 border-b border-[#006532] hover:bg-[#80c9a4] hover:text-white transition-colors duration-300">
             <NavLink
-              to="/manage-supplier"
+              to="/manage-supplier/1/4"
               className={({ isActive }) =>
                 isActive
                   ? "text-[#006532] border-l-4 border-[#006532] pl-2"

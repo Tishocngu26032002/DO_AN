@@ -81,11 +81,11 @@ const ManageUser = () => {
             locationData[user.id] = response.data.data[0];
             
           } else {
-            locationData[user.id] = { phone: '', address: '',id: '',default_location: '', user_id: '' };
+            locationData[user.id] = { phone: '', address: '',id: '',default_location: true, user_id: '' };
           }
         } catch (error) {
           console.error('Error fetching location data:', error);
-          locationData[user.id] = { phone: '', address: '',id: '',default_location: '', user_id: '' };
+          locationData[user.id] = { phone: '', address: '',id: '',default_location: true, user_id: '' };
         }
       }
       setLocations(locationData);
@@ -131,27 +131,28 @@ const ManageUser = () => {
         user_id: currentUser.id,
         locationId: currentUser.locationId
       };
-      const addLocationData = {
-        address: currentUser.address,
-        phone: currentUser.phone,
-        default_location: currentUser.locationdefault || false,
-        user_id: currentUser.id,
-      
-      };
+  
       console.log('Location Data:', locationData);
   
       if (currentUser.id) {
-        // Kiểm tra nếu phone và address là rỗng thì gọi hàm tạo mới location
-        if (currentUser.phone === '' && currentUser.address === '') {
-          const createLocationResponse = await createLocationUser(addLocationData);
-          console.log('Location Created:', createLocationResponse);
-        } else {
+        console.log(' Data:', locations[currentUser.id]?.address);
+        if (locations[currentUser.id]?.address && locations[currentUser.id]?.phone) {
           const updateLocationResponse = await updateLocationUser(locationData);
           console.log('Location Updated:', updateLocationResponse);
+          window.location.reload();
+        } else {
+          const createLocationResponse = await createLocationUser({
+            address: currentUser.address,
+            phone: currentUser.phone,
+            default_location: currentUser.locationdefault || false,
+            user_id: currentUser.id
+          });
+          console.log('Location Created:', createLocationResponse);
         }
   
         const userResponse = await updateUser(currentUser.id, currentUser, token);
         console.log('User Updated:', userResponse);
+        window.location.reload();
       } else {
         const createUserResponse = await createUser(currentUser, token);
         console.log('User Created:', createUserResponse);
@@ -170,6 +171,7 @@ const ManageUser = () => {
   
         const createLocationResponse = await createLocationUser(locationAddData);
         console.log('Location Created:', createLocationResponse);
+        window.location.reload();
       }
     } catch (error) {
       console.error('Error in handleSaveUser:', error);
@@ -496,13 +498,13 @@ const ManageUser = () => {
                     const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
                     return `${time} ${formattedDate}`;
                   })()}</td>
-                <td className="py-3 px-6 hidden sm:table-cell">{user.firstName} {user.lastName}</td>
-                <td className="py-3 px-6">{locations[user.id]?.phone}</td>
-                <td className="py-3 px-6 hidden md:table-cell">{user.email}</td>
-                <td className="py-3 px-6 hidden md:table-cell">{locations[user.id]?.address}</td>
-                <td className="py-3 px-6 capitalize hidden sm:table-cell">{user.role}</td>
-                <td className="py-3 px-6 hidden lg:table-cell">{user.isActive ? 'Active' : 'Inactive'}</td>
-                
+                  <td className="py-3 px-6 hidden sm:table-cell">{user.firstName} {user.lastName}</td>
+                  <td className="py-3 px-6">{locations[user.id]?.phone}</td>
+                  <td className="py-3 px-6 hidden md:table-cell">{user.email}</td>
+                  <td className="py-3 px-6 hidden md:table-cell">{locations[user.id]?.address}</td>
+                  <td className="py-3 px-6 capitalize hidden sm:table-cell">{user.role}</td>
+                  <td className="py-3 px-6 hidden lg:table-cell">{user.isActive ? 'Active' : 'Inactive'}</td>
+                                  
                 <td className="py-3 px-6">
                   <div className="flex space-x-4">
                     <button onClick={() => handleViewUser(user)} className="text-blue-600 hover:text-blue-700">
