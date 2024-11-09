@@ -1,19 +1,14 @@
 import axios from "axios";
-import { authLocal } from "../util/auth-local";
+import { getToken } from "../util/auth-local";
 
-// Lấy token từ localStorage
-const getToken = () => {
-  let token = authLocal.getToken(); 
-  return token.replace(/"/g, ''); 
-};
-
+const BASE_URL = 'http://localhost:6006';
 
 export async function getUsers(page, limit) {
   try {
     const token = getToken(); 
     console.log(token);
     
-    const res = await axios.get(`http://localhost:6006/users/${page}/${limit}`, {
+    const res = await axios.get(`${BASE_URL}/users/${page}/${limit}`, {
       headers: {
         'Authorization': `Bearer ${token}`, 
         'accept': '*/*',
@@ -29,8 +24,8 @@ export async function getUsers(page, limit) {
 // Xóa người dùng theo ID
 export async function deleteUser(userId) {
   try {
-    const token = getToken(); // Lấy token
-    const res = await axios.delete(`http://localhost:6006/users/${userId}`, {
+    const token = getToken(); 
+    const res = await axios.delete(`${BASE_URL}/users/${userId}`, {
       headers: {
         'Authorization': `Bearer ${token}`, // Truyền token ở đây
         'accept': '*/*',
@@ -45,22 +40,32 @@ export async function deleteUser(userId) {
 
 // Cập nhật người dùng
 export const updateUser = async (userId, userData) => {
-  const token = getToken(); // Lấy token
-  const res = await axios.patch(`http://localhost:6006/users/${userId}`, userData, {
-    headers: {
-      'Authorization': `Bearer ${token}`, // Truyền token ở đây
-    },
-  });
-  return res.data;
+  try {
+    const token = getToken(); // Lấy token
+    const res = await axios.patch(`${BASE_URL}/users/${userId}`, userData, {
+      headers: {
+        'Authorization': `Bearer ${token}`, // Truyền token ở đây
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error('Error updating user:', error);
+    throw error;
+  }
 };
 
 // Tạo người dùng mới
 export const createUser = async (userData) => {
-  const token = getToken(); // Lấy token
-  const res = await axios.post(`http://localhost:6006/users`, userData, {
-    headers: {
-      'Authorization': `Bearer ${token}`, // Truyền token ở đây
-    },
-  });
-  return res.data;
+  try {
+    const token = getToken(); // Lấy token
+    const res = await axios.post(`${BASE_URL}/users`, userData, {
+      headers: {
+        'Authorization': `Bearer ${token}`, // Truyền token ở đây
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error('Error creating user:', error);
+    throw error;
+  }
 };

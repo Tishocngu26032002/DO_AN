@@ -1,16 +1,13 @@
 import axios from "axios";
-import { authLocal } from "../util/auth-local";
+import { getToken } from "../util/auth-local";
 
-const getToken = () => {
-  let token = authLocal.getToken(); 
-  return token.replace(/"/g, ''); 
-};
+const BASE_URL = 'http://localhost:6006';
 
 export async function getSupplier(page, limit) {
     try {
         const token = getToken(); 
         const res = await axios.get(
-          `http://localhost:6006/supplier/${page}/${limit}`,
+          `${BASE_URL}/supplier/${page}/${limit}`,
           {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -29,7 +26,7 @@ export async function deleteSupplier(supplierId) {
   try {
     const token = getToken(); 
     const res = await axios.delete(
-      `http://localhost:6006/supplier/${supplierId}`,
+      `${BASE_URL}/supplier/${supplierId}`,
       {
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -46,7 +43,7 @@ export async function deleteSupplier(supplierId) {
 export async function deleteSuppliers(supplierId) {
     const token = getToken(); 
     
-    await axios.delete(`http://localhost:6006/supplier/${supplierId}`, {
+    await axios.delete(`${BASE_URL}/supplier/${supplierId}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
@@ -58,7 +55,7 @@ export const createSupplier = async (supplierData) => {
   try {
     const token = getToken(); 
     const res = await axios.post(
-      `http://localhost:6006/supplier`,
+      `${BASE_URL}/supplier`,
       supplierData,
       {
         headers: {
@@ -79,7 +76,7 @@ export async function updateSupplier(supplierId, supplierData) {
       const token = getToken(); 
   
       const res = await axios.patch(
-        `http://localhost:6006/supplier/${supplierId}`,
+        `${BASE_URL}/supplier/${supplierId}`,
         supplierData,
         {
           headers: {

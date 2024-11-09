@@ -1,11 +1,13 @@
 import axios from "axios";
 import { getToken } from "../util/auth-local";
 
+// Định nghĩa base URL
+const BASE_URL = 'http://localhost:6006';
 
 export async function getLocationUserById(userId) {
   try {
     const token = getToken(); // Lấy token
-    const res = await axios.get(`http://localhost:6006/location-user/${userId}`, {
+    const res = await axios.get(`${BASE_URL}/location-user/${userId}`, {
       headers: {
         'Authorization': `Bearer ${token}`, // Truyền token ở đây
         'accept': '*/*',
@@ -22,7 +24,7 @@ export async function getLocationUserById(userId) {
 export async function createLocationUser(locationData) {
   try {
     const token = getToken(); // Lấy token
-    const res = await axios.post(`http://localhost:6006/location-user`, locationData, {
+    const res = await axios.post(`${BASE_URL}/location-user`, locationData, {
       headers: {
         'Authorization': `Bearer ${token}`, // Truyền token ở đây
         'accept': '*/*',
@@ -36,10 +38,10 @@ export async function createLocationUser(locationData) {
 }
 
 // Cập nhật thông tin địa chỉ người dùng
-export async function updateLocationUser( locationData) {
+export async function updateLocationUser(locationData) {
   try {
     const token = getToken(); // Lấy token
-    const res = await axios.patch(`http://localhost:6006/location-user`, locationData, {
+    const res = await axios.patch(`${BASE_URL}/location-user`, locationData, {
       headers: {
         'Authorization': `Bearer ${token}`, // Truyền token ở đây
         'accept': '*/*',
@@ -56,7 +58,7 @@ export async function updateLocationUser( locationData) {
 export async function deleteLocationUser(userId) {
   try {
     const token = getToken(); // Lấy token
-    const res = await axios.delete(`http://localhost:6006/location-user/${userId}`, {
+    const res = await axios.delete(`${BASE_URL}/location-user/${userId}`, {
       headers: {
         'Authorization': `Bearer ${token}`, // Truyền token ở đây
         'accept': '*/*',
