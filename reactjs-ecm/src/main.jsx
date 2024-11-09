@@ -8,8 +8,6 @@ import './index.css';
 import Cart from "./components/Cart/cart.jsx";
 import RegisterForm from "./components/Register/register.jsx";
 import LoginForm from "./components/Login/login.jsx";
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Admin from "./components/Admin/admin.jsx";
 import OTPPage from "./components/OTP/otp.jsx";
@@ -28,7 +26,6 @@ import ShipOrder from "./components/Shipping/ship-order.jsx";
 import ShipHistory from "./components/Shipping/ship-history.jsx";
 import  NotificationsPage from './components/Notification/notification.jsx'
 
-import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
@@ -52,14 +49,14 @@ root.render(
           <Route path="/ship-order" element={<ShipOrder />} />
           <Route path="/ship-history" element={<ShipHistory />} />
           <Route path="/home-page" element={<Home />} />
-          <Route path="/products" element={<ShopGrid />} />
+          <Route path="/products/:currentPage/:productsPerPage" element={<ShopGrid />} />
           <Route path="/product-detail/:productId" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/order-history" element={<OrderHistory />} />
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/manage-category" element={<ManageCategory />} />
           <Route path="/manage-order" element={<ManageOrder />} />
-          <Route path="/manage-product" element={<ManageProduct />} />
+          <Route path="/manage-product/:currentPage/:productsPerPage" element={<ManageProduct />} />
           <Route path="/manage-user/:currentPage/:usersPerPage" element={<ManageUser />} />
           <Route path="/report" element={<Report />} />
           <Route path="/production-statistics" element={<ProductionStatistics />}/>
