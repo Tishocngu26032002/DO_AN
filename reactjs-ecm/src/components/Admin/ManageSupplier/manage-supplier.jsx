@@ -36,7 +36,6 @@ const ManageSupplier = () => {
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
   const [selectedSuppliers, setSelectedSuppliers] = useState([]);
   const [page, setPage] = useState(Number(paramPage) || 1);
   const [limit, setLimit] = useState(Number(paramLimit) || 4);
@@ -92,11 +91,9 @@ const ManageSupplier = () => {
   };
   
   const addSupplier = async (supplierData) => {
-    let token = authLocal.getToken();
-    token = token.replace(/^"|"$/g, ""); 
-    
+
     try {
-      const response = await createSupplier(supplierData, token);
+      const response = await createSupplier(supplierData);
       if (response.success) {
         setSuppliers([...suppliers, response.data]);
         setShowModal(false);
@@ -122,12 +119,10 @@ const ManageSupplier = () => {
   };
 
   const updateOneSupplier = async (supplierData) => {
-    let token = authLocal.getToken();
-    token = token.replace(/^"|"$/g, ""); 
     const supplierId = supplierData.id; 
     console.log(supplierId);
     try {
-      const response = await updateSupplier(supplierId, supplierData, token);
+      const response = await updateSupplier(supplierId, supplierData);
       if (response.success) {
     
         setSuppliers((prevSuppliers) =>
@@ -166,9 +161,7 @@ const ManageSupplier = () => {
   };
   
   const deleteOneSupplier = async (id) => {
-    let token = authLocal.getToken();
-    token = token.replace(/^"|"$/g, "");
-    const response = await deleteSupplier(id, token);
+    const response = await deleteSupplier(id);
     if (response.success) {
       setSuppliers(suppliers.filter((supplier) => supplier.id !== id));
     }
@@ -198,12 +191,9 @@ const ManageSupplier = () => {
   };
 
   const deleteSelectedSuppliers = async () => {
-    let token = authLocal.getToken();
-    token = token.replace(/^"|"$/g, "");
-
     try {
       await Promise.all(
-        selectedSuppliers.map((id) => deleteSuppliers(id, token)),
+        selectedSuppliers.map((id) => deleteSuppliers(id)),
       );
       setSuppliers(
         suppliers.filter(

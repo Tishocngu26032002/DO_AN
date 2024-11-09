@@ -1,11 +1,14 @@
 import axios from "axios";
 import { authLocal } from "../util/auth-local";
-// Lấy danh sách nhà cung cấp
-export async function getSupplier(page, limit, token) {
+
+const getToken = () => {
+  let token = authLocal.getToken(); 
+  return token.replace(/"/g, ''); 
+};
+
+export async function getSupplier(page, limit) {
     try {
-        let token = authLocal.getToken(); // Lấy token từ localStorage
-    
-        token = token.replace(/"/g, '');
+        const token = getToken(); 
         const res = await axios.get(
           `http://localhost:6006/supplier/${page}/${limit}`,
           {
@@ -22,12 +25,9 @@ export async function getSupplier(page, limit, token) {
 }
 
 // Xóa nhà cung cấp
-export async function deleteSupplier(supplierId, token) {
+export async function deleteSupplier(supplierId) {
   try {
-    let token = authLocal.getToken(); // Lấy token từ localStorage
-    
-        token = token.replace(/"/g, '');
-
+    const token = getToken(); 
     const res = await axios.delete(
       `http://localhost:6006/supplier/${supplierId}`,
       {
@@ -43,7 +43,8 @@ export async function deleteSupplier(supplierId, token) {
   }
 }
 
-export async function deleteSuppliers(supplierId, token) {
+export async function deleteSuppliers(supplierId) {
+    const token = getToken(); 
     
     await axios.delete(`http://localhost:6006/supplier/${supplierId}`, {
       headers: {
@@ -53,12 +54,9 @@ export async function deleteSuppliers(supplierId, token) {
   }
   
 // Tạo nhà cung cấp mới
-export const createSupplier = async (supplierData, token) => {
+export const createSupplier = async (supplierData) => {
   try {
-    // Log ra token trước khi gọi API
-    let token = authLocal.getToken(); // Lấy token từ localStorage
-    
-    token = token.replace(/"/g, '');
+    const token = getToken(); 
     const res = await axios.post(
       `http://localhost:6006/supplier`,
       supplierData,
@@ -76,11 +74,9 @@ export const createSupplier = async (supplierData, token) => {
 };
 
 
-export async function updateSupplier(supplierId, supplierData, token) {
+export async function updateSupplier(supplierId, supplierData) {
     try {
-        let token = authLocal.getToken(); // Lấy token từ localStorage
-    
-        token = token.replace(/"/g, '');
+      const token = getToken(); 
   
       const res = await axios.patch(
         `http://localhost:6006/supplier/${supplierId}`,

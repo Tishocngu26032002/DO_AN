@@ -5,8 +5,6 @@ import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye, FaSort } from 'react-icons/fa
 import { MdOutlineInbox } from "react-icons/md";
 import { getUsers, deleteUser, updateUser, createUser } from '../../../services/user-service.js';
 import { getLocationUserById, createLocationUser,updateLocationUser,deleteLocationUser } from '../../../services/location-user-service.js';
-import { authLocal } from '../../../util/auth-local.js';
-
 
 const Modal = ({ children, showModal, setShowModal }) => (
   showModal ? (
@@ -38,20 +36,14 @@ const ManageUser = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [locations, setLocations] = useState({});
   
-  const getToken = () => {
-    let token = authLocal.getToken();
-    return token.replace(/"/g, ''); // Xóa dấu ngoặc kép nếu có
-  };
 
   useEffect(() => {
     const fetchAllUsers = async () => {
       const fetchedUsers = [];
       let page = 1;
       let totalUsers = 0;
-      const token = getToken(); // Lấy token
-
       do {
-        const result = await getUsers(page, usersPerPage, token); // Truyền token vào hàm getUsers
+        const result = await getUsers(page, usersPerPage); 
         if (result.success) {
           fetchedUsers.push(...result.data.data);
           totalUsers = result.data.total;
@@ -72,11 +64,11 @@ const ManageUser = () => {
 
   useEffect(() => {
     const fetchLocations = async () => {
-      const token = getToken();
+    
       const locationData = {};
       for (const user of allUsers) {
         try {
-          const response = await getLocationUserById(user.id, token);
+          const response = await getLocationUserById(user.id);
           if (response.success && response.data && response.data.data && response.data.data.length > 0) {
             locationData[user.id] = response.data.data[0];
             
@@ -122,8 +114,7 @@ const ManageUser = () => {
 
   const handleSaveUser = async () => {
     try {
-      const token = getToken();
-  
+
       const locationData = {
         address: currentUser.address,
         phone: currentUser.phone,
@@ -150,11 +141,11 @@ const ManageUser = () => {
           console.log('Location Created:', createLocationResponse);
         }
   
-        const userResponse = await updateUser(currentUser.id, currentUser, token);
+        const userResponse = await updateUser(currentUser.id, currentUser);
         console.log('User Updated:', userResponse);
         window.location.reload();
       } else {
-        const createUserResponse = await createUser(currentUser, token);
+        const createUserResponse = await createUser(currentUser);
         console.log('User Created:', createUserResponse);
   
         // Lấy user_id từ phản hồi của createUser
@@ -183,10 +174,9 @@ const ManageUser = () => {
 
   const handleDeleteUser = async (userId) => {
     try {
-      const token = getToken();
       await Promise.all([
-        deleteUser(userId, token),
-        deleteLocationUser(userId, token)
+        deleteUser(userId),
+        deleteLocationUser(userId)
       ]);
       window.location.reload();
     } catch (error) {
@@ -196,11 +186,10 @@ const ManageUser = () => {
   
   const handleDeleteSelectedUsers = async () => {
     try {
-      const token = getToken();
       await Promise.all(selectedUsers.map(userId => 
         Promise.all([
-          deleteUser(userId, token),
-          deleteLocationUser(userId, token)
+          deleteUser(userId),
+          deleteLocationUser(userId)
         ])
       ));
       window.location.reload();

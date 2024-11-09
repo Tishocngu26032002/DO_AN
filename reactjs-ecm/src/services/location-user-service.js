@@ -1,13 +1,7 @@
 import axios from "axios";
-import { authLocal } from "../util/auth-local";
+import { getToken } from "../util/auth-local";
 
-// Lấy token từ localStorage
-const getToken = () => {
-  let token = authLocal.getToken(); 
-  return token.replace(/"/g, ''); 
-};
 
-// Lấy thông tin địa chỉ của người dùng theo ID
 export async function getLocationUserById(userId) {
   try {
     const token = getToken(); // Lấy token
