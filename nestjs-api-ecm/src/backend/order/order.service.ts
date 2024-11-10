@@ -34,15 +34,16 @@ export class OrderService {
 
       const orderData = await queryRunner.manager.save(order);
 
-      for (const item of oderDTO.products) {
-        const order_product = this.orderProductRepo.create({
+      const order_products = oderDTO.products.map((item) => {
+        return this.orderProductRepo.create({
           quantity: item.quantity,
           priceout: item.priceout,
           product_id: item.product_id,
           order_id: orderData.id,
         });
-        await queryRunner.manager.save(order_product);
-      }
+      });
+
+      await queryRunner.manager.save(order_products);
 
       // Commit transaction
       await queryRunner.commitTransaction();
