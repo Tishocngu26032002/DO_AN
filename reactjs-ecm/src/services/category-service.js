@@ -1,9 +1,11 @@
 import axios from "axios";
 
+const BASE_URL = "http://localhost:6006";
+
 export async function getCategory(page, limit) {
   try {
     const res = await axios.get(
-      `http://localhost:6006/category/${page}/${limit}`,
+      `${BASE_URL}/category/${page}/${limit}`,
     );
     return res.data;
   } catch (error) {
@@ -15,7 +17,7 @@ export async function getCategory(page, limit) {
 export async function deleteCategory(categoryId, token) {
   try {
     const res = await axios.delete(
-      `http://localhost:6006/category/${categoryId}`,
+      `${BASE_URL}/category/${categoryId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -30,7 +32,7 @@ export async function deleteCategory(categoryId, token) {
 }
 
 export async function deleteCategories(categoryId, token) {
-  await axios.delete(`http://localhost:6006/category/${categoryId}`, {
+  await axios.delete(`${BASE_URL}/category/${categoryId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -40,7 +42,7 @@ export async function deleteCategories(categoryId, token) {
 export const updateCategory = async (categoryData, token) => {
   try {
     const res = await axios.patch(
-      `http://localhost:6006/category`,
+      `${BASE_URL}/category`,
       categoryData,
       {
         headers: {
@@ -57,7 +59,7 @@ export const updateCategory = async (categoryData, token) => {
 export const createCategory = async (categoryData, token) => {
   try {
     const res = await axios.post(
-      `http://localhost:6006/category`,
+      `${BASE_URL}/category`,
       categoryData,
       {
         headers: {

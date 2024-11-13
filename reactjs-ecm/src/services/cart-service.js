@@ -1,8 +1,10 @@
 import axios from "axios";
 
+const BASE_URL = "http://localhost:6006";
+
 export async function getCarts(user_id, token) {
   return await axios.get(
-    `http://localhost:6006/cart/all-product-in-cart?user_id=${user_id}`,
+    `${BASE_URL}/cart/all-product-in-cart?user_id=${user_id}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -12,7 +14,7 @@ export async function getCarts(user_id, token) {
 }
 
 export const createCart = async (data, token) => {
-  return await axios.post(`http://localhost:6006/cart/add-to-cart`, data, {
+  return await axios.post(`${BASE_URL}/cart/add-to-cart`, data, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -20,7 +22,7 @@ export const createCart = async (data, token) => {
 };
 
 export const updateCart = async (data, token) => {
-  return await axios.patch(`http://localhost:6006/cart`, data, {
+  return await axios.patch(`${BASE_URL}/cart`, data, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -28,7 +30,7 @@ export const updateCart = async (data, token) => {
 };
 
 export async function deleteCart(user_id, token) {
-  return await axios.delete(`http://localhost:6006/cart/${user_id}`, {
+  return await axios.delete(`${BASE_URL}/cart/${user_id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

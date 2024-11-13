@@ -30,17 +30,25 @@ const Cart = () => {
     token = token.replace(/^"|"$/g, "");
 
     if (cartIndex !== -1) {
-      await updateCart({ ...carts[cartIndex], quantity: newQuantity }, token);
-      fetchCarts();
+      try {
+        await updateCart({ ...carts[cartIndex], quantity: newQuantity }, token);
+        fetchCarts();
+      } catch (error) {
+        console.error("Error updating cart quantity:", error);
+      }
     }
   };
 
   const calculateTotalCost = (cartsData) => {
-    const cost = cartsData.reduce(
-      (total, item) => total + item.quantity * item.product.priceout,
-      0,
-    );
-    setTotalCost(cost);
+    try {
+      const cost = cartsData.reduce(
+        (total, item) => total + item.quantity * item.product.priceout,
+        0,
+      );
+      setTotalCost(cost);
+    } catch (error) {
+      console.error("Error calculating total cost:", error);
+    }
   };
 
   const handleDeleteCart = async (cartId) => {

@@ -58,6 +58,12 @@ function LoginForm() {
         }
       }
     },
+    onError: (error) => {
+      console.error("Login failed:", error);
+      alert(
+        "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập của bạn.",
+      );
+    },
   });
 
   const onSubmit = (data) => {

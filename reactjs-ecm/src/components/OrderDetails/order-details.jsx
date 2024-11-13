@@ -42,12 +42,16 @@ const OrderDetails = () => {
 
   // Tính tổng tiền đơn hàng
   const calculateTotal = () => {
-    const subtotal = orderDetails.products.reduce(
-      (total, product) => total + product.price * product.quantity,
-      0,
-    );
-    const deliveryFee = 35.0;
-    return subtotal + deliveryFee;
+    try {
+      const subtotal = orderDetails.products.reduce(
+        (total, product) => total + product.price * product.quantity,
+        0,
+      );
+      const deliveryFee = 35.0;
+      return subtotal + deliveryFee;
+    } catch (error) {
+      console.error("Error calculating total:", error);
+    }
   };
 
   return (
