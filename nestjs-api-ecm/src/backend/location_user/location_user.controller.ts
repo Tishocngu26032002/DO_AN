@@ -12,13 +12,13 @@ import {
 import { LocationUserService } from './location_user.service';
 import { CreateLocationUserDto } from '../../dto/locationUserDTO/create-location_user.dto';
 import { UpdateLocationUserDto } from '../../dto/locationUserDTO/update-location_user.dto';
-import {AuthGuard} from "src/guards/JwtAuth.guard";
-import {RolesGuard} from "src/guards/Roles.guard";
-import {ApiBearerAuth, ApiQuery, ApiTags} from "@nestjs/swagger";
-import {Roles} from "src/decorator/Role.decorator";
-import {ExpirationStatus} from "src/share/Enum/Enum";
-import {responseHandler} from "src/Until/responseUtil";
-import {ParseBooleanPipe} from "src/share/ParseBooleanPipe";
+import { AuthGuard } from 'src/guards/JwtAuth.guard';
+import { RolesGuard } from 'src/guards/Roles.guard';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Roles } from 'src/decorator/Role.decorator';
+import { ExpirationStatus } from 'src/share/Enum/Enum';
+import { responseHandler } from 'src/Until/responseUtil';
+import { ParseBooleanPipe } from 'src/share/ParseBooleanPipe';
 
 @Controller('location-user')
 @UseGuards(AuthGuard, RolesGuard)
@@ -58,11 +58,11 @@ export class LocationUserController {
 
   @Patch()
   @Roles('user', 'admin')
-  async update(
-      @Body() updateLocationUserDto: UpdateLocationUserDto,
-  ) {
-    try{
-      const check = await this.locationUserService.update(updateLocationUserDto);
+  async update(@Body() updateLocationUserDto: UpdateLocationUserDto) {
+    try {
+      const check = await this.locationUserService.update(
+        updateLocationUserDto,
+      );
       return responseHandler.ok(check);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);

@@ -15,6 +15,7 @@ export abstract class BaseEntity {
   createdAt: Date;
 
   @UpdateDateColumn({
+    nullable: true,
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
     onUpdate: 'CURRENT_TIMESTAMP(6)',

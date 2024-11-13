@@ -1,9 +1,10 @@
 import axios from "axios";
+
+const BASE_URL = "http://localhost:6006";
+
 export async function getCategory(page, limit) {
   try {
-    const res = await axios.get(
-      `http://localhost:6006/category/${page}/${limit}`,
-    );
+    const res = await axios.get(`${BASE_URL}/category/${page}/${limit}`);
     return res.data;
   } catch (error) {
     console.error("Error fetching category:", error);
@@ -13,14 +14,11 @@ export async function getCategory(page, limit) {
 
 export async function deleteCategory(categoryId, token) {
   try {
-    const res = await axios.delete(
-      `http://localhost:6006/category/${categoryId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const res = await axios.delete(`${BASE_URL}/category/${categoryId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    );
+    });
     return res.data;
   } catch (error) {
     console.error("Error deleting category:", error);
@@ -29,7 +27,7 @@ export async function deleteCategory(categoryId, token) {
 }
 
 export async function deleteCategories(categoryId, token) {
-  await axios.delete(`http://localhost:6006/category/${categoryId}`, {
+  await axios.delete(`${BASE_URL}/category/${categoryId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -38,15 +36,11 @@ export async function deleteCategories(categoryId, token) {
 
 export const updateCategory = async (categoryData, token) => {
   try {
-    const res = await axios.patch(
-      `http://localhost:6006/category`,
-      categoryData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const res = await axios.patch(`${BASE_URL}/category`, categoryData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    );
+    });
     return res.data;
   } catch (error) {
     console.error("Error updating category:", error);
@@ -55,15 +49,11 @@ export const updateCategory = async (categoryData, token) => {
 
 export const createCategory = async (categoryData, token) => {
   try {
-    const res = await axios.post(
-      `http://localhost:6006/category`,
-      categoryData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const res = await axios.post(`${BASE_URL}/category`, categoryData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    );
+    });
     return res.data;
   } catch (error) {
     console.error("Error adding category:", error);
