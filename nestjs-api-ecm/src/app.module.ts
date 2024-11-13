@@ -53,6 +53,7 @@ import { Order_productEntity } from 'src/entities/order_entity/order_product.ent
           Location_userEntity,
         ],
         synchronize: true,
+        logging: true,
       }),
     }),
   ],

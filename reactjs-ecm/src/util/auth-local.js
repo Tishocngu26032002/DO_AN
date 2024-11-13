@@ -25,3 +25,8 @@ export const userIdLocal = {
     localStorage.removeItem(USER_ID_KEY);
   },
 };
+
+export const getToken = () => {
+  let token = authLocal.getToken();
+  return token ? token.replace(/"/g, "") : null;
+};

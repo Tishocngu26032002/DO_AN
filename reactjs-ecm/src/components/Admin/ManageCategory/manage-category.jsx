@@ -1,14 +1,27 @@
 import React, { useEffect, useState } from "react";
 import AdminHeader from "../AdminHeader/admin-header.jsx";
-import { FaPlus, FaEdit, FaTrash, FaSearch } from "react-icons/fa";
-import {
-  createCategory,
-  deleteCategories,
-  deleteCategory,
-  getCategory,
-  updateCategory,
-} from "../../../services/category-service.js";
-import { authLocal } from "../../../util/auth-local.js";
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaFilter } from "react-icons/fa";
+
+const initialCategories = [
+  {
+    id: 1,
+    c_name: "Category 1",
+    c_avatar: "/images/product/262.png",
+    c_banner: "",
+    c_description: "Description 1....",
+    c_hot: 0,
+    c_status: true,
+  },
+  {
+    id: 2,
+    c_name: "Category 2",
+    c_avatar: "/images/product/264.png",
+    c_banner: "",
+    c_description: "Description 2...",
+    c_hot: 1,
+    c_status: false,
+  },
+];
 
 const Modal = ({ children, showModal, setShowModal }) =>
   showModal ? (

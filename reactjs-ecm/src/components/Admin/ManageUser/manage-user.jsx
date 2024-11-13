@@ -1,8 +1,10 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import AdminHeader from "../AdminHeader/admin-header.jsx";
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaFilter, FaEye, FaSort } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye, FaSort } from 'react-icons/fa';
 import { MdOutlineInbox } from "react-icons/md";
-import { getUsers, deleteUser,updateUser, createUser } from '../../../services/user-service.js';
+import { getUsers, deleteUser, updateUser, createUser } from '../../../services/user-service.js';
+import { getLocationUserById, createLocationUser,updateLocationUser,deleteLocationUser } from '../../../services/location-user-service.js';
 
 const Modal = ({ children, showModal, setShowModal }) => (
   showModal ? (
@@ -16,6 +18,9 @@ const Modal = ({ children, showModal, setShowModal }) => (
 );
 
 const ManageUser = () => {
+  const { currentPage: paramCurrentPage, usersPerPage: paramUsersPerPage } = useParams();
+  const navigate = useNavigate();
+  
   const [allUsers, setAllUsers] = useState([]);
   const [users, setUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -26,23 +31,23 @@ const ManageUser = () => {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [showViewPopup, setShowViewPopup] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = parseInt(paramUsersPerPage) || 8; // Số lượng người dùng trên mỗi trang
+  const currentPage = parseInt(paramCurrentPage) || 1;
   const [totalPages, setTotalPages] = useState(1);
+  const [locations, setLocations] = useState({});
   
-  const usersPerPage = 4; // Số lượng người dùng trên mỗi trang
 
   useEffect(() => {
     const fetchAllUsers = async () => {
       const fetchedUsers = [];
-      let currentPage = 1;
+      let page = 1;
       let totalUsers = 0;
-
       do {
-        const result = await getUsers(currentPage, usersPerPage);
+        const result = await getUsers(page, usersPerPage); 
         if (result.success) {
           fetchedUsers.push(...result.data.data);
           totalUsers = result.data.total;
-          currentPage++;
+          page++;
         } else {
           console.error('Failed to fetch users:', result.message);
           break;
@@ -51,11 +56,37 @@ const ManageUser = () => {
 
       setAllUsers(fetchedUsers);
       setTotalPages(Math.ceil(totalUsers / usersPerPage));
-      setUsers(fetchedUsers.slice(0, usersPerPage));
+      setUsers(fetchedUsers.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage));
     };
 
     fetchAllUsers();
-  }, []);
+  }, [currentPage, usersPerPage]);
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+    
+      const locationData = {};
+      for (const user of allUsers) {
+        try {
+          const response = await getLocationUserById(user.id);
+          if (response.success && response.data && response.data.data && response.data.data.length > 0) {
+            locationData[user.id] = response.data.data[0];
+            
+          } else {
+            locationData[user.id] = { phone: '', address: '',id: '',default_location: true, user_id: '' };
+          }
+        } catch (error) {
+          console.error('Error fetching location data:', error);
+          locationData[user.id] = { phone: '', address: '',id: '',default_location: true, user_id: '' };
+        }
+      }
+      setLocations(locationData);
+    };
+
+    if (allUsers.length > 0) {
+      fetchLocations();
+    }
+  }, [allUsers]);
 
   const sortedUsers = React.useMemo(() => {
     let sortableUsers = [...users];
@@ -81,52 +112,107 @@ const ManageUser = () => {
     setSortConfig({ key, direction });
   };
 
-
-  
   const handleSaveUser = async () => {
     try {
+
+      const locationData = {
+        address: currentUser.address,
+        phone: currentUser.phone,
+        default_location: currentUser.locationdefault || false,
+        user_id: currentUser.id,
+        locationId: currentUser.locationId
+      };
+  
+      console.log('Location Data:', locationData);
+  
       if (currentUser.id) {
-        await updateUser(currentUser.id, currentUser); // Gọi API PATCH
+        console.log(' Data:', locations[currentUser.id]?.address);
+        if (locations[currentUser.id]?.address && locations[currentUser.id]?.phone) {
+          const updateLocationResponse = await updateLocationUser(locationData);
+          console.log('Location Updated:', updateLocationResponse);
+          window.location.reload();
+        } else {
+          const createLocationResponse = await createLocationUser({
+            address: currentUser.address,
+            phone: currentUser.phone,
+            default_location: currentUser.locationdefault || false,
+            user_id: currentUser.id
+          });
+          console.log('Location Created:', createLocationResponse);
+        }
+  
+        const userResponse = await updateUser(currentUser.id, currentUser);
+        console.log('User Updated:', userResponse);
+        window.location.reload();
       } else {
-        // Thêm người dùng mới
-        await createUser(currentUser); // Gọi API POST
+        const createUserResponse = await createUser(currentUser);
+        console.log('User Created:', createUserResponse);
+  
+        // Lấy user_id từ phản hồi của createUser
+        const newUserId = createUserResponse.id;
+        console.log('Userid', newUserId);
+  
+        // Cập nhật user_id trong locationAddData
+        const locationAddData = {
+          address: currentUser.address,
+          phone: currentUser.phone,
+          default_location: currentUser.locationdefault || false,
+          user_id: newUserId // Sử dụng newUserId từ phản hồi của createUser
+        };
+  
+        const createLocationResponse = await createLocationUser(locationAddData);
+        console.log('Location Created:', createLocationResponse);
+        window.location.reload();
       }
-      window.location.reload();
     } catch (error) {
-      console.error('Failed to save user:', error);
+      console.error('Error in handleSaveUser:', error);
     }
   };
+  
+  
   
 
   const handleDeleteUser = async (userId) => {
     try {
-      await deleteUser(userId);
-      window.location.reload(); 
+      await Promise.all([
+        deleteUser(userId),
+        deleteLocationUser(userId)
+      ]);
+      window.location.reload();
     } catch (error) {
-      console.error('Failed to delete user:', error);
+      console.error('Failed to delete user or user location:', error);
     }
   };
   
-
   const handleDeleteSelectedUsers = async () => {
     try {
-      await Promise.all(selectedUsers.map(userId => deleteUser(userId))); // Gọi API xóa từng người dùng
-      window.location.reload(); 
+      await Promise.all(selectedUsers.map(userId => 
+        Promise.all([
+          deleteUser(userId),
+          deleteLocationUser(userId)
+        ])
+      ));
+      window.location.reload();
     } catch (error) {
-      console.error('Failed to delete selected users:', error);
+      console.error('Failed to delete selected users or their locations:', error);
     }
   };
   
-const openUpdateModal = (user) => {
-  setCurrentUser({
-    ...user,
-    isActive: user.isActive ? true : false, // Đảm bảo giá trị isActive là boolean
-  });
-  setShowModal(true);
-};
+
+  const openUpdateModal = (user) => {
+    setCurrentUser({
+      ...user,
+      isActive: user.isActive ? true : false,
+      phone: locations[user.id].phone || '',
+      address: locations[user.id].address || '',
+      locationId: locations[user.id].id || '',
+      locationdefault:locations[user.id]?.default_location || ''
+    });
+    setShowModal(true);
+  };
 
   const openAddModal = () => {
-    setCurrentUser({ firstname: '', lastname: '', email: '', role: 'customer', isActive: true });
+    setCurrentUser({ firstname: '', lastname: '',phone:'',address:'', email: '',locationdefault:true, role: 'customer', isActive: true });
     setShowModal(true);
   };
 
@@ -139,17 +225,22 @@ const openUpdateModal = (user) => {
   };
 
   const handleViewUser = (user) => {
-    setCurrentUser(user);
+    setCurrentUser({
+      ...user,
+      phone: locations[user.id]?.phone || '',
+      address: locations[user.id]?.address || '',
+      locationid:locations[user.id]?.id || '',
+      locationdefault:locations[user.id]?.default_location || ''
+    });
     setShowViewPopup(true);
   };
-
+  
   useEffect(() => {
     const filteredUsers = allUsers.filter(user => {
       const matchesSearch = (
         user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) 
-        // user.phone.includes(searchTerm) 
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
       const matchesRole = filterRole ? user.role === filterRole : true;
@@ -164,25 +255,24 @@ const openUpdateModal = (user) => {
     const endIndex = startIndex + usersPerPage;
 
     setUsers(filteredUsers.slice(startIndex, endIndex));
-  }, [currentPage, searchTerm, allUsers, filterRole, filterStatus]);
+  }, [currentPage, searchTerm, allUsers, filterRole, filterStatus, usersPerPage]);
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
+    navigate(`/manage-user/${page}/${usersPerPage}`);
   };
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(1);
   };
 
   const handleRoleChange = (e) => {
     setFilterRole(e.target.value);
-    setCurrentPage(1);
   };
+
   const handleStatusChange = (e) => {
     setFilterStatus(e.target.value);
-    setCurrentPage(1);
   };
+
   return (
     <div className="bg-gray-100 min-h-screen">
       <AdminHeader />
@@ -191,6 +281,7 @@ const openUpdateModal = (user) => {
 
         <Modal showModal={showModal} setShowModal={setShowModal}>
           <h2 className="text-2xl font-semibold mb-4 text-gray-600">{currentUser?.id ? 'Update User' : 'Add User'}</h2>
+         
           <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-gray-700">First Name:</label>
@@ -218,6 +309,17 @@ const openUpdateModal = (user) => {
                 onChange={(e) => setCurrentUser({ ...currentUser, email: e.target.value })} 
                 className="border border-[#006532] p-2 rounded w-full"
               />
+            </div>
+            <div>
+            <label className="block text-gray-700">Location efault:</label>
+              <select 
+                value={currentUser?.locationdefault ? '1' : '0'} 
+                onChange={(e) => setCurrentUser({ ...currentUser, locationdefault: e.target.value === '1' })} 
+                className="border border-[#006532] p-2 rounded w-full"
+              >
+                <option value="1">1</option>
+                <option value="0">0</option>
+              </select>
             </div>
             <div>
               <label className="block text-gray-700">Phone:</label>
@@ -351,11 +453,11 @@ const openUpdateModal = (user) => {
                   <MdOutlineInbox />
                 </th>
                 <th className="py-3 text-left">STT </th> 
-                <th className="py-3  px-6 w-1/6 text-left  hidden xl:table-cell">ID <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('id')}/></th>
+                <th className="py-3  px-6 w-1/6 text-left  hidden xl:table-cell">Created At <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('createdAt')}/></th>
                 <th className="py-3 px-6 text-left hidden sm:table-cell">Họ Tên<FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('firstName')}/></th>
                 <th className="py-3 px-6 text-left">Điện thoại<FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('phone')}/></th>
                 <th className="py-3 px-6 text-left hidden md:table-cell ">Email <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('email')}/></th>
-                <th className="py-3 px-6 text-left hidden xl:table-cell">Địa chỉ<FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('address')}/></th>
+                <th className="py-3 px-6 text-left ">Địa chỉ<FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('address')}/></th>
                 <th className="py-3 px-6 text-left hidden sm:table-cell">Chức vụ <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('role')}/></th>
                 <th className="py-3 px-6 text-left hidden lg:table-cell ">Trạng thái <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('isActive')}/></th>
                 
@@ -379,14 +481,19 @@ const openUpdateModal = (user) => {
                   />
                 </td>
                 <td className="py-3">{(currentPage - 1) * usersPerPage + index + 1}</td>
-                <td className="py-3 px-6 w-1/6 hidden xl:table-cell ">{user.id}</td>
-                <td className="py-3 px-6 hidden sm:table-cell">{user.firstName} {user.lastName}</td>
-                <td className="py-3 px-6">1234</td>
-                <td className="py-3 px-6 hidden md:table-cell">{user.email}</td>
-                <td className="py-3 px-6 hidden xl:table-cell">{user.address}</td>
-                <td className="py-3 px-6 capitalize hidden sm:table-cell">{user.role}</td>
-                <td className="py-3 px-6 hidden lg:table-cell">{user.isActive ? 'Active' : 'Inactive'}</td>
-                
+                <td className="py-3 px-6 w-1/6 hidden xl:table-cell "> {(() => {
+                    const date = new Date(user.createdAt);
+                    const time = date.toLocaleTimeString('vi-VN', { hour12: false });
+                    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+                    return `${time} ${formattedDate}`;
+                  })()}</td>
+                  <td className="py-3 px-6 hidden sm:table-cell">{user.firstName} {user.lastName}</td>
+                  <td className="py-3 px-6">{locations[user.id]?.phone}</td>
+                  <td className="py-3 px-6 hidden md:table-cell">{user.email}</td>
+                  <td className="py-3 px-6 hidden md:table-cell">{locations[user.id]?.address}</td>
+                  <td className="py-3 px-6 capitalize hidden sm:table-cell">{user.role}</td>
+                  <td className="py-3 px-6 hidden lg:table-cell">{user.isActive ? 'Active' : 'Inactive'}</td>
+                                  
                 <td className="py-3 px-6">
                   <div className="flex space-x-4">
                     <button onClick={() => handleViewUser(user)} className="text-blue-600 hover:text-blue-700">
@@ -458,6 +565,4 @@ const openUpdateModal = (user) => {
 };
 
 export default ManageUser;
-
-
 
