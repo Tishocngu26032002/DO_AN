@@ -11,6 +11,7 @@ export const authLocal = {
     localStorage.removeItem(AUTH_KEY);
   },
 };
+
 export const getToken = () => {
   let token = authLocal.getToken();
   return token ? token.replace(/"/g, '') : null; 
