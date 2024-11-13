@@ -25,8 +25,9 @@ import Payment from "./components/Payment/payment.jsx";
 import ShipOrder from "./components/Shipping/ship-order.jsx";
 import ShipHistory from "./components/Shipping/ship-history.jsx";
 import  NotificationsPage from './components/Notification/notification.jsx'
+import UserProfile from "./components/ProfileUser/profile-user.jsx";
 
-import 'react-toastify/dist/ReactToastify.css';
+// import 'react-toastify/dist/ReactToastify.css';
 
 
 
@@ -49,7 +50,7 @@ root.render(
           <Route path="/ship-order" element={<ShipOrder />} />
           <Route path="/ship-history" element={<ShipHistory />} />
           <Route path="/home-page" element={<Home />} />
-          <Route path="/products/:currentPage/:productsPerPage" element={<ShopGrid />} />
+          <Route path="/products" element={<ShopGrid />} />
           <Route path="/product-detail/:productId" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/order-history" element={<OrderHistory />} />
@@ -61,7 +62,7 @@ root.render(
           <Route path="/report" element={<Report />} />
           <Route path="/production-statistics" element={<ProductionStatistics />}/>
           <Route path="/payment" element={<Payment />} />
-     
+          <Route path="/user/:userId" element={<UserProfile />} />
           <Route path="/manage-supplier/:page/:limit" element={<ManageSupplier />} />
           <Route path="/test-notification" element={< NotificationsPage />} />
         
