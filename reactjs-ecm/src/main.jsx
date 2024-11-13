@@ -4,7 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./index.css";
 import Home from "./components/HomePages/home-page.jsx";
 import ProductDetail from "./components/ProductDetails/product-detail.jsx";
-import './index.css';
+import "./index.css";
 import Cart from "./components/Cart/cart.jsx";
 import RegisterForm from "./components/Register/register.jsx";
 import LoginForm from "./components/Login/login.jsx";
@@ -24,11 +24,10 @@ import ManageSupplier from "./components/Admin/ManageSupplier/manage-supplier.js
 import Payment from "./components/Payment/payment.jsx";
 import ShipOrder from "./components/Shipping/ship-order.jsx";
 import ShipHistory from "./components/Shipping/ship-history.jsx";
-import  NotificationsPage from './components/Notification/notification.jsx'
+import OrderDetails from "./components/OrderDetails/order-details";
+import NotificationsPage from "./components/Notification/notification.jsx";
 
-import 'react-toastify/dist/ReactToastify.css';
-
-
+import "react-toastify/dist/ReactToastify.css";
 
 const queryClient = new QueryClient();
 
@@ -49,24 +48,41 @@ root.render(
           <Route path="/ship-order" element={<ShipOrder />} />
           <Route path="/ship-history" element={<ShipHistory />} />
           <Route path="/home-page" element={<Home />} />
-          <Route path="/products/:currentPage/:productsPerPage" element={<ShopGrid />} />
-          <Route path="/product-detail/:productId" element={<ProductDetail />} />
+          <Route
+            path="/products/:currentPage/:productsPerPage"
+            element={<ShopGrid />}
+          />
+          <Route
+            path="/product-detail/:productId"
+            element={<ProductDetail />}
+          />
           <Route path="/cart" element={<Cart />} />
           <Route path="/order-history" element={<OrderHistory />} />
           <Route path="/order-success" element={<OrderSuccess />} />
+          <Route path="/order-details" element={<OrderDetails />} />
           <Route path="/manage-category" element={<ManageCategory />} />
           <Route path="/manage-order" element={<ManageOrder />} />
-          <Route path="/manage-product/:currentPage/:productsPerPage" element={<ManageProduct />} />
-          <Route path="/manage-user/:currentPage/:usersPerPage" element={<ManageUser />} />
+          <Route
+            path="/manage-product/:currentPage/:productsPerPage"
+            element={<ManageProduct />}
+          />
+          <Route
+            path="/manage-user/:currentPage/:usersPerPage"
+            element={<ManageUser />}
+          />
           <Route path="/report" element={<Report />} />
-          <Route path="/production-statistics" element={<ProductionStatistics />}/>
+          <Route
+            path="/production-statistics"
+            element={<ProductionStatistics />}
+          />
           <Route path="/payment" element={<Payment />} />
-     
-          <Route path="/manage-supplier/:page/:limit" element={<ManageSupplier />} />
-          <Route path="/test-notification" element={< NotificationsPage />} />
-        
+
+          <Route
+            path="/manage-supplier/:page/:limit"
+            element={<ManageSupplier />}
+          />
+          <Route path="/test-notification" element={<NotificationsPage />} />
         </Routes>
-       
       </QueryClientProvider>
     </BrowserRouter>
   </React.StrictMode>,

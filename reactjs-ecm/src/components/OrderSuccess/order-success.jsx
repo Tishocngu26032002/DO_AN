@@ -1,168 +1,55 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { PiShoppingCartBold } from "react-icons/pi";
+import { useNavigate } from "react-router-dom";
+import Header from "../Header/header";
+import Footer from "../Footer/footer";
+import { PiCheckCircle } from "react-icons/pi";
 
-export default function OrderSuccess() {
+const OrderSuccess = () => {
+  const navigate = useNavigate();
+
+  const handleBackToShop = () => {
+    navigate("/"); // Đường dẫn đến trang chính
+  };
+
+  const handleViewOrderDetails = () => {
+    navigate("/order-details"); // Đường dẫn đến chi tiết đơn hàng
+  };
+
   return (
-    <>
-      <div className="mx-auto mb-[40px] mt-[30px] w-[1160px] min-w-[320px] rounded-[4px] border border-solid bg-white">
-        <div className="text-text_color flex flex-col px-[45px] py-[65px] text-[13px] font-normal leading-[1] tracking-[0.02em]">
-          <div className="flex flex-col items-center">
-            <PiShoppingCartBold size={60} className="fill-current" />
-            <h2 className="mt-[25px] text-center text-[32px] font-bold leading-[1.125] tracking-[-0.015em]">
-              Cảm ơn bạn. Đơn hàng của bạn đã được tiếp nhận.
-            </h2>
+    <div className="flex min-h-screen flex-col bg-gray-100">
+      <Header />
+      <div className="container mx-auto flex-grow p-6 text-center md:p-12">
+        <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-8">
+          <div className="mb-6 flex justify-center text-green-600">
+            <PiCheckCircle size={64} />
           </div>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Order Placed Successfully!
+          </h2>
+          <p className="mt-4 text-gray-600">
+            Thank you for your purchase! Your order has been placed and is being
+            processed. We will notify you once it’s ready for delivery.
+          </p>
 
-          <ul className="mt-[50px] flex justify-between text-left">
-            <li className="mb-[35px] flex-1">
-              <span className="block pb-[15px] pr-[15px] uppercase">
-                Order Code :
-              </span>
-              <span className="mt-[20px] block pr-[15px] text-[15px] tracking-[0.01em]">
-                #PH1244721
-              </span>
-            </li>
-
-            <li className="mb-[35px] flex-1">
-              <span className="block pb-[15px] pr-[15px] uppercase">
-                Date :
-              </span>
-              <span className="mt-[20px] block pr-[15px] text-[15px] tracking-[0.01em]">
-                Sunday, April 21, 2024
-              </span>
-            </li>
-
-            <li className="mb-[35px] flex-1">
-              <span className="block pb-[15px] pr-[15px] uppercase">
-                Payment Method :
-              </span>
-              <span className="mt-[20px] block pr-[15px] text-[15px] tracking-[0.01em]">
-                Direct bank transfer
-              </span>
-            </li>
-
-            <li className="mb-[35px]">
-              <span className="block pb-[15px] pr-[15px] uppercase">
-                Total :
-              </span>
-              <span className="mt-[20px] block pr-[15px] text-[15px] tracking-[0.01em]">
-                15.550.000 VND
-              </span>
-            </li>
-          </ul>
-
-          <div className="mx-auto max-w-[530px]">
-            <div className="mb-[45px] mt-[30px] flex flex-col">
-              <h2 className="mb-[35px] text-[22px] font-medium leading-[28px]">
-                Order Details
-              </h2>
-
-              <table className="">
-                <thead className="">
-                  <tr className="uppercase">
-                    <th className="w-[70%] border-b border-solid pb-[15px] text-left text-[13px] font-normal leading-[1]">
-                      product
-                    </th>
-                    <th className="border-b border-solid pb-[15px] text-right text-[13px] font-normal leading-[1]">
-                      total
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody className="">
-                  <tr className="">
-                    <td className="w-[70%] pb-[6px] pt-[15px] text-left text-[13px] font-normal leading-[1]">
-                      <div className="flex flex-col">
-                        <div className="text-[14px] leading-[1.27]">
-                          <Link to="/animals/1" className="">
-                            Pig food
-                          </Link>
-                          <span> ×&nbsp;3 </span>
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="font-quicksand pb-[6px] pt-[15px] text-right text-[17px] font-bold leading-[1] tracking-[0.01em]">
-                      <span>15.000.000</span>&nbsp;VND
-                    </td>
-                  </tr>
-
-                  <tr className="">
-                    <td className="w-[70%] border-b border-solid pb-[15px] pt-[6px] text-left text-[13px] font-normal leading-[1]">
-                      <div className="flex flex-col">
-                        <div className="text-[14px] leading-[1.27]">
-                          <Link
-                            to="/animals/2"
-                            className="hover:text-secondary"
-                          >
-                            Fish food
-                          </Link>
-                          <span> ×&nbsp;2 </span>
-                        </div>
-                        <ul className="mt-[5px] flex gap-[10px]">
-                          <li>
-                            <span className="capitalize">weight : </span>
-                            <span className=""> 5kg </span>
-                          </li>
-                          <li>
-                            <span className="capitalize">Ingredient : </span>
-                            <span className=""> beef </span>
-                          </li>
-                        </ul>
-                      </div>
-                    </td>
-
-                    <td className="border-b border-solid pb-[15px] pt-[6px] text-right text-[17px] font-bold leading-[1] tracking-[0.01em]">
-                      <span>500.000</span>&nbsp;VND
-                    </td>
-                  </tr>
-                </tbody>
-
-                <tfoot className="">
-                  <tr className="uppercase">
-                    <th className="w-[70%] border-b border-solid text-left text-[13px] font-normal leading-[1]">
-                      subtotal :
-                    </th>
-
-                    <td className="w-auto border-b border-solid py-[15px] text-right text-[17px] font-bold leading-[1] tracking-[0.01em]">
-                      <span>15.500.000</span> vnd
-                    </td>
-                  </tr>
-
-                  <tr className="uppercase">
-                    <th className="w-[70%] border-b border-solid text-left text-[13px] font-normal leading-[1]">
-                      Shipping :
-                    </th>
-
-                    <td className="w-[30%] border-b border-solid py-[15px] text-right text-[17px] font-bold leading-[1] tracking-[0.01em]">
-                      <span>50.000</span> vnd
-                    </td>
-                  </tr>
-
-                  <tr className="">
-                    <th className="w-[70%] border-b border-solid text-left text-[13px] font-normal uppercase leading-[1]">
-                      payment method :
-                    </th>
-                    <td className="border-b border-solid py-[15px] text-right text-[15px] font-normal leading-[1.5] tracking-[0.01em]">
-                      Direct bank transfer
-                    </td>
-                  </tr>
-
-                  <tr className="">
-                    <th className="w-[70%] border-b border-solid text-left text-[13px] font-normal uppercase leading-[1]">
-                      total :
-                    </th>
-                    <td className="py-[15px] text-right text-[17px] font-bold leading-[1] tracking-[0.01em]">
-                      <span>15.550.000</span> vnd
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
+          <div className="mt-8 flex flex-col justify-center space-y-4 md:flex-row md:space-x-4 md:space-y-0">
+            <button
+              onClick={handleBackToShop}
+              className="shadow-md rounded-md bg-[#006532] px-6 py-2 text-white transition hover:bg-[#006532ca]"
+            >
+              Continue Shopping
+            </button>
+            <button
+              onClick={handleViewOrderDetails}
+              className="shadow-md rounded-md border-2 border-[#006532] px-6 py-2 text-[#006532] transition hover:bg-[#006532] hover:text-white"
+            >
+              View Order Details
+            </button>
           </div>
         </div>
       </div>
-    </>
+      <Footer />
+    </div>
   );
-}
+};
+
+export default OrderSuccess;
