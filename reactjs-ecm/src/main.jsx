@@ -5,7 +5,7 @@ import "./index.css";
 import Home from "./components/HomePages/home-page.jsx";
 import ProductDetail from "./components/ProductDetails/product-detail.jsx";
 import "./index.css";
-import Cart from "./components/Cart/cart.jsx";
+import Cart from "./components/Cart/Cart.jsx";
 import RegisterForm from "./components/Register/register.jsx";
 import LoginForm from "./components/Login/login.jsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -48,10 +48,7 @@ root.render(
           <Route path="/ship-order" element={<ShipOrder />} />
           <Route path="/ship-history" element={<ShipHistory />} />
           <Route path="/home-page" element={<Home />} />
-          <Route
-            path="/products/:currentPage/:productsPerPage"
-            element={<ShopGrid />}
-          />
+          <Route path="/products" element={<ShopGrid />} />
           <Route
             path="/product-detail/:productId"
             element={<ProductDetail />}
