@@ -74,7 +74,6 @@ export async function getUser() {
   try {
     const userId = getUserId();
     const token = getToken();
-    console.log(userId);
     const res = await axios.get(`${BASE_URL}/users/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`, // Truyền token ở đây
@@ -83,7 +82,7 @@ export async function getUser() {
     });
     return res.data; // Hoặc bạn có thể chỉ cần return true nếu xóa thành công
   } catch (error) {
-    console.error("Error get user:", error);
+    console.error("Error deleting user:", error);
     throw error;
   }
 }
