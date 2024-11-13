@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {In, Like, Repository} from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/entities/user_entity/user.entity';
 import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
 import { UpdateUserDto } from 'src/dto/userDTO/user.update.dto';
 import { plainToClass } from 'class-transformer';
 import { v4 as uuidv4 } from 'uuid';
+import {ProductEntity} from "src/entities/product_entity/product.entity";
 
 @Injectable()
 export class UserService {
@@ -40,7 +41,7 @@ export class UserService {
     };
   }
 
-  async findAll(page: number = 1, limit: number = 10) {
+  async findAll(page: number = 1, limit: number = 10, filters: any) {
     if (page < 1) {
       throw new Error('PAGE NUMBER MUST BE GREATER THAN 0!');
     }
@@ -48,8 +49,21 @@ export class UserService {
     if (limit < 1) {
       throw new Error('LIMIT MUST BE GREATER THAN 0!');
     }
-
+    const whereConditions: any = {};
+    if (filters.name) {
+      whereConditions.lastName = Like(`%${filters.name}%`);
+    }
+    if (filters.phone) {
+      whereConditions.phone = Like(`%${filters.phone}%`);
+    }
+    if (filters.role) {
+      whereConditions.role = filters.role;
+    }
+    if (filters.isActive != undefined) {
+      whereConditions.isActive = filters.isActive;
+    }
     const [users, total] = await this.usersRepository.findAndCount({
+      where: whereConditions,
       skip: (page - 1) * limit,
       take: limit,
     });

@@ -28,6 +28,11 @@ export class CategoryController {
 
   @Get(':page/:limit')
   @ApiQuery({
+    name: 'name',
+    required: false,
+    description: 'Tên loại',
+  })
+  @ApiQuery({
     name: 'status',
     enum: ApplyStatus,
     required: false,
@@ -36,11 +41,13 @@ export class CategoryController {
   async getList(
     @Param('page') page: number,
     @Param('limit') limit: number,
+    @Query('name') name?: string,
     @Query('status') status?: ApplyStatus,
   ) {
     try {
       const filters = {
         status: status !== undefined ? status : '',
+        name: name !== undefined ? name : ''
       };
       const listcategory = await this.categoryService.getList(
         page,

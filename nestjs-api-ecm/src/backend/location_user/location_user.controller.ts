@@ -10,8 +10,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { LocationUserService } from './location_user.service';
-import { CreateLocationUserDto } from '../../dto/locationUserDTO/create-location_user.dto';
-import { UpdateLocationUserDto } from '../../dto/locationUserDTO/update-location_user.dto';
+import { CreateLocationUserDto } from 'src/dto/locationUserDTO/create-location_user.dto';
+import { UpdateLocationUserDto } from 'src/dto/locationUserDTO/update-location_user.dto';
 import { AuthGuard } from 'src/guards/JwtAuth.guard';
 import { RolesGuard } from 'src/guards/Roles.guard';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';

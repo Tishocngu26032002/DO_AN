@@ -1,13 +1,13 @@
 import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query} from '@nestjs/common';
 import { SupplierService } from './supplier.service';
-import { CreateSupplierDto } from '../../dto/supplierDTO/create-supplier.dto';
-import { UpdateSupplierDto } from '../../dto/supplierDTO/update-supplier.dto';
+import { CreateSupplierDto } from 'src/dto/supplierDTO/create-supplier.dto';
+import { UpdateSupplierDto } from 'src/dto/supplierDTO/update-supplier.dto';
 import {responseHandler} from "src/Until/responseUtil";
 import {AuthGuard} from "src/guards/JwtAuth.guard";
 import {RolesGuard} from "src/guards/Roles.guard";
 import {ApiBearerAuth, ApiQuery, ApiTags} from "@nestjs/swagger";
 import {Roles} from "src/decorator/Role.decorator";
-import {ApplyStatus} from "src/share/Enum/Enum";
+
 
 @Controller('supplier')
 @ApiTags('Supplier')
@@ -16,16 +16,33 @@ import {ApplyStatus} from "src/share/Enum/Enum";
 export class SupplierController {
   constructor(private readonly supplierService: SupplierService) {}
 
+  @ApiQuery({
+    name: 'name',
+    required: false,
+    description: 'Tên nhà cung cấp',
+  })
+  @ApiQuery({
+    name: 'phone',
+    required: false,
+    description: 'Số điện thoại',
+  })
   @Get(':page/:limit')
   @Roles('admin')
   async getList(
       @Param('page') page: number,
       @Param('limit') limit: number,
+      @Query('name') name?: string,
+      @Query('phone') phone?: string,
   ) {
     try {
+      const filters = {
+        ...(name && { name }),
+        ...(phone && { phone }),
+      };
       const listcategory = await this.supplierService.getList(
           page,
           limit,
+          filters
       );
       return responseHandler.ok(listcategory);
     } catch (e) {
