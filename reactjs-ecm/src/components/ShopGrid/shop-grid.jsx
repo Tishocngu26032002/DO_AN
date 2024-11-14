@@ -5,11 +5,10 @@ import { getProducts, getQueryProducts } from "../../services/product-service";
 import Header from "../Header/header";
 import Footer from "../Footer/footer";
 import { Link, useNavigate } from "react-router-dom";
-import { FaStar } from "react-icons/fa";
-import { PiShoppingCartBold } from "react-icons/pi";
+import { PiShoppingCart } from "react-icons/pi";
 import { getCategory } from "../../services/category-service";
 import { authLocal, userIdLocal } from "../../util/auth-local";
-
+import img from '../../../public/images/banner/image-4.jpg'
 const ShopGrid = () => {
   const navigate = useNavigate();
 
@@ -163,43 +162,44 @@ const ShopGrid = () => {
 
     return products.map((product) => (
       <div
-        className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
-        key={product.id}
-        onClick={() => navigate(`/product-detail`)}
-      >
-        <img src={product.url_images} alt={product.name} />
-        <div className="des py-[10px] text-start">
-          <span className="text-[12px] text-[#606063]">
-            {product.category.name}
-          </span>
-          <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-            {product.name}
-          </h5>
-          <div className="star flex">
-            {[...Array(5)].map((_, index) => (
-              <FaStar
-                key={index}
-                className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"
-              />
-            ))}
-          </div>
-          <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-            ${product.priceout}
-          </h4>
-        </div>
-
-        <Link to="">
-          <PiShoppingCartBold
-            data-id={product.id}
-            className="add-to-cart fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              handleAddToCart(product.id);
-            }}
-          />
-        </Link>
+      key={product.id}
+      onClick={() => navigate(`/product-detail/${product.id}`)}
+      className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
+    >
+      <img
+        src={product.url_images} alt={product.name}
+        className="w-full rounded-xl"
+      />
+      <div className="des pt-3 text-start">
+        <span className="text-[13px] text-[#1a1a1a]">{product.category.name}</span>
+        <h5 className="pt-2 text-[15px] font-semibold text-[#006532]">
+        {product.name}
+        </h5>
+        <h5 className="pt-2 text-[13px] text-[#1a1a1a]">Bao: {product.weight}kg</h5>
+        <h4 className="flex pt-2 text-[16px] font-semibold text-[#006532]">
+          <p className="mr-1 mt-[2px] text-sm font-normal underline">
+            đ
+          </p>
+          {new Intl.NumberFormat('vi-VN').format(product.priceout)}
+        </h4>
       </div>
+      <a
+        href="#"
+        className="cart absolute bottom-5 right-2 -mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] font-medium leading-10 text-[#006532]"
+      >
+      <Link to="">
+        <PiShoppingCart
+          data-id={product.id}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            handleAddToCart(product.id);
+          }}
+         />
+         </Link>
+      </a>
+  </div>
+      
     ));
   };
 
@@ -232,11 +232,20 @@ const ShopGrid = () => {
       <Header />
       <section
         id="page-header"
-        className="flex h-[40vh] w-full flex-col items-center justify-center bg-cover bg-center px-4 text-center"
-        style={{ backgroundImage: "url(images/banner/banner-shop.jpg)" }}
+        className="h-[47vh]"
+        style={{
+          backgroundImage: `url(${img})`,
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+        }}
       >
-        <h2 className="text-[30px] font-bold text-white">Cám nhà Tuyên</h2>
-        <p className="text-white">Đại lý cám số 1 Hiệp Hòa</p>
+        <div className="flex h-full w-full flex-col items-center justify-center bg-[rgba(8,28,14,0.50)] text-center">
+          <h2 className="text-2xl font-bold text-white">Cám........</h2>
+          <p className="text-white"></p>
+          <a href="#" className="to-top">
+            <i className="fas fa-chevron-up"></i>
+          </a>
+        </div>
       </section>
 
       <section id="newsletter" className="section-p1 section-m1">

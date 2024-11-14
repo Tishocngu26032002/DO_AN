@@ -1,13 +1,12 @@
 import axios from "axios";
-import { getToken } from "../util/auth-local";
+import { getToken, getUserId } from "../util/auth-local";
 
 const BASE_URL = "http://localhost:6006";
+
 
 export async function getUsers(page, limit) {
   try {
     const token = getToken();
-    console.log(token);
-
     const res = await axios.get(`${BASE_URL}/users/${page}/${limit}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -69,3 +68,21 @@ export const createUser = async (userData) => {
     throw error;
   }
 };
+
+export async function getUser() {
+  
+  try {
+    const userId = getUserId();
+    const token = getToken();
+    const res = await axios.get(`${BASE_URL}/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Truyền token ở đây
+        accept: "*/*",
+      },
+    });
+    return res.data; // Hoặc bạn có thể chỉ cần return true nếu xóa thành công
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    throw error;
+  }
+}
