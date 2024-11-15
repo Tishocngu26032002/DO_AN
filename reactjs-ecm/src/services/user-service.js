@@ -1,22 +1,38 @@
 import axios from "axios";
 import { getToken } from "../util/auth-local";
 
-const BASE_URL = 'http://localhost:6006';
+const BASE_URL = "http://localhost:6006";
+
+export async function getUserById(userId) {
+  try {
+    const token = getToken();
+    const res = await axios.get(`${BASE_URL}/users/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    console.log(res.data);
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    throw error;
+  }
+}
 
 export async function getUsers(page, limit) {
   try {
-    const token = getToken(); 
+    const token = getToken();
     console.log(token);
-    
+
     const res = await axios.get(`${BASE_URL}/users/${page}/${limit}`, {
       headers: {
-        'Authorization': `Bearer ${token}`, 
-        'accept': '*/*',
+        Authorization: `Bearer ${token}`,
+        accept: "*/*",
       },
     });
     return res.data;
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error("Error fetching users:", error);
     throw error;
   }
 }
@@ -24,16 +40,16 @@ export async function getUsers(page, limit) {
 // Xóa người dùng theo ID
 export async function deleteUser(userId) {
   try {
-    const token = getToken(); 
+    const token = getToken();
     const res = await axios.delete(`${BASE_URL}/users/${userId}`, {
       headers: {
-        'Authorization': `Bearer ${token}`, // Truyền token ở đây
-        'accept': '*/*',
+        Authorization: `Bearer ${token}`, // Truyền token ở đây
+        accept: "*/*",
       },
     });
     return res.data; // Hoặc bạn có thể chỉ cần return true nếu xóa thành công
   } catch (error) {
-    console.error('Error deleting user:', error);
+    console.error("Error deleting user:", error);
     throw error;
   }
 }
@@ -44,12 +60,12 @@ export const updateUser = async (userId, userData) => {
     const token = getToken(); // Lấy token
     const res = await axios.patch(`${BASE_URL}/users/${userId}`, userData, {
       headers: {
-        'Authorization': `Bearer ${token}`, // Truyền token ở đây
+        Authorization: `Bearer ${token}`, // Truyền token ở đây
       },
     });
     return res.data;
   } catch (error) {
-    console.error('Error updating user:', error);
+    console.error("Error updating user:", error);
     throw error;
   }
 };
@@ -60,12 +76,12 @@ export const createUser = async (userData) => {
     const token = getToken(); // Lấy token
     const res = await axios.post(`${BASE_URL}/users`, userData, {
       headers: {
-        'Authorization': `Bearer ${token}`, // Truyền token ở đây
+        Authorization: `Bearer ${token}`, // Truyền token ở đây
       },
     });
     return res.data;
   } catch (error) {
-    console.error('Error creating user:', error);
+    console.error("Error creating user:", error);
     throw error;
   }
 };

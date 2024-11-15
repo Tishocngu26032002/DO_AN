@@ -23,13 +23,14 @@ const ManageProduct = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage, setProductsPerPage] = useState(10);
+  
 
   useEffect(() => {
     const loadProducts = async () => {
       try {
         const productsData = await fetchProducts(currentPage, productsPerPage);
-        setProducts(productsData);
-        setFilteredProducts(productsData);
+        setProducts(productsData || []);  // Đảm bảo productsData luôn có giá trị mặc định là mảng rỗng
+        setFilteredProducts(productsData || []); 
       } catch (error) {
         console.error("Error loading products:", error);
       }
@@ -40,8 +41,12 @@ const ManageProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const formattedForm = {
+        ...form,
+        expire_date: form.expire_date ? new Date(form.expire_date).toISOString().split('T')[0] : ''
+      };
       if (editMode) {
-        await editProduct(editId, form);
+        await editProduct(editId, formattedForm);
         setProducts(products.map(product =>
           product.id === editId ? { ...form, id: editId } : product
         ));

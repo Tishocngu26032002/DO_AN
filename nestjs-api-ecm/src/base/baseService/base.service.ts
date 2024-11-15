@@ -29,19 +29,21 @@ export class BaseService<T> {
   }
 
   async findOne(id: string): Promise<T> {
-    return await this.repository.findOneBy({ id } as any);
-  }
-
-  async update(data: Partial<T>, id: string): Promise<T> {
     const existingRecord = await this.repository.findOneBy({ id } as any);
     if (!existingRecord) {
       throw new Error('RECORD NOT FOUND!');
     }
+    else return existingRecord;
+  }
+
+  async update(data: Partial<T>, id: string): Promise<T> {
+    const existingRecord = await this.findOne(id);
     Object.assign(existingRecord, data);
     return await this.repository.save(existingRecord);
   }
 
   async delete(id: string): Promise<void> {
+    const existingRecord = await this.findOne(id);
     await this.repository.delete(id);
   }
 }
