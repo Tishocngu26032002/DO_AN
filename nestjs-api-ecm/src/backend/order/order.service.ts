@@ -120,45 +120,60 @@ export class OrderService extends BaseService<OrderEntity>{
   }
 
   async updateOrder(updateOrderDTO: UpdateOrderDTO) {
-    const order = await this.orderRepo.findOne({
-      where: { id: updateOrderDTO.order_id },
-      relations: ['Order_productEntity'],
-    });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    if (!order) {
-      throw new Error('ORDER.ORDER UPDATE NOT FOUND!');
-    }
+    try {
+      const order = await this.orderRepo.findOne({
+        where: {id: updateOrderDTO.order_id},
+        relations: ['Order_productEntity'],
+      });
 
-    order.total_price = updateOrderDTO.totalPrice;
-    order.payment_method = updateOrderDTO.paymentMethod;
-    order.orderStatus = updateOrderDTO.orderStatus;
-    order.user_id = updateOrderDTO.user_id;
-    order.employee_id = updateOrderDTO.employee_id;
-    order.location_id = updateOrderDTO.location_id;
-
-    // Cập nhật danh sách sản phẩm trong Order_productEntity
-    for (const productDto of updateOrderDTO.products) {
-      const product = order.orderProducts.find(
-        (prod) => prod.product_id === productDto.product_id,
-      );
-
-      if (product) {
-        // Nếu sản phẩm đã tồn tại, cập nhật thông tin
-        product.quantity = productDto.quantity;
-        product.priceout = productDto.priceout;
-      } else {
-        // Nếu sản phẩm không tồn tại, thêm mới
-        const newProduct = new Order_productEntity();
-        newProduct.product_id = productDto.product_id;
-        newProduct.quantity = productDto.quantity;
-        newProduct.priceout = productDto.priceout;
-        newProduct.order = order; // Gán liên kết với order
-
-        order.orderProducts.push(newProduct); // Thêm vào danh sách sản phẩm
+      if (!order) {
+        throw new Error('ORDER.ORDER UPDATE NOT FOUND!');
       }
-    }
 
-    // Lưu thay đổi vào cơ sở dữ liệu
-    return await this.orderRepo.save(order);
+      order.total_price = updateOrderDTO.totalPrice;
+      order.payment_method = updateOrderDTO.paymentMethod;
+      order.orderStatus = updateOrderDTO.orderStatus;
+      order.user_id = updateOrderDTO.user_id;
+      order.employee_id = updateOrderDTO.employee_id;
+      order.location_id = updateOrderDTO.location_id;
+
+      // Cập nhật danh sách sản phẩm trong Order_productEntity
+      for (const productDto of updateOrderDTO.products) {
+        const product = order.orderProducts.find(
+            (prod) => prod.product_id === productDto.product_id,
+        );
+
+        if (product) {
+          // Nếu sản phẩm đã tồn tại, cập nhật thông tin
+          product.quantity = productDto.quantity;
+          product.priceout = productDto.priceout;
+        } else {
+          // Nếu sản phẩm không tồn tại, thêm mới
+          const newProduct = new Order_productEntity();
+          newProduct.product_id = productDto.product_id;
+          newProduct.quantity = productDto.quantity;
+          newProduct.priceout = productDto.priceout;
+          newProduct.order = order; // Gán liên kết với order
+
+          order.orderProducts.push(newProduct); // Thêm vào danh sách sản phẩm
+        }
+      }
+
+      // Lưu thay đổi vào cơ sở dữ liệu
+      return await this.orderRepo.save(order);
+    }
+    catch (e) {
+      // Rollback transaction on error
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException(
+          'ORDER.OCCUR ERROR WHEN UPDATE TO DATABASE!',
+      );
+    } finally {
+      await queryRunner.release();
+    }
   }
 }
