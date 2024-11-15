@@ -1,15 +1,90 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../Header/header.jsx";
 import Footer from "../Footer/footer.jsx";
-import QuantityInput from "../Button/quantity-selector-buttom.jsx";
 import { PiShoppingCart } from "react-icons/pi";
+import { PiMinusBold, PiPlusBold } from "react-icons/pi";
+import { authLocal, userIdLocal } from "../../util/auth-local.js";
+import {
+  deleteCart,
+  getCarts,
+  updateCart,
+} from "../../services/cart-service.js";
 const Cart = () => {
-  const productImages = [
-    "/images/product/range_cubes.jpg",
-    "/images/product/264.png",
-    "/images/product/266.png",
-    "/images/product/262.png", // Bạn có thể thêm nhiều ảnh khác tại đây
-  ];
+  const [carts, setCarts] = useState([]);
+  const [totalCost, setTotalCost] = useState(0);
+
+  const handleIncrease = (cartId, currentQuantity) => {
+    const newQuantity = currentQuantity + 1;
+    handleQuantityChange(cartId, newQuantity);
+  };
+
+  const handleDecrease = (cartId, currentQuantity) => {
+    const newQuantity = currentQuantity > 1 ? currentQuantity - 1 : 1;
+    handleQuantityChange(cartId, newQuantity);
+  };
+
+  const handleQuantityChange = async (cartId, newQuantity) => {
+    const cartIndex = carts.findIndex((cart) => cart.id === cartId);
+
+    let token = authLocal.getToken();
+    token = token.replace(/^"|"$/g, "");
+
+    if (cartIndex !== -1) {
+      try {
+        await updateCart({ ...carts[cartIndex], quantity: newQuantity }, token);
+        fetchCarts();
+      } catch (error) {
+        console.error("Error updating cart quantity:", error);
+      }
+    }
+  };
+
+  const calculateTotalCost = (cartsData) => {
+    try {
+      const cost = cartsData.reduce(
+        (total, item) => total + item.quantity * item.product.priceout,
+        0,
+      );
+      setTotalCost(cost);
+    } catch (error) {
+      console.error("Error calculating total cost:", error);
+    }
+  };
+
+  const handleDeleteCart = async (cartId) => {
+    try {
+      let token = authLocal.getToken();
+      token = token.replace(/^"|"$/g, "");
+
+      await deleteCart(cartId, token);
+      fetchCarts();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCarts();
+  }, []);
+
+  const fetchCarts = async () => {
+    try {
+      let token = authLocal.getToken();
+      token = token.replace(/^"|"$/g, "");
+
+      let userId = userIdLocal.getUserId();
+      userId = userId.replace(/^"|"$/g, "");
+
+      if (userId) {
+        const cartsData = await getCarts(userId, token);
+        setCarts(cartsData.data.data.cart);
+        calculateTotalCost(cartsData.data.data.cart);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div>
       <Header />
@@ -22,7 +97,7 @@ const Cart = () => {
           backgroundSize: "cover",
         }}
       >
-        <div className="bg-[rgba(8,28,14,0.79)] w-full h-full flex flex-col items-center justify-center text-center">
+        <div className="flex h-full w-full flex-col items-center justify-center bg-[rgba(8,28,14,0.79)] text-center">
           <h2 className="text-2xl font-bold text-white">YOUR CART</h2>
           <p className="text-white"></p>
           <a href="#" className="to-top">
@@ -31,56 +106,82 @@ const Cart = () => {
         </div>
       </section>
 
-      <div className="small-container p-4 md:p-12 lg:px-32 xl:px-52 bg-white rounded-lg shadow-lg">
-        <table className="w-full border-collapse ">
+      <div className="small-container shadow-lg bg-white p-4 md:p-12 lg:px-32 xl:px-52">
+        <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className="bg-[#006532] pl-6 p-2 text-left font-normal text-white w-1/2 md:w-1/3">
-                Product
+              <th className="w-1/2 rounded-tl-md bg-[#006532] p-2 pl-6 text-left font-normal text-white md:w-1/3">
+                Sản phẩm
               </th>
-              <th className="bg-[#006532] py-2 pl-8 md:pl-16 text-left font-normal text-white w-1/6 md:w-1/12">
-                Size
+
+              <th className="w-1/6 bg-[#006532] py-2 pl-8 text-left font-normal text-white">
+                Số lượng
               </th>
-              <th className="bg-[#006532] py-2 pl-12 text-left font-normal text-white w-1/6">
-                Quantity
-              </th>
-              <th className="bg-[#006532] py-2 pr-6 text-left font-normal text-white w-1/6">
-                Subtotal
+              <th className="w-1/6 rounded-tr-md bg-[#006532] py-2 pr-6 text-end font-normal text-white">
+                Số tiền
               </th>
             </tr>
           </thead>
           <tbody>
             {/* Sample Product Row */}
-            {Array(3).fill(null).map((_, index) => (
-              <tr key={index}>
-                <td className="p-2 w-1/2 md:w-2/3">
+            {carts.map((cart) => (
+              <tr key={cart.id} className="border-t-2 border-[#00653294]">
+                <td className="mx-2 w-2/5 p-2 md:w-2/3">
                   <div className="cart-info flex flex-wrap items-center">
                     <img
-                      src="images/products/f1.png"
-                      alt="Tshirt"
+                      src={cart.product.url_images}
+                      alt="Image"
                       className="mr-3 h-[80px] md:h-[120px]"
                     />
+
                     <div>
-                      <p className="mb-[10px] mt-[15px]">Orange Printed Tshirt</p>
-                      <small className="block">Price: $78.00</small>
-                      <a href="#" className="text-xs text-[#006532] no-underline">
-                        Remove
-                      </a>
+                      <p className="mb-[10px] font-semibold text-[#006532]">
+                        {cart.product.name}
+                      </p>
+                      <small className="block">
+                        Bao: {cart.product.weight}kg
+                      </small>
+                      <small className="block">
+                        Đơn giá: {cart.product.priceout}đ
+                      </small>
+                      <button
+                        onClick={() => handleDeleteCart(cart.id)}
+                        className="text-xs text-[#006532] no-underline hover:text-red-500"
+                      >
+                        Xóa
+                      </button>
                     </div>
                   </div>
                 </td>
-                <td className="p-2 w-1/2 sm:w-1/6 md:w-1/6 ">
-                  <select className="w-full border border-gray-300 rounded p-1 h-[48px]">
-                    <option value="S">S</option>
-                    <option value="M">M</option>
-                    <option value="L">L</option>
-                    <option value="XL">XL</option>
-                  </select>
+
+                <td className="w-1/6">
+                  {/* <QuantityInput /> */}
+                  <div className="product__details__quantity">
+                    <div className="flex h-[48px] w-[140px] items-center rounded border-2 border-[#00653265] bg-white">
+                      <button
+                        className="ml-[18px] mr-1 text-base font-normal text-gray-600 hover:bg-gray-300 focus:outline-none"
+                        onClick={() => handleDecrease(cart.id, cart.quantity)}
+                      >
+                        <PiMinusBold />
+                      </button>
+                      <input
+                        type="text"
+                        value={cart.quantity}
+                        readOnly
+                        className="mr-1 w-16 border-0 text-center text-base font-normal text-gray-600 focus:outline-none"
+                      />
+                      <button
+                        className="text-base font-normal text-gray-600 hover:bg-gray-300 focus:outline-none"
+                        onClick={() => handleIncrease(cart.id, cart.quantity)}
+                      >
+                        <PiPlusBold />
+                      </button>
+                    </div>
+                  </div>
                 </td>
-                <td className="p-2 w-1/6">
-                  <QuantityInput />
+                <td className="w-1/6 p-2 pr-5 text-right font-semibold text-[#006532]">
+                  {cart.product.priceout * cart.quantity}đ
                 </td>
-                <td className="p-2 w-1/6">$78.00</td>
               </tr>
             ))}
           </tbody>
@@ -90,37 +191,37 @@ const Cart = () => {
           <table className="w-full max-w-xs border-t-4 border-[#006532]">
             <tbody>
               <tr>
-                <td className="p-2">Subtotal</td>
-                <td className="p-2 text-right">$234.00</td>
-              </tr>
-              <tr>
-                <td className="p-2">Delivery Fee</td>
-                <td className="p-2 text-right">$35.00</td>
-              </tr>
-              <tr>
-                <td className=" p-2 font-bold text-[#006532]">Total</td>
-                <td className="text-[#006532] font-bold p-2 text-right ">
-                  $269.00
+                <td className="px-2 pt-5 font-bold text-[#006532]">
+                  Tổng thanh toán
+                </td>
+                <td className="px-2 pt-5 text-right font-bold text-[#006532]">
+                  {totalCost}đ
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
+        {console.log("length", carts.length)}
         <div className="mt-4 flex justify-end">
-          <button className="hover:bg-[#006532] border-2 border-[#006532] hover:text-white text-[#006532] py-2 px-4 rounded w-[320px]">
-            Checkout
-          </button>
+          <a href="/payment">
+            <button className="w-[320px] rounded border-2 border-[#006532] bg-[#006532] px-4 py-2 text-white hover:bg-[#80c9a4] hover:text-[#006532]">
+              Checkout
+            </button>
+          </a>
         </div>
       </div>
-      <section id="product1" className="py-10 text-center bg-[#f9f9f9] mt-10 pt-10">
+      <section
+        id="product1"
+        className="mt-10 bg-[#f9f9f9] py-10 pt-10 text-center"
+      >
         <div className="text-[46px] font-semibold leading-[54px] text-[#006532]">
           Newest Products
         </div>
-        <div className="pro-container flex flex-wrap justify-evenly pt-5">
+        <div className="container mx-auto flex flex-wrap justify-evenly pt-5">
           {[...Array(4)].map((_, index) => (
             <div
               key={index}
-              className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)] bg-white"
+              className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
             >
               <img
                 src="/images/products/262.png"
@@ -128,23 +229,21 @@ const Cart = () => {
                 className="w-full rounded-xl"
               />
               <div className="des pt-3 text-start">
-                <span className="text-sm text-[#006532]">Adidas</span>
-                <h5 className="pt-2 text-sm text-[#1a1a1a]">
+                <span className="text-[13px] text-[#1a1a1a]">Adidas</span>
+                <h5 className="pt-2 text-[15px] font-semibold text-[#006532]">
                   Cotton shirts pure cotton
                 </h5>
-                <div className="star mt-2 flex">
-                  {[...Array(5)].map((_, starIndex) => (
-                    <i
-                      key={starIndex}
-                      className="fas fa-star mr-1 text-xs text-yellow-500"
-                    ></i>
-                  ))}
-                </div>
-                <h4 className="m pt-2 text-lg font-bold text-[#006532]">$78</h4>
+                <h5 className="pt-2 text-[13px] text-[#1a1a1a]">Bao: 20kg</h5>
+                <h4 className="flex pt-2 text-[16px] font-semibold text-[#006532]">
+                  <p className="mr-1 mt-[2px] text-sm font-normal underline">
+                    đ
+                  </p>
+                  78000
+                </h4>
               </div>
               <a
                 href="#"
-                className="cart absolute bottom-5 -mb-3 right-2 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] font-medium leading-10 text-[#006532]"
+                className="cart absolute bottom-5 right-2 -mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] font-medium leading-10 text-[#006532]"
               >
                 <PiShoppingCart />
               </a>
@@ -152,7 +251,7 @@ const Cart = () => {
           ))}
         </div>
       </section>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

@@ -53,6 +53,40 @@ export class ProductController {
     }
   }
 
+  @Get('search/:page/:limit')
+  @ApiQuery({
+    name: 'name',
+    required: false,
+    description: 'Tên sản phẩm',
+  })
+  @ApiQuery({
+    name: 'category',
+    required: false,
+    description: 'Id category',
+  })
+  async search(
+      @Param('page') page: number,
+      @Param('limit') limit: number,
+      @Query('name') name?: string,
+      @Query('category') category_id?: string,
+  ) {
+    try {
+      const filters = {
+        ...(name && { name }),
+        ...(category_id && { category_id }),
+      };
+      const products = await this.productService.searchProducts(
+          page,
+          limit,
+          filters,
+      );
+      return responseHandler.ok(products);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
+    }
+  }
+
   @Post()
   @Roles('admin')
   async create(@Body() createProduct: ProductCreateDTO) {
@@ -75,14 +109,13 @@ export class ProductController {
     }
   }
 
-  @Patch(':id')
+  @Patch()
   @Roles('admin')
   async update(
-    @Param('id') id: string,
     @Body() productUpdateDTO: ProductUpdateDTO,
   ) {
     try {
-      const check = await this.productService.update(productUpdateDTO, id);
+      const check = await this.productService.update(productUpdateDTO, productUpdateDTO.id);
       return responseHandler.ok(check);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);

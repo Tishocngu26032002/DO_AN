@@ -1,19 +1,25 @@
 import { BaseEntity } from 'src/base/baseEntity/base.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { User } from 'src/entities/user_entity/user.entity';
-import { Order_Product } from 'src/entities/order_entity/order_product.entity';
+import { Order_productEntity } from 'src/entities/order_entity/order_product.entity';
 @Entity({ name: 'orders' })
-export class Order extends BaseEntity {
+export class OrderEntity extends BaseEntity {
   @Column({ type: 'int' })
   total_price: number;
   @Column({ type: 'tinyint' })
   status: number;
   @Column({ type: 'tinyint' })
   payment_method: number;
-  @Column({ type: 'varchar', length: 36 })
+  @Column({ nullable: true, type: 'varchar', length: 36 })
   employee_id: string;
   @Column({ type: 'varchar', length: 36 })
   user_id: string;
+
+  @Column({ type: 'varchar', length: 10 })
+  phone: string;
+
+  @Column({ type: 'varchar' })
+  address: string;
 
   // user_id: ID of the person who placed the order
   @ManyToOne(() => User, (user) => user.orders)
@@ -26,6 +32,6 @@ export class Order extends BaseEntity {
   employee: User;
 
   // Relation with Order_Product
-  @OneToMany(() => Order_Product, (orderProduct) => orderProduct.order)
-  orderProducts: Order_Product[];
+  @OneToMany(() => Order_productEntity, (orderProduct) => orderProduct.order)
+  orderProducts: Order_productEntity[];
 }

@@ -5,10 +5,10 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Order } from 'src/entities/order_entity/oder.entity';
+import { OrderEntity } from 'src/entities/order_entity/oder.entity';
 import { ProductEntity } from 'src/entities/product_entity/product.entity';
 @Entity({ name: 'order_product' })
-export class Order_Product {
+export class Order_productEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -24,9 +24,9 @@ export class Order_Product {
   @Column({ type: 'varchar', length: 36 })
   product_id: string;
 
-  @ManyToOne(() => Order, (order) => order.orderProducts)
+  @ManyToOne(() => OrderEntity, (order) => order.orderProducts)
   @JoinColumn({ name: 'order_id' }) // Foreign key for the order
-  order: Order;
+  order: OrderEntity;
 
   // Many-to-One relation with Product
   @ManyToOne(() => ProductEntity, (product) => product.orderProducts)

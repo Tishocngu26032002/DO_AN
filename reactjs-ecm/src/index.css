@@ -3,6 +3,7 @@
 
 * {
   font-family: "Open Sans", sans-serif;
+  
 }
 
 @tailwind base;
@@ -26,3 +27,4 @@
   animation-fill-mode: both;
   visibility: visible;
 }
+

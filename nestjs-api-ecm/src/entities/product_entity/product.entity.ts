@@ -1,11 +1,10 @@
-import {Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from 'src/base/baseEntity/base.entity';
-import { Order_Product } from 'src/entities/order_entity/order_product.entity';
+import { Order_productEntity } from 'src/entities/order_entity/order_product.entity';
 import { Cart_productEntity } from 'src/entities/cartproduct_entity/cart_product.entity';
 import { Import_productEntity } from 'src/entities/import_entity/import_product.entity';
 import { CategoryEntity } from 'src/entities/category_entity/category.entity';
 import { SupplierEntity } from 'src/entities/supplier_entity/supplier.entity';
-import {ExpirationStatus} from "src/share/Enum/Enum";
 
 @Entity({ name: 'products' })
 export class ProductEntity extends BaseEntity {
@@ -37,8 +36,8 @@ export class ProductEntity extends BaseEntity {
   expire_date: Date;
 
   // Relation with Order_Product
-  @OneToMany(() => Order_Product, (orderProduct) => orderProduct.product)
-  orderProducts: Order_Product[];
+  @OneToMany(() => Order_productEntity, (orderProduct) => orderProduct.product)
+  orderProducts: Order_productEntity[];
 
   // Relation with Cart_productEntity
   @OneToMany(() => Cart_productEntity, (cartProduct) => cartProduct.product)
