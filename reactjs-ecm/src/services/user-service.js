@@ -19,6 +19,38 @@ export async function getUserById(userId) {
   }
 }
 
+export async function getUserById(userId) {
+  try {
+    const token = getToken();
+    const res = await axios.get(`${BASE_URL}/users/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    console.log(res.data);
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    throw error;
+  }
+}
+
+export async function getUserById(userId) {
+  try {
+    const token = getToken();
+    const res = await axios.get(`${BASE_URL}/users/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    console.log(res.data);
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    throw error;
+  }
+}
+
 export async function getUsers(page, limit) {
   try {
     const token = getToken();
