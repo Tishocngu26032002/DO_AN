@@ -11,9 +11,10 @@ import { UserService } from 'src/backend/user/user.service';
 import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
 import { responseHandler } from 'src/Until/responseUtil';
 import { UpdateUserDto } from 'src/dto/userDTO/user.update.dto';
-import {ApiBearerAuth, ApiQuery, ApiTags} from '@nestjs/swagger';
+import {ApiBearerAuth, ApiBody, ApiQuery, ApiTags} from '@nestjs/swagger';
 import { Roles } from 'src/decorator/Role.decorator';
 import {ParseBooleanPipe} from "src/share/ParseBooleanPipe";
+import {UserSearchDto} from "src/dto/userDTO/user.search.dto";
 
 @Controller('users')
 @ApiBearerAuth()
@@ -21,43 +22,33 @@ import {ParseBooleanPipe} from "src/share/ParseBooleanPipe";
 export class UserController {
   constructor(private readonly usersService: UserService) {}
 
-  @ApiQuery({
-    name: 'name',
-    required: false,
-    description: 'Tên người dùng',
-  })
-  @ApiQuery({
-    name: 'phone',
-    required: false,
-    description: 'Số điện thoại',
-  })
-  @ApiQuery({
-    name: 'role',
-    required: false,
-    description: 'Quyền người dùng',
-  })
-  @ApiQuery({
-    name: 'isActive',
-    required: false,
-    description: 'Trạng thái tài khoản',
-    type: Boolean,
-  })
   @Get(':page/:limit')
   @Roles('admin')
-  async findAll(@Param('page') page: number,
-                @Param('limit') limit: number,
-                @Query('name') name?: string,
-                @Query('phone') phone?: string,
-                @Query('role') role?: string,
-                @Query('isActive', ParseBooleanPipe) isActive?: boolean) {
+  async findAll(@Param('page') page: number, @Param('limit') limit: number) {
     try {
-      const filters = {
-        ...(name && { name }),
-        ...(phone && { phone }),
-        ...(role && { role }),
-        ...(isActive !== undefined && { isActive }),
-      };
-      const users = await this.usersService.findAll(page, limit, filters);
+      const users = await this.usersService.findAll(page, limit);
+      console.log(users);
+      return responseHandler.ok(users);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
+    }
+  }
+
+  @Post('search/:page/:limit')
+  @Roles('admin')
+  @ApiBody({ type: UserSearchDto, required: false })
+  async findAllBySearch(@Param('page') page: number,
+                @Param('limit') limit: number,
+                @Body() userSearchDto?: UserSearchDto) {
+    try {
+      const filters: any = {};
+      if(userSearchDto?.lastName != null) filters.lastName = userSearchDto.lastName;
+      if(userSearchDto?.phone != null) filters.phone = userSearchDto.phone;
+      if(userSearchDto?.email != null) filters.email = userSearchDto.email;
+      if(userSearchDto?.role != null) filters.role = userSearchDto.role;
+      if(userSearchDto?.isActive != null) filters.isActive = userSearchDto.isActive;
+      const users = await this.usersService.findAllBySearch(page, limit, filters);
       console.log(users);
       return responseHandler.ok(users);
     } catch (e) {

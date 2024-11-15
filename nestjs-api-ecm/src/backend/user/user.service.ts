@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {In, Like, Repository} from 'typeorm';
+import {FindOptionsWhere, In, Like, Repository} from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/entities/user_entity/user.entity';
 import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
@@ -41,27 +41,37 @@ export class UserService {
     };
   }
 
-  async findAll(page: number = 1, limit: number = 10, filters: any) {
-    if (page < 1) {
-      throw new Error('PAGE NUMBER MUST BE GREATER THAN 0!');
+  async findAll(page: number = 1, limit: number = 10) {
+    if (page < 1 || limit < 1) {
+      throw new Error('Page and limit must be greater than 0.');
     }
 
-    if (limit < 1) {
-      throw new Error('LIMIT MUST BE GREATER THAN 0!');
+    const [users, total] = await this.usersRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    if (!users) throw new Error('NO USER!');
+
+    return {
+      data: users,
+      total,
+      page,
+      limit,
+    };
+  }
+
+  async findAllBySearch(page: number = 1, limit: number = 10, filters: any) {
+    if (page < 1 || limit < 1) {
+      throw new Error('Page and limit must be greater than 0.');
     }
-    const whereConditions: any = {};
-    if (filters.name) {
-      whereConditions.lastName = Like(`%${filters.name}%`);
-    }
-    if (filters.phone) {
-      whereConditions.phone = Like(`%${filters.phone}%`);
-    }
-    if (filters.role) {
-      whereConditions.role = filters.role;
-    }
-    if (filters.isActive != undefined) {
-      whereConditions.isActive = filters.isActive;
-    }
+    const whereConditions: FindOptionsWhere<User> = {
+      ...(filters.lastName && { lastName: Like(`%${filters.lastName}%`) }),
+      ...(filters.email && { email: Like(`%${filters.email}%`) }),
+      ...(filters.phone && { phone: Like(`%${filters.phone}%`) }),
+      ...(filters.role && { role: filters.role }),
+      ...(filters.isActive !== undefined && { isActive: filters.isActive }),
+    };
     const [users, total] = await this.usersRepository.findAndCount({
       where: whereConditions,
       skip: (page - 1) * limit,

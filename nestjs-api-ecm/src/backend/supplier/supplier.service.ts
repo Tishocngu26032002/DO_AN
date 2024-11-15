@@ -20,12 +20,8 @@ export class SupplierService extends BaseService<SupplierEntity>{
   }
 
   async getList(page: number = 1, limit: number = 10, filters: any) {
-    if (page < 1) {
-      throw new Error('PAGE NUMBER MUST BE GREATER THAN 0!');
-    }
-
-    if (limit < 1) {
-      throw new Error('LIMIT MUST BE GREATER THAN 0!');
+    if (page < 1 || limit < 1) {
+      throw new Error('Page and limit must be greater than 0.');
     }
 
     const condition: any = {};
