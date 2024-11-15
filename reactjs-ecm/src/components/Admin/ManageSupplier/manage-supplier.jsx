@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import AdminHeader from "../AdminHeader/admin-header.jsx";
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaFilter } from "react-icons/fa";
 import { createSupplier,deleteSuppliers,deleteSupplier, getSupplier,updateSupplier,} from "../../../services/supplier-service.js";
-import { authLocal } from "../../../util/auth-local.js";
 import { uploadImage } from "../../../services/image-service.js";
 import { ClipLoader } from 'react-spinners';
 
