@@ -10,39 +10,99 @@ import { getCategory } from "../../services/category-service";
 import { authLocal, userIdLocal } from "../../util/auth-local";
 import img from '../../../public/images/banner/image-4.jpg'
 const ShopGrid = () => {
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
+
+  const [params, setParams] = useState({
+    limit: PER_PAGE,
+    page: 1,
+    total: 0,
+    name: "",
+    category_id: "",
+  });
+
+  const [category, setCategory] = useState([]);
+
   const [products, setProducts] = useState([]);
-  const [totalPages, setTotalPages] = useState(0);
-  const productsPerPage = 8;
 
-  // Gọi API lấy dữ liệu sản phẩm
+  const [carts, setCarts] = useState([]);
+
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get(`http://localhost:6006/product/${currentPage}/${productsPerPage}`);
-        if (response.data.success) {
-          const fetchedProducts = response.data.data.data.map((product) => ({
-            id: product.id,
-            title: product.name,
-            price: product.priceout,
-            brand: product.category.name, // Nếu bạn muốn hiển thị tên danh mục là 'brand'
-            img: product.url_images, // Sử dụng ảnh từ url_images
-          }));
-          setProducts(fetchedProducts);
-          setTotalPages(Math.ceil(response.data.data.total / productsPerPage));
-        }
-      } catch (error) {
-        console.error("Error fetching products:", error);
+    getProductsOnPage();
+    getCategoryOnPage();
+  }, []);
+
+  useEffect(() => {
+    getCartsOnPage(); // Cập nhật giỏ hàng sau mỗi lần tải lại sản phẩm
+  }, [params.page]);
+
+  useEffect(() => {
+    getQueryProductsOnPage();
+  }, [params.name, params.category_id, params.page]);
+
+  const getCategoryOnPage = async () => {
+    try {
+      const response = await getCategory(1, 20);
+
+      setCategory(response.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getProductsOnPage = async () => {
+    try {
+      const response = await getProducts(params.page, params.limit);
+      setProducts(response.data.products);
+
+      if (response.data.total !== params.total) {
+        setParams((prev) => ({
+          ...prev,
+          total: response.data.total,
+        }));
       }
-    };
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-    fetchProducts();
-  }, [currentPage]);
+  const getQueryProductsOnPage = async () => {
+    try {
+      const response = await getQueryProducts(
+          params.page,
+          params.limit,
+          params.name,
+          params.category_id,
+      );
 
-  const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
+      setProducts(response.data.products);
+
+      if (response.data.total !== params.total) {
+        setParams((prev) => ({
+          ...prev,
+          total: response.data.total,
+        }));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getCartsOnPage = async () => {
+    try {
+      let token = authLocal.getToken();
+      token = token.replace(/^"|"$/g, "");
+
+      let userId = userIdLocal.getUserId();
+      userId = userId.replace(/^"|"$/g, "");
+
+      if (userId) {
+        const cartsData = await getCarts(userId, token);
+
+        setCarts(cartsData.data.data.cart);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handlePageChange = (page) => {
@@ -61,21 +121,21 @@ const ShopGrid = () => {
 
     if (cartIndex !== -1) {
       await updateCart(
-        {
-          ...carts[cartIndex],
-          quantity: carts[cartIndex].quantity + 1,
-        },
-        token,
+          {
+            ...carts[cartIndex],
+            quantity: carts[cartIndex].quantity + 1,
+          },
+          token,
       );
     } else {
       await createCart(
-        {
-          ...product,
-          product_id: product.id,
-          quantity: 1,
-          user_id: userId,
-        },
-        token,
+          {
+            ...product,
+            product_id: product.id,
+            quantity: 1,
+            user_id: userId,
+          },
+          token,
       );
     }
     getCartsOnPage();
@@ -101,45 +161,45 @@ const ShopGrid = () => {
     if (products.length === 0) return;
 
     return products.map((product) => (
-      <div
-      key={product.id}
-      onClick={() => navigate(`/product-detail/${product.id}`)}
-      className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
-    >
-      <img
-        src={product.url_images} alt={product.name}
-        className="w-full rounded-xl"
-      />
-      <div className="des pt-3 text-start">
-        <span className="text-[13px] text-[#1a1a1a]">{product.category.name}</span>
-        <h5 className="pt-2 text-[15px] font-semibold text-[#006532]">
-        {product.name}
-        </h5>
-        <h5 className="pt-2 text-[13px] text-[#1a1a1a]">Bao: {product.weight}kg</h5>
-        <h4 className="flex pt-2 text-[16px] font-semibold text-[#006532]">
-          <p className="mr-1 mt-[2px] text-sm font-normal underline">
-            đ
-          </p>
-          {new Intl.NumberFormat('vi-VN').format(product.priceout)}
-        </h4>
-      </div>
-      <a
-        href="#"
-        className="cart absolute bottom-5 right-2 -mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] font-medium leading-10 text-[#006532]"
-      >
-      <Link to="">
-        <PiShoppingCart
-          data-id={product.id}
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            handleAddToCart(product.id);
-          }}
-         />
-         </Link>
-      </a>
-  </div>
-      
+        <div
+            key={product.id}
+            onClick={() => navigate(`/product-detail/${product.id}`)}
+            className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
+        >
+          <img
+              src={product.url_images} alt={product.name}
+              className="w-full rounded-xl"
+          />
+          <div className="des pt-3 text-start">
+            <span className="text-[13px] text-[#1a1a1a]">{product.category.name}</span>
+            <h5 className="pt-2 text-[15px] font-semibold text-[#006532]">
+              {product.name}
+            </h5>
+            <h5 className="pt-2 text-[13px] text-[#1a1a1a]">Bao: {product.weight}kg</h5>
+            <h4 className="flex pt-2 text-[16px] font-semibold text-[#006532]">
+              <p className="mr-1 mt-[2px] text-sm font-normal underline">
+                đ
+              </p>
+              {new Intl.NumberFormat('vi-VN').format(product.priceout)}
+            </h4>
+          </div>
+          <a
+              href="#"
+              className="cart absolute bottom-5 right-2 -mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] font-medium leading-10 text-[#006532]"
+          >
+            <Link to="">
+              <PiShoppingCart
+                  data-id={product.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    handleAddToCart(product.id);
+                  }}
+              />
+            </Link>
+          </a>
+        </div>
+
     ));
   };
 
@@ -148,114 +208,92 @@ const ShopGrid = () => {
 
     const totalPages = Math.ceil(params.total / PER_PAGE);
     return (
-      <div id="pagination" className="section-p1">
-        {[...Array(totalPages)].map((_, index) => (
-          <a
-            key={index + 1}
-            data-page={index + 1}
-            className={`page ${
-              params.page === index + 1
-                ? "active bg-[#088178] text-white"
-                : "bg-gray-200"
-            } mx-1 rounded p-2`}
-            onClick={() => handlePageChange(index + 1)}
-          >
-            {index + 1}
-          </a>
-        ))}
-      </div>
+        <div id="pagination" className="section-p1">
+          {[...Array(totalPages)].map((_, index) => (
+              <a
+                  key={index + 1}
+                  data-page={index + 1}
+                  className={`page ${
+                      params.page === index + 1
+                          ? "active bg-[#088178] text-white"
+                          : "bg-gray-200"
+                  } mx-1 rounded p-2`}
+                  onClick={() => handlePageChange(index + 1)}
+              >
+                {index + 1}
+              </a>
+          ))}
+        </div>
     );
   };
 
   return (
-    <div className="w-full text-[#006532]">
-      <Header />
-      <section
-        id="page-header"
-        className="h-[47vh]"
-        style={{
-          backgroundImage: `url(${img})`,
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-        }}
-      >
-        <div className="flex h-full w-full flex-col items-center justify-center bg-[rgba(8,28,14,0.50)] text-center">
-          <h2 className="text-2xl font-bold text-white">Cám........</h2>
-          <p className="text-white"></p>
-          <a href="#" className="to-top">
-            <i className="fas fa-chevron-up"></i>
-          </a>
-        </div>
-      </section>
+      <div>
+        <Header />
+        <section
+            id="page-header"
+            className="h-[47vh]"
+            style={{
+              backgroundImage: `url(${img})`,
+              backgroundPosition: "center",
+              backgroundSize: "cover",
+            }}
+        >
+          <div className="flex h-full w-full flex-col items-center justify-center bg-[rgba(8,28,14,0.50)] text-center">
+            <h2 className="text-2xl font-bold text-white">Cám........</h2>
+            <p className="text-white"></p>
+            <a href="#" className="to-top">
+              <i className="fas fa-chevron-up"></i>
+            </a>
+          </div>
+        </section>
 
-      {/* Search bar */}
-      <section id="search-bar" className="py-6 bg-[#e8f6ea]">
-        <div className="mx-auto max-w-[1200px] flex items-center justify-between space-x-4 px-6">
-          <select
-            className="h-12 w-1/3 rounded-lg border border-[#cce7d0] px-4 text-[#006532] text-sm focus:outline-none"
-            onChange={(e) => handleCategoryChange(e.target.value)}
-            value={selectedCategory}
-          >
-            {categories.map(category => (
-              <option key={category.id} value={category.id}>{category.name}</option>
-            ))}
-          </select>
-
-          <input
-            type="text"
-            placeholder="Tìm kiếm sản phẩm..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="h-12 w-2/3 rounded-lg border border-[#cce7d0] px-4 text-[#006532] text-sm focus:outline-none"
-          />
-        </div>
-      </section>
-
-      {/* Product list */}
-      <section id="product1" className="section-p1 mx-auto w-full max-w-[1200px]">
-        <div className="pro-container mt-8 grid grid-cols-1 justify-center gap-4 sm:grid-cols-2 md:grid-cols-3 md:px-8 lg:grid-cols-4 lg:px-8">
-          {filteredProducts.map((product) => (
-            <div
-              key={product.id}
-              className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)] bg-white"
-            >
-              <img src={product.img} alt={product.title} className="w-full rounded-xl" />
-              <div className="des pt-3 text-start">
-                <span className="text-sm text-[#006532]">{product.brand}</span>
-                <h5 className="pt-2 text-sm text-[#1a1a1a]">{product.title}</h5>
-                <h4 className="m pt-2 text-lg font-bold text-[#006532]">${product.price}</h4>
-              </div>
-              <a
-                href="#"
-                className="cart absolute bottom-5 -mb-3 right-2 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] font-medium leading-10 text-[#006532]"
+        <section id="newsletter" className="section-p1 section-m1">
+          <div className="flex flex-wrap items-center justify-between bg-[#041e42] bg-[url(src/assets/images/b14.png)] bg-[20%_30%] bg-no-repeat p-4">
+            <div className="relative w-1/3">
+              <select
+                  onChange={handleFilter}
+                  className="h-[3.125rem] w-full rounded border border-transparent px-5 text-[14px]"
               >
-                <PiShoppingCart />
-              </a>
+                <option value="">Tất cả</option>
+                {category.map((cate) => (
+                    <option key={cate.id} value={cate.id}>
+                      {cate.name}
+                    </option>
+                ))}
+              </select>
             </div>
-          ))}
-        </div>
-      </section>
 
+            <div className="form flex w-1/3">
+              <input
+                  type="text"
+                  placeholder="Tìm kiếm..."
+                  id="search"
+                  onInput={handleSearch}
+                  className="h-[3.125rem] w-full rounded border border-transparent px-5 text-[14px]"
+              />
+            </div>
+          </div>
+        </section>
 
-      {/* Pagination */}
-      <section id="pagination" className="my-8 flex justify-center">
-        <div className="space-x-2">
-          {Array.from({ length: totalPages }, (_, index) => (
-            <button
-              key={index + 1}
-              onClick={() => handlePageChange(index + 1)}
-              className={`px-4 py-2 rounded-lg transition ${
-                currentPage === index + 1 ? "bg-[#006532] text-white" : "bg-gray-200 text-[#006532]"
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
-        </div>
-      </section>
+        <section id="product1" className="section-p1 px-[80px] py-[40px]">
+          <div
+              className="pro-container flex flex-wrap justify-between pt-[20px] tablet:justify-center"
+              id="product-render"
+          >
+            {renderProducts()}
+          </div>
+        </section>
 
-      <Footer />
-    </div>
+        <section
+            id="pagination"
+            className="section-p1 flex justify-center space-x-2"
+        >
+          <div className="mt-4 flex justify-center">{renderPagination()}</div>
+        </section>
+
+        <Footer />
+      </div>
   );
 };
 

@@ -35,9 +35,13 @@ function LoginForm() {
     onSuccess: (response) => {
       if (response && response.success === true) {
         localStorage.setItem(
-          "token",
-          JSON.stringify(response?.data.accessToken),
+            "token",
+            JSON.stringify(response?.data.accessToken),
         );
+
+        // Lưu userId vào localStorage
+        localStorage.setItem("userId", JSON.stringify(response?.data.user.id));
+
         const role = response?.data.user.role;
         if (role === "admin") {
           setTimeout(() => {
@@ -54,6 +58,12 @@ function LoginForm() {
         }
       }
     },
+    onError: (error) => {
+      console.error("Login failed:", error);
+      alert(
+          "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập của bạn.",
+      );
+    },
   });
 
   const onSubmit = (data) => {
@@ -61,74 +71,74 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center bg-gray-50">
-      <div className="mx-2 my-2 w-full max-w-lg overflow-hidden rounded-lg bg-white shadow-lg">
-        <div className="bg-[#006532] p-6">
-          <p className="relative text-2xl font-medium text-white">
-            Đăng nhập
-            <span className="absolute bottom-0 left-0 h-0.5 w-8 bg-gradient-to-r from-[#f37a65] to-[#d64141]" />
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6">
-          <div className="flex flex-wrap justify-between gap-5">
-            <div className="mb-3 w-full">
-              <label htmlFor="email" className="mb-1 block font-medium">
-                Email
-                <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                id="email"
-                placeholder="Nhập email của bạn"
-                {...register("email")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#006532]"
-              />
-              {errors.email && (
-                <span className="text-red-500">{errors.email.message}</span>
-              )}
-            </div>
-
-            <div className="mb-3 w-full">
-              <label htmlFor="password" className="mb-1 block font-medium">
-                Mật khẩu
-                <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="password"
-                id="password"
-                placeholder="Nhập mật khẩu của bạn"
-                {...register("password")}
-                className="duration-120 h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base shadow-sm outline-none transition-all ease-out focus:shadow-lg focus:ring-2 focus:ring-[#006532]"
-              />
-              {errors.password && (
-                <span className="text-red-500">{errors.password.message}</span>
-              )}
-            </div>
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <div className="shadow-lg mx-2 my-2 w-full max-w-lg overflow-hidden rounded-lg bg-white">
+          <div className="bg-[#006532] p-6">
+            <p className="relative text-2xl font-medium text-white">
+              Đăng nhập
+              <span className="absolute bottom-0 left-0 h-0.5 w-8 bg-gradient-to-r from-[#f37a65] to-[#d64141]" />
+            </p>
           </div>
 
-          <div className="p-6">
-            <input
-              type="submit"
-              value="Đăng nhập"
-              className={`h-11 w-full cursor-pointer rounded-md bg-[#006532] font-medium tracking-wide text-white shadow-md transition-all duration-300 ease-in-out hover:bg-[#004d26] disabled:bg-gray-300`}
-            />
-          </div>
-        </form>
+          <form onSubmit={handleSubmit(onSubmit)} className="p-6">
+            <div className="flex flex-wrap justify-between gap-5">
+              <div className="mb-3 w-full">
+                <label htmlFor="email" className="mb-1 block font-medium">
+                  Email
+                  <span className="text-red-500">*</span>
+                </label>
+                <input
+                    type="text"
+                    id="email"
+                    placeholder="Nhập email của bạn"
+                    {...register("email")}
+                    className="duration-120 shadow-sm focus:shadow-lg h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base outline-none transition-all ease-out focus:ring-2 focus:ring-[#006532]"
+                />
+                {errors.email && (
+                    <span className="text-red-500">{errors.email.message}</span>
+                )}
+              </div>
 
-        <div className="pb-6 pl-6 pr-6">
+              <div className="mb-3 w-full">
+                <label htmlFor="password" className="mb-1 block font-medium">
+                  Mật khẩu
+                  <span className="text-red-500">*</span>
+                </label>
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Nhập mật khẩu của bạn"
+                    {...register("password")}
+                    className="duration-120 shadow-sm focus:shadow-lg h-11 w-full rounded-md border-none bg-gray-100 pl-3 text-base outline-none transition-all ease-out focus:ring-2 focus:ring-[#006532]"
+                />
+                {errors.password && (
+                    <span className="text-red-500">{errors.password.message}</span>
+                )}
+              </div>
+            </div>
+
+            <div className="p-6">
+              <input
+                  type="submit"
+                  value="Đăng nhập"
+                  className={`shadow-md h-11 w-full cursor-pointer rounded-md bg-[#006532] font-medium tracking-wide text-white transition-all duration-300 ease-in-out hover:bg-[#004d26] disabled:bg-gray-300`}
+              />
+            </div>
+          </form>
+
+          <div className="pb-6 pl-6 pr-6">
           <span className="text-sm text-gray-600">
             Chưa có tài khoản?{" "}
             <Link
-              to="/register"
-              className="font-medium text-[#006532] underline hover:font-bold"
+                to="/register"
+                className="font-medium text-[#006532] underline hover:font-bold"
             >
               Đăng ký
             </Link>
           </span>
+          </div>
         </div>
       </div>
-    </div>
   );
 }
 
