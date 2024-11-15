@@ -17,29 +17,14 @@ import {SearchSupplierDto} from "src/dto/supplierDTO/search-supplier.dto";
 export class SupplierController {
   constructor(private readonly supplierService: SupplierService) {}
 
-  @ApiQuery({
-    name: 'name',
-    required: false,
-    description: 'Tên nhà cung cấp',
-  })
-  @ApiQuery({
-    name: 'phone',
-    required: false,
-    description: 'Số điện thoại',
-  })
   @Get(':page/:limit')
   @Roles('admin')
   async getList(
       @Param('page') page: number,
-      @Param('limit') limit: number,
-      @Query('name') name?: string,
-      @Query('phone') phone?: string,
+      @Param('limit') limit: number
   ) {
     try {
-      const filters = {
-        ...(name && { name }),
-        ...(phone && { phone }),
-      };
+      const filters: any = {};
       const listcategory = await this.supplierService.getList(
           page,
           limit,
