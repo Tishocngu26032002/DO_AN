@@ -25,7 +25,6 @@ export class UserService {
       throw new Error('ACCOUNT EXSIST!');
     }
 
-    userAdd.id = uuidv4();
     // hashPassword
     const hashPassword = await bcrypt.hash(userAdd.password, 10);
     userAdd.password = hashPassword;
