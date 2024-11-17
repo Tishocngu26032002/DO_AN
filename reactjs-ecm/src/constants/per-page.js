@@ -1,1 +1,1 @@
-export var PER_PAGE = 2;
+export var PER_PAGE = 4;

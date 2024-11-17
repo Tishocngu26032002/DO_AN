@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { IoMenu, IoClose } from "react-icons/io5";
-import img from "../../../../public/images/Crops organic farm.png"
+import img from "../../../../public/images/Crops organic farm.png";
 function HeaderAdmin() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -93,7 +93,7 @@ function HeaderAdmin() {
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
             <NavLink
-              to="/manage-product"
+              to="/manage-product/1/10"
               className={({ isActive }) =>
                 isActive
                   ? "border-l-4 border-[#006532] pl-2 text-[#006532]"

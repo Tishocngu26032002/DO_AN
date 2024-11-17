@@ -18,8 +18,8 @@ import ManageCategory from "./components/Admin/ManageCategory/manage-category.js
 import ManageOrder from "./components/Admin/ManageOrder/manage-order.jsx";
 import ManageProduct from "./components/Admin/ManageProduct/manage-product.jsx";
 import ManageUser from "./components/Admin/ManageUser/manage-user.jsx";
+
 import Report from "./components/Admin/Report/report.jsx";
-import ProductionStatistics from "./components/Admin/Statistics/production-statistics.jsx";
 import ManageSupplier from "./components/Admin/ManageSupplier/manage-supplier.jsx";
 import Payment from "./components/Payment/payment.jsx";
 import ShipOrder from "./components/Shipping/ship-order.jsx";
@@ -67,11 +67,8 @@ root.render(
             path="/manage-user/:currentPage/:usersPerPage"
             element={<ManageUser />}
           />
-          <Route path="/report" element={<Report />} />
-          <Route
-            path="/production-statistics"
-            element={<ProductionStatistics />}
-          />
+          {/* <Route path="/report" element={<Report />} /> */}
+          <Route path="/dashboard" element={<Report />} />
           <Route path="/payment" element={<Payment />} />
 
           <Route

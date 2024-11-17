@@ -45,7 +45,7 @@ function LoginForm() {
         const role = response?.data.user.role;
         if (role === "admin") {
           setTimeout(() => {
-            navigate("/admin");
+            navigate("/dashboard");
           }, 1000);
         } else if (role === "user") {
           setTimeout(() => {

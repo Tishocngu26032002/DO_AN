@@ -139,6 +139,7 @@ const ShopGrid = () => {
       );
     }
     getCartsOnPage();
+    alert("Đã add sản phẩm vào giỏ hàng");
   };
 
   const handleSearch = (e) => {
@@ -291,7 +292,9 @@ const ShopGrid = () => {
         id="pagination"
         className="section-p1 flex justify-center space-x-2"
       >
-        <div className="mt-4 flex justify-center">{renderPagination()}</div>
+        <div className="mb-4 mt-2 flex justify-center">
+          {renderPagination()}
+        </div>
       </section>
 
       <Footer />
