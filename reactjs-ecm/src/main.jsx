@@ -50,7 +50,7 @@ root.render(
           <Route path="/ship-history" element={<ShipHistory />} />
           <Route path="/home-page" element={<Home />} />
           <Route
-            path="/products/:currentPage/:productsPerPage"
+            path="/products"
             element={<ShopGrid />}
           />
           <Route

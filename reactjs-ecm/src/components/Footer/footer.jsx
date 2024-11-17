@@ -1,6 +1,6 @@
 import React from "react";
 import { FaFacebookF, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
-
+import img from '../../../public/images/Crops organic farm (1).png'
 function Footer() {
   return (
     <footer className="bg-[#006532] text-white py-6">
@@ -9,7 +9,7 @@ function Footer() {
           <div className="flex items-center">
             <img 
               className="h-20 w-20 mr-3" 
-              src="images/Crops organic farm (1).png" 
+              src={img}
               alt="SIGMA" 
             />
             <h1 className="text-2xl font-bold">FIVE FEEDS</h1>

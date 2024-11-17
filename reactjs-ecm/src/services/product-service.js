@@ -3,10 +3,6 @@ import { format } from 'date-fns';
 import { getToken } from "../util/auth-local";
 
 const BASE_URL = "http://localhost:6006";
-const getToken = () => {
-  let token = authLocal.getToken(); // Lấy token từ authLocal
-  return token ? token.replace(/"/g, "") : null; // Xóa dấu ngoặc kép nếu có
-};
 
 export async function getProducts(page, limit) {
   try {
@@ -52,18 +48,21 @@ export const fetchProducts = async (currentPage, productsPerPage) => {
     const response = await axios.get(`${BASE_URL}/product/${currentPage}/${productsPerPage}`);
     console.log(response.data);
     if (response.status === 200 && response.data.success && Array.isArray(response.data.data.products)) {
-      return response.data.data.products.map(product => ({
-        id: product.id,
-        name: product.name,
-        priceout: product.priceout,
-        category_id: product.category_id,
-        supplier_id: product.supplier_id,
-        url_images: product.url_images,
-        description: product.description,
-        stockQuantity: product.stockQuantity,
-        weight: product.weight,
-        expire_date: format(new Date(product.expire_date), 'yyyy-MM-dd')
-      }));
+      return {
+        products: response.data.data.products.map((product) => ({
+          id: product.id,
+          name: product.name,
+          priceout: product.priceout,
+          category_id: product.category_id,
+          supplier_id: product.supplier_id,
+          url_images: product.url_images,
+          description: product.description,
+          stockQuantity: product.stockQuantity,
+          weight: product.weight,
+          expire_date: format(new Date(product.expire_date), 'yyyy-MM-dd'),
+        })),
+        totalProducts: response.data.data.totalProducts || 0, // Tổng số sản phẩm từ API
+      };
     } else {
       console.error("No products data received from server.");
       return [];

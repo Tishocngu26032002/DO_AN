@@ -5,7 +5,7 @@ import { PiShoppingCart } from "react-icons/pi";
 import { fetchProductDetail } from '../../services/product-service.js';
 import Footer from "../Footer/footer.jsx";
 import { PiMinusBold, PiPlusBold } from "react-icons/pi";
-import { authLocal, userIdLocal } from '../../util/auth-local.js';  // Import the auth methods
+import { authLocal, userIdLocal, getToken } from '../../util/auth-local.js';  // Import the auth methods
 import { createCart } from '../../services/cart-service.js'; // Assuming you have a cart service to handle API calls
 
 // Tách Image component

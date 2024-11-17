@@ -7,7 +7,7 @@ export const uploadImage = async (file) => {
   const token = getToken(); // Lấy token
   const formData = new FormData();
   formData.append('files', file);
-
+  console.log("FormData contents:", formData.get('files'));
   try {
     const res = await axios.post('http://localhost:6006/image/upload', formData, {
       headers: {

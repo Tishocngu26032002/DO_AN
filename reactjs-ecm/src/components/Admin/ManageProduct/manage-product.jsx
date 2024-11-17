@@ -1,36 +1,45 @@
 import AdminHeader from "../AdminHeader/admin-header.jsx";
 import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
 import { fetchProducts, addProduct, editProduct, deleteProduct } from '../../../services/product-service.js';
+import { uploadImage } from '../../../services/image-service.js'
 
 const ManageProduct = () => {
+  const { currentPage: pageParam, productsPerPage: perPageParam } = useParams();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [form, setForm] = useState({
-    name: '',
-    priceout: '',
-    category_id: '', 
-    supplier_id: '', 
-    url_images: '', 
-    description: '',
-    stockQuantity: '',
-    weight: '',
-    expire_date: ''
+    name: "",
+    priceout: "",
+    category_id: "",
+    supplier_id: "",
+    url_images: "",
+    description: "",
+    stockQuantity: "",
+    weight: "",
+    expire_date: ""
   });
-  const [filterCategory, setFilterCategory] = useState('');
+  const [filterCategory, setFilterCategory] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [productsPerPage, setProductsPerPage] = useState(10);
-  
+  const [totalProducts, setTotalProducts] = useState(0);
+  const currentPage = parseInt(pageParam, 10) || 1;
+  const productsPerPage = parseInt(perPageParam, 10) || 8;
 
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const productsData = await fetchProducts(currentPage, productsPerPage);
-        setProducts(productsData || []);  // Đảm bảo productsData luôn có giá trị mặc định là mảng rỗng
-        setFilteredProducts(productsData || []); 
+        const { products: productsData, totalProducts } = await fetchProducts(
+          currentPage,
+          productsPerPage
+        );
+        console.log("API Response:", productsData, "Total Products:", totalProducts);
+        setProducts(productsData || []);
+        setFilteredProducts(productsData || []);
+        setTotalProducts(totalProducts); // Cập nhật tổng số sản phẩm
       } catch (error) {
         console.error("Error loading products:", error);
       }
@@ -39,39 +48,58 @@ const ManageProduct = () => {
   }, [currentPage, productsPerPage]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const formattedForm = {
-        ...form,
-        expire_date: form.expire_date ? new Date(form.expire_date).toISOString().split('T')[0] : ''
-      };
-      if (editMode) {
-        await editProduct(editId, formattedForm);
-        setProducts(products.map(product =>
-          product.id === editId ? { ...form, id: editId } : product
-        ));
-        setEditMode(false);
-        setEditId(null);
-      } else {
-        const newProduct = await addProduct(form);
-        setProducts([...products, newProduct]);
-      }
-      setForm({
-        name: '',
-        priceout: '',
-        category_id: '',
-        supplier_id: '',
-        url_images: '',
-        description: '',
-        stockQuantity: '',
-        weight: '',
-        expire_date: ''
-      });
-      setIsModalOpen(false);
-      handleFilter(filterCategory);
-    } catch (error) {
-      console.error("Error saving product:", error);
+  e.preventDefault();
+  try {
+    const formattedForm = {
+      ...form,
+      expire_date: form.expire_date
+        ? new Date(form.expire_date).toISOString().split("T")[0]
+        : ""
+    };
+
+    // Upload hình ảnh nếu có
+    if (form.url_images) {
+      const uploadResult = await uploadImage(form.url_images); // Gọi service upload
+      formattedForm.url_images = uploadResult.imageUrl; // Gán URL từ API trả về
     }
+
+    if (editMode) {
+      // Chế độ chỉnh sửa
+      await editProduct(editId, formattedForm);
+      setProducts(
+        products.map((product) =>
+          product.id === editId ? { ...formattedForm, id: editId } : product
+        )
+      );
+      setEditMode(false);
+      setEditId(null);
+    } else {
+      // Chế độ thêm sản phẩm mới
+      const newProduct = await addProduct(formattedForm);
+      setProducts([...products, newProduct]);
+    }
+
+    // Reset form và đóng modal
+    setForm({
+      name: "",
+      priceout: "",
+      category_id: "",
+      supplier_id: "",
+      url_images: "",
+      description: "",
+      stockQuantity: "",
+      weight: "",
+      expire_date: ""
+    });
+    setIsModalOpen(false);
+    handleFilter(filterCategory);
+  } catch (error) {
+    console.error("Error saving product:", error);
+  }
+};
+
+  const handleImageChange = (e) => {
+    setForm({ ...form, url_images: e.target.files[0] });
   };
 
   const handleDelete = async (id) => {
@@ -88,10 +116,10 @@ const ManageProduct = () => {
     const product = products.find((product) => product.id === id);
     setForm({
       name: product.name,
-      priceout: product.priceout, 
-      category_id: product.category_id, 
+      priceout: product.priceout,
+      category_id: product.category_id,
       supplier_id: product.supplier_id,
-      url_images: product.url_images, 
+      url_images: product.url_images,
       description: product.description,
       stockQuantity: product.stockQuantity,
       weight: product.weight,
@@ -105,11 +133,17 @@ const ManageProduct = () => {
   const handleFilter = (category) => {
     setFilterCategory(category);
     setFilteredProducts(
-      category === ''
+      category === ""
         ? products
         : products.filter((product) => product.category === category)
     );
   };
+
+  const handlePageChange = (page) => {
+    navigate(`/manage-product/${page}/${productsPerPage}`);
+  };
+
+  const totalPages = Math.ceil(totalProducts / productsPerPage);
 
   return (
     <>
@@ -146,7 +180,7 @@ const ManageProduct = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredProducts.map((product) => (
+              {(Array.isArray(filteredProducts) ? filteredProducts : []).map((product) => (
                 <tr key={product.id} className="border-t">
                   <td className="border px-4 py-2">{product.id}</td>
                   <td className="border px-4 py-2">{product.name}</td>
@@ -196,7 +230,6 @@ const ManageProduct = () => {
                   { label: 'Số lượng trong kho', field: 'stockQuantity', type: 'number' },
                   { label: 'Khối lượng', field: 'weight', type: 'number' },
                   { label: 'Ngày hết hạn', field: 'expire_date', type: 'date' },
-                  { label: 'Hình ảnh', field: 'url_images', type: 'text' },
                 ].map(({ label, field, type }, index) => (
                   <div className="mb-4" key={index}>
                     <label className="block text-gray-700">{label}</label>
@@ -209,6 +242,18 @@ const ManageProduct = () => {
                     />
                   </div>
                 ))}
+
+                {/* Input for image upload */}
+                <div className="mb-4">
+                  <label className="block text-gray-700">Hình ảnh</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}  // Xử lý sự kiện chọn ảnh
+                    className="w-full p-2 border border-gray-300 rounded focus:border-[#225a3e]"
+                  />
+                </div>
+
                 <button type="submit" className="bg-[#225a3e] text-white p-2 rounded">
                   {editMode ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm'}
                 </button>
@@ -227,6 +272,33 @@ const ManageProduct = () => {
             </div>
           </div>
         )}
+        <div className="flex justify-center items-center mt-4">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-4 py-2 bg-gray-300 rounded-l disabled:bg-gray-200"
+          >
+            Trước
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={`px-3 py-1 mx-1 rounded ${
+                currentPage === page ? "bg-blue-500 text-white" : "bg-gray-200"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 bg-gray-300 rounded-r disabled:bg-gray-200"
+          >
+            Tiếp
+          </button>
+        </div>
       </div>
     </>
   );

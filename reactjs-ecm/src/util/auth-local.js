@@ -35,3 +35,4 @@ export const getUserId = () => {
   let userId = userIdLocal.getUserId();
   return userId ? userId.replace(/"/g, "") : null;
 };
+
