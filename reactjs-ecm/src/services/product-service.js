@@ -41,11 +41,20 @@ export const fetchProductDetail = async (productId) => {
 };
 
 // Hàm lấy danh sách sản phẩm
-export const fetchProducts = async (currentPage, productsPerPage) => {
+export const fetchProducts = async (currentPage, productsPerPage, categoryId = null) => {
   try {
     const token = getToken(); 
     console.log(token);
-    const response = await axios.get(`${BASE_URL}/product/${currentPage}/${productsPerPage}`);
+    let url = `${BASE_URL}/product/${currentPage}/${productsPerPage}`;
+    if (categoryId) {
+      url += `?category=${categoryId}`;
+    }
+
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Nếu cần token trong header
+      },
+    });
     console.log(response.data);
     if (response.status === 200 && response.data.success && Array.isArray(response.data.data.products)) {
       return {
@@ -65,7 +74,10 @@ export const fetchProducts = async (currentPage, productsPerPage) => {
       };
     } else {
       console.error("No products data received from server.");
-      return [];
+      return {
+        products: [],
+        totalProducts: 0,
+      };
     }
   } catch (error) {
     console.error("Error fetching products:", error);

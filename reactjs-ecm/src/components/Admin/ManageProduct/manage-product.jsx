@@ -24,10 +24,24 @@ const ManageProduct = () => {
   const [filterCategory, setFilterCategory] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [totalProducts, setTotalProducts] = useState(0);
   const currentPage = parseInt(pageParam, 10) || 1;
   const productsPerPage = parseInt(perPageParam, 10) || 8;
+
+  useEffect(() => {
+    // Load danh mục
+    const loadCategories = async () => {
+      try {
+        const { items: categoriesData } = await getCategory(1, 50);
+        setCategories(categoriesData || []);
+      } catch (error) {
+        console.error("Error loading categories:", error);
+      }
+    };
+    loadCategories();
+  }, []);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -130,17 +144,25 @@ const ManageProduct = () => {
     setIsModalOpen(true);
   };
 
-  const handleFilter = (category) => {
-    setFilterCategory(category);
-    setFilteredProducts(
-      category === ""
-        ? products
-        : products.filter((product) => product.category === category)
-    );
+  const handleFilter = async (categoryId) => {
+    setFilterCategory(categoryId);
+    try {
+      const { products: filteredData } = await fetchProductsByCategory(
+        categoryId,
+        currentPage,
+        productsPerPage
+      );
+      setFilteredProducts(filteredData || []);
+    } catch (error) {
+      console.error("Error filtering products by category:", error);
+    }
   };
 
   const handlePageChange = (page) => {
     navigate(`/manage-product/${page}/${productsPerPage}`);
+    if (filterCategory) {
+      handleFilter(filterCategory);
+    }
   };
 
   const totalPages = Math.ceil(totalProducts / productsPerPage);
@@ -152,16 +174,21 @@ const ManageProduct = () => {
         <h1 className="text-2xl font-bold mb-4 text-[#225a3e]">Quản lý sản phẩm</h1>
 
         {/* Filter by Category */}
-        <div className="mb-4">
-          <label className="block text-gray-700">Lọc theo danh mục</label>
-          <input
-            type="text"
-            value={filterCategory}
-            onChange={(e) => handleFilter(e.target.value)}
-            placeholder="Nhập danh mục cần lọc..."
-            className="w-full p-2 border border-gray-300 rounded focus:border-[#225a3e]"
-          />
-        </div>
+        <div className="filter-section">
+        <label htmlFor="category-filter">Filter by Category:</label>
+        <select
+          id="category-filter"
+          value={filterCategory}
+          onChange={(e) => handleFilter(e.target.value)}
+        >
+          <option value="">All Categories</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
         {/* Product List */}
         <div>
