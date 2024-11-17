@@ -29,6 +29,9 @@ export class CreateUserDto {
   @IsNotEmpty()
   @Expose()
   address: string;
+  @ApiProperty()
+  @Expose()
+  url_image: string;
   active: boolean;
   @Expose()
   role: string;

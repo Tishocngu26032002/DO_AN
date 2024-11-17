@@ -6,7 +6,6 @@ import { User } from 'src/entities/user_entity/user.entity';
 import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
 import { UpdateUserDto } from 'src/dto/userDTO/user.update.dto';
 import { plainToClass } from 'class-transformer';
-import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UserService {
@@ -24,7 +23,6 @@ export class UserService {
       throw new Error('ACCOUNT EXSIST!');
     }
 
-    userAdd.id = uuidv4();
     // hashPassword
     const hashPassword = await bcrypt.hash(userAdd.password, 10);
     userAdd.password = hashPassword;
