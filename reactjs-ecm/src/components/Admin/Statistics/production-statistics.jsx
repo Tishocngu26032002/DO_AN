@@ -1,148 +1,188 @@
-import React, { useEffect, useState } from "react";
-import { FaMoneyBillWave, FaShoppingCart, FaUserPlus } from "react-icons/fa";
-import { SiBuzzfeed } from "react-icons/si";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  CartesianGrid,
-} from "recharts";
+import React, { useState } from 'react';
+import { LineChart, AreaChart, RadarChart, Line, Area, Radar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PolarGrid, PolarAngleAxis } from 'recharts';
+import { BarChart, Bar } from 'recharts';
+import { PieChart, Pie, Cell } from 'recharts';
 
-const ProductionStatistics = () => {
-  const [overview, setOverview] = useState({});
-  const [data, setData] = useState([]);
-  const [timeFrame, setTimeFrame] = useState("day");
+// Dữ liệu giả lập
+const revenueData = [
+  { name: 'Week 1', revenue: 4000, budget: 3000, profit: 1000 },
+  { name: 'Week 2', revenue: 4500, budget: 3500, profit: 1200 },
+  { name: 'Week 3', revenue: 5000, budget: 4000, profit: 1500 },
+  { name: 'Week 4', revenue: 6000, budget: 5000, profit: 2000 },
+];
 
-  useEffect(() => {
-    const fakeOverviewData = {
-      totalRevenue: 12000000,
-      totalOrders: 150,
-      totalProductsSold: 300,
-      newUsers: 25,
-    };
+const topProductsData = [
+  { name: 'Product A', revenue: 1200 },
+  { name: 'Product B', revenue: 1000 },
+  { name: 'Product C', revenue: 800 },
+  { name: 'Product D', revenue: 600 },
+  { name: 'Product E', revenue: 400 },
+];
 
-    const generateChartData = () => {
-      if (timeFrame === "day") {
-        return [
-          { date: "2024-10-01", clothing: 50, shoes: 30, accessories: 20 },
-          { date: "2024-10-02", clothing: 40, shoes: 25, accessories: 15 },
-          { date: "2024-10-03", clothing: 60, shoes: 20, accessories: 30 },
-          { date: "2024-10-04", clothing: 70, shoes: 35, accessories: 25 },
-          { date: "2024-10-05", clothing: 80, shoes: 45, accessories: 35 },
-        ];
-      } else if (timeFrame === "week") {
-        return [
-          { date: "Tuần 1", clothing: 200, shoes: 100, accessories: 50 },
-          { date: "Tuần 2", clothing: 250, shoes: 150, accessories: 75 },
-          { date: "Tuần 3", clothing: 300, shoes: 200, accessories: 100 },
-          { date: "Tuần 4", clothing: 350, shoes: 250, accessories: 150 },
-        ];
-      } else if (timeFrame === "month") {
-        return [
-          { date: "2024-05", clothing: 300, shoes: 150, accessories: 100 },
-          { date: "2024-06", clothing: 400, shoes: 200, accessories: 150 },
-          { date: "2024-07", clothing: 350, shoes: 250, accessories: 200 },
-          { date: "2024-08", clothing: 450, shoes: 300, accessories: 250 },
-          { date: "2024-09", clothing: 500, shoes: 350, accessories: 300 },
-          { date: "2024-10", clothing: 600, shoes: 400, accessories: 350 },
-        ];
-      }
-      return [];
-    };
+const topCustomersData = [
+  { name: 'Customer 1', orders: 50 },
+  { name: 'Customer 2', orders: 45 },
+  { name: 'Customer 3', orders: 40 },
+  { name: 'Customer 4', orders: 35 },
+  { name: 'Customer 5', orders: 30 },
+];
 
-    setOverview(fakeOverviewData);
-    setData(generateChartData());
-  }, [timeFrame]);
+const salesByCategory = [
+  { name: 'Electronics', value: 400 },
+  { name: 'Clothing', value: 300 },
+  { name: 'Furniture', value: 250 },
+  { name: 'Toys', value: 150 },
+];
+
+const salesBySupplier = [
+  { name: 'Supplier A', value: 500 },
+  { name: 'Supplier B', value: 400 },
+  { name: 'Supplier C', value: 300 },
+];
+
+function ProductionStatistics() {
+  const [timePeriod, setTimePeriod] = useState('week'); // Trạng thái lựa chọn thời gian (Tuần, Tháng, Quý, Năm)
 
   return (
-    <div className="p-5">
-      <h1 className="mb-5 text-2xl font-bold text-[#006532]">Hôm nay</h1>
-      <div className="mb-5 grid grid-cols-4 gap-4">
-        <div className="flex items-center justify-between rounded bg-[#908dd4] p-4 shadow">
-          <div>
-            <h2 className="text-lg font-semibold">Tổng tiền thu vào</h2>
-            <p className="text-xl">{overview.totalRevenue} VNĐ</p>
-          </div>
-          <FaMoneyBillWave className="mr-[40px] text-5xl text-[#006532]" />{" "}
-          {/* Thay đổi kích thước icon */}
-        </div>
-        <div className="flex items-center justify-between rounded bg-[#82ca9d] p-4 shadow">
-          <div>
-            <h2 className="text-lg font-semibold">Số lượng đơn hàng</h2>
-            <p className="text-xl">{overview.totalOrders}</p>
-          </div>
-          <FaShoppingCart className="mr-[40px] text-5xl text-[#006532]" />{" "}
-          {/* Thay đổi kích thước icon */}
-        </div>
-        <div className="flex items-center justify-between rounded bg-[#ffc658] p-4 shadow">
-          <div>
-            <h2 className="text-lg font-semibold">Sản phẩm bán ra</h2>
-            <p className="text-xl">{overview.totalProductsSold}</p>
-          </div>
-          <SiBuzzfeed className="mr-[40px] text-5xl text-[#006532]" />{" "}
-          {/* Thay đổi kích thước icon */}
-        </div>
-        <div className="flex items-center justify-between rounded bg-[#58f9ff] p-4 shadow">
-          <div>
-            <h2 className="text-lg font-semibold">Người dùng mới</h2>
-            <p className="text-xl">{overview.newUsers}</p>
-          </div>
-          <FaUserPlus className="mr-[40px] text-5xl text-[#006532]" />{" "}
-          {/* Thay đổi kích thước icon */}
+    <div className="bg-gray-50 min-h-screen p-8">
+      <div className="mb-8">
+        {/* Chọn thời gian */}
+        <div className="flex space-x-4 mb-6">
+          <button className="p-2 border rounded-lg text-white bg-[#006532] shadow-md hover:bg-[#004d26]">Tuần</button>
+          <button className="p-2 border rounded-lg text-white bg-[#006532] shadow-md hover:bg-[#004d26]">Tháng</button>
+          <button className="p-2 border rounded-lg text-white bg-[#006532] shadow-md hover:bg-[#004d26]">Quý</button>
+          <button className="p-2 border rounded-lg text-white bg-[#006532] shadow-md hover:bg-[#004d26]">Năm</button>
         </div>
       </div>
 
-      <h1 className="mb-5 text-2xl font-bold text-[#006532]">
-        Biểu đồ Bán ra theo thể loại
-      </h1>
-
-      <div className="mb-5">
-        <label className="mr-2">Chọn khoảng thời gian:</label>
-        <select
-          value={timeFrame}
-          onChange={(e) => setTimeFrame(e.target.value)}
-          className="rounded border p-2"
-        >
-          <option value="day">Ngày</option>
-          <option value="week">Tuần</option>
-          <option value="month">Tháng</option>
-        </select>
+      {/* Các thẻ thông tin */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white p-6 shadow-lg rounded-lg border border-gray-200">
+          <h4 className="text-xl font-semibold text-[#006532]">Doanh thu</h4>
+          <p className="text-3xl font-bold text-[#006532]">{revenueData[revenueData.length - 1].revenue} VND</p>
+          <p className="text-sm text-gray-500">So với tuần trước: +200 VND</p>
+        </div>
+        <div className="bg-white p-6 shadow-lg rounded-lg border border-gray-200">
+          <h4 className="text-xl font-semibold text-[#006532]">Sản phẩm</h4>
+          <p className="text-3xl font-bold text-[#006532]">{topProductsData.length}</p>
+          <p className="text-sm text-gray-500">So với tháng trước: +5 sản phẩm</p>
+        </div>
+        <div className="bg-white p-6 shadow-lg rounded-lg border border-gray-200">
+          <h4 className="text-xl font-semibold text-[#006532]">Khách hàng</h4>
+          <p className="text-3xl font-bold text-[#006532]">{topCustomersData.length}</p>
+          <p className="text-sm text-gray-500">So với quý trước: +10 khách hàng</p>
+        </div>
+        <div className="bg-white p-6 shadow-lg rounded-lg border border-gray-200">
+          <h4 className="text-xl font-semibold text-[#006532]">Đơn hàng</h4>
+          <p className="text-3xl font-bold text-[#006532]">{topCustomersData.reduce((acc, curr) => acc + curr.orders, 0)}</p>
+          <p className="text-sm text-gray-500">So với năm trước: +50 đơn hàng</p>
+        </div>
       </div>
 
-      {data.length > 0 ? (
-        <LineChart width={600} height={300} data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="clothing"
-            stroke="#8884d8"
-            name="Thuỷ sản"
-          />
-          <Line
-            type="monotone"
-            dataKey="shoes"
-            stroke="#82ca9d"
-            name="Gia cầm"
-          />
-          <Line
-            type="monotone"
-            dataKey="accessories"
-            stroke="#ffc658"
-            name="Lợn"
-          />
-        </LineChart>
-      ) : (
-        <p>Không có dữ liệu để hiển thị.</p>
-      )}
+      {/* Biểu đồ Line */}
+      <div className="mb-8">
+        <h4 className="text-2xl font-semibold text-[#006532] mb-4">Doanh thu, Ngân sách, Lãi</h4>
+        <ResponsiveContainer width="100%" height={400}>
+          <LineChart data={revenueData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Line type="monotone" dataKey="revenue" stroke="#006532" />
+            <Line type="monotone" dataKey="budget" stroke="#82ca9d" />
+            <Line type="monotone" dataKey="profit" stroke="#ff7300" />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Biểu đồ Bar */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="bg-white p-6 shadow-lg rounded-lg border border-gray-200">
+          <h4 className="text-xl font-semibold text-[#006532] mb-4">Top 10 sản phẩm có doanh thu cao nhất</h4>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={topProductsData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="revenue" fill="#006532" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="bg-white p-6 shadow-lg rounded-lg border border-gray-200">
+          <h4 className="text-xl font-semibold text-[#006532] mb-4">Top 10 khách hàng mua nhiều nhất</h4>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={topCustomersData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="orders" fill="#82ca9d" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Biểu đồ Donut */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="bg-white p-6 shadow-lg rounded-lg border border-gray-200">
+          <h4 className="text-xl font-semibold text-[#006532] mb-4">Doanh số theo Category</h4>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={salesByCategory}
+                dataKey="value"
+                nameKey="name"
+                innerRadius={60}
+                outerRadius={80}
+                fill="#006532"
+                label
+              >
+                {salesByCategory.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.value > 300 ? '#82ca9d' : '#ff7300'} />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="bg-white p-6 shadow-lg rounded-lg border border-gray-200">
+          <h4 className="text-xl font-semibold text-[#006532] mb-4">Doanh số theo Supplier</h4>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={salesBySupplier}
+                dataKey="value"
+                nameKey="name"
+                innerRadius={60}
+                outerRadius={80}
+                fill="#006532"
+                label
+              >
+                {salesBySupplier.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.value > 300 ? '#82ca9d' : '#ff7300'} />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Biểu đồ Radar */}
+      <div className="mb-8">
+        <h4 className="text-2xl font-semibold text-[#006532] mb-4">Biểu đồ Radar</h4>
+        <ResponsiveContainer width="100%" height={400}>
+          <RadarChart outerRadius="90%" data={salesByCategory}>
+            <PolarGrid />
+            <PolarAngleAxis dataKey="name" />
+            <Radar name="Doanh số" dataKey="value" stroke="#006532" fill="#006532" fillOpacity={0.6} />
+          </RadarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
-};
+}
 
 export default ProductionStatistics;

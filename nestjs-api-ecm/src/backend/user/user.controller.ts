@@ -5,14 +5,16 @@ import {
   Param,
   Patch,
   Post,
-  Body,
+  Body, Query,
 } from '@nestjs/common';
 import { UserService } from 'src/backend/user/user.service';
 import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
 import { responseHandler } from 'src/Until/responseUtil';
 import { UpdateUserDto } from 'src/dto/userDTO/user.update.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {ApiBearerAuth, ApiBody, ApiQuery, ApiTags} from '@nestjs/swagger';
 import { Roles } from 'src/decorator/Role.decorator';
+import {ParseBooleanPipe} from "src/share/ParseBooleanPipe";
+import {UserSearchDto} from "src/dto/userDTO/user.search.dto";
 
 @Controller('users')
 @ApiBearerAuth()
@@ -37,8 +39,29 @@ export class UserController {
     }
   }
 
-  @Post(':user_id')
-  @ApiOperation({ summary: 'create user', description: 'create user' })
+  @Post('search/:page/:limit')
+  @Roles('admin')
+  @ApiBody({ type: UserSearchDto, required: false })
+  async findAllBySearch(@Param('page') page: number,
+                @Param('limit') limit: number,
+                @Body() userSearchDto?: UserSearchDto) {
+    try {
+      const filters: any = {};
+      if(userSearchDto?.lastName != null) filters.lastName = userSearchDto.lastName;
+      if(userSearchDto?.phone != null) filters.phone = userSearchDto.phone;
+      if(userSearchDto?.email != null) filters.email = userSearchDto.email;
+      if(userSearchDto?.role != null) filters.role = userSearchDto.role;
+      if(userSearchDto?.isActive != null) filters.isActive = userSearchDto.isActive;
+      const users = await this.usersService.findAllBySearch(page, limit, filters);
+      console.log(users);
+      return responseHandler.ok(users);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
+    }
+  }
+
+  @Post()
   @Roles('admin')
   create(@Body() createUserDto: CreateUserDto) {
     try {

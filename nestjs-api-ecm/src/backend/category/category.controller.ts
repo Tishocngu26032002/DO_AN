@@ -28,24 +28,31 @@ export class CategoryController {
 
   @Get(':page/:limit')
   @ApiQuery({
+    name: 'name',
+    required: false,
+    description: 'Tên loại',
+  })
+  @ApiQuery({
     name: 'status',
     enum: ApplyStatus,
     required: false,
     description: 'Trạng thái áp dụng (All, True, False)',
   })
   async getList(
-    @Param('page') page: number,
-    @Param('limit') limit: number,
-    @Query('status') status?: ApplyStatus,
+      @Param('page') page: number,
+      @Param('limit') limit: number,
+      @Query('name') name?: string,
+      @Query('status') status?: ApplyStatus,
   ) {
     try {
       const filters = {
         status: status !== undefined ? status : '',
+        name: name !== undefined ? name : ''
       };
       const listcategory = await this.categoryService.getList(
-        page,
-        limit,
-        filters,
+          page,
+          limit,
+          filters,
       );
       return responseHandler.ok(listcategory);
     } catch (e) {
@@ -80,7 +87,7 @@ export class CategoryController {
   @Patch()
   @Roles('admin')
   async update(
-    @Body() categoryUpdateDTO: categoryUpdateDTO,
+      @Body() categoryUpdateDTO: categoryUpdateDTO,
   ) {
     try {
       const check = await this.categoryService.update(categoryUpdateDTO, categoryUpdateDTO.id);
