@@ -1,17 +1,17 @@
-import {Injectable, InternalServerErrorException} from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {DataSource, Repository} from 'typeorm';
-import {OrderEntity} from 'src/entities/order_entity/oder.entity';
-import {Order_productEntity} from 'src/entities/order_entity/order_product.entity';
-import {CreateOrderDto} from 'src/dto/orderDTO/order.create.dto';
-import {OrderAllOrderDto} from 'src/dto/orderDTO/order.allOrder.dto';
-import {UpdateOrderDTO} from 'src/dto/orderDTO/order.update.dto';
-import {OrderStatus, PaymentStatus} from "src/share/Enum/Enum";
-import {OrderRepository} from "src/repository/OrderRepository";
-import {BaseService} from "src/base/baseService/base.service";
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { OrderEntity } from 'src/entities/order_entity/oder.entity';
+import { Order_productEntity } from 'src/entities/order_entity/order_product.entity';
+import { CreateOrderDto } from 'src/dto/orderDTO/order.create.dto';
+import { OrderAllOrderDto } from 'src/dto/orderDTO/order.allOrder.dto';
+import { UpdateOrderDTO } from 'src/dto/orderDTO/order.update.dto';
+import { OrderStatus, PaymentStatus } from 'src/share/Enum/Enum';
+import { OrderRepository } from 'src/repository/OrderRepository';
+import { BaseService } from 'src/base/baseService/base.service';
 
 @Injectable()
-export class OrderService extends BaseService<OrderEntity>{
+export class OrderService extends BaseService<OrderEntity> {
   constructor(
     @InjectRepository(OrderEntity)
     private readonly orderRepo: OrderRepository,
@@ -36,7 +36,7 @@ export class OrderService extends BaseService<OrderEntity>{
         employee_id: null,
         user_id: oderDTO.user_id,
         location_id: oderDTO.location_id,
-        paymentStatus: oderDTO.paymentStatus
+        paymentStatus: oderDTO.paymentStatus,
       });
 
       const orderData = await queryRunner.manager.save(order);
@@ -65,9 +65,9 @@ export class OrderService extends BaseService<OrderEntity>{
     }
   }
 
-  async getAllOrder(allOderDTO: OrderAllOrderDto) {
+  async getAllOrder(user_id: string, allOderDTO: OrderAllOrderDto) {
     const [productOrders, totalOrders] = await this.orderRepo.findAndCount({
-      where: { user_id: allOderDTO.user_id },
+      where: { user_id: user_id },
       relations: ['Order_productEntity'],
       skip: (allOderDTO.page - 1) * allOderDTO.limit,
       take: allOderDTO.limit,
@@ -88,10 +88,16 @@ export class OrderService extends BaseService<OrderEntity>{
     }
     const condition: any = {};
 
-    if (filters.orderStatus && Object.values(OrderStatus).includes(filters.orderStatus)) {
+    if (
+      filters.orderStatus &&
+      Object.values(OrderStatus).includes(filters.orderStatus)
+    ) {
       condition.orderStatus = filters.orderStatus;
     }
-    if (filters.paymentStatus && Object.values(PaymentStatus).includes(filters.paymentStatus)) {
+    if (
+      filters.paymentStatus &&
+      Object.values(PaymentStatus).includes(filters.paymentStatus)
+    ) {
       condition.paymentStatus = filters.paymentStatus;
     }
 
@@ -126,7 +132,7 @@ export class OrderService extends BaseService<OrderEntity>{
 
     try {
       const order = await this.orderRepo.findOne({
-        where: {id: updateOrderDTO.order_id},
+        where: { id: updateOrderDTO.order_id },
         relations: ['Order_productEntity'],
       });
 
@@ -144,7 +150,7 @@ export class OrderService extends BaseService<OrderEntity>{
       // Cập nhật danh sách sản phẩm trong Order_productEntity
       for (const productDto of updateOrderDTO.products) {
         const product = order.orderProducts.find(
-            (prod) => prod.product_id === productDto.product_id,
+          (prod) => prod.product_id === productDto.product_id,
         );
 
         if (product) {
@@ -165,12 +171,11 @@ export class OrderService extends BaseService<OrderEntity>{
 
       // Lưu thay đổi vào cơ sở dữ liệu
       return await this.orderRepo.save(order);
-    }
-    catch (e) {
+    } catch (e) {
       // Rollback transaction on error
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException(
-          'ORDER.OCCUR ERROR WHEN UPDATE TO DATABASE!',
+        'ORDER.OCCUR ERROR WHEN UPDATE TO DATABASE!',
       );
     } finally {
       await queryRunner.release();

@@ -5,16 +5,15 @@ import {
   Param,
   Patch,
   Post,
-  Body, Query,
+  Body,
 } from '@nestjs/common';
 import { UserService } from 'src/backend/user/user.service';
 import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
 import { responseHandler } from 'src/Until/responseUtil';
 import { UpdateUserDto } from 'src/dto/userDTO/user.update.dto';
-import {ApiBearerAuth, ApiBody, ApiQuery, ApiTags} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/decorator/Role.decorator';
-import {ParseBooleanPipe} from "src/share/ParseBooleanPipe";
-import {UserSearchDto} from "src/dto/userDTO/user.search.dto";
+import { UserSearchDto } from 'src/dto/userDTO/user.search.dto';
 
 @Controller('users')
 @ApiBearerAuth()
@@ -31,7 +30,6 @@ export class UserController {
   async findAll(@Param('page') page: number, @Param('limit') limit: number) {
     try {
       const users = await this.usersService.findAll(page, limit);
-      console.log(users);
       return responseHandler.ok(users);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
@@ -42,18 +40,25 @@ export class UserController {
   @Post('search/:page/:limit')
   @Roles('admin')
   @ApiBody({ type: UserSearchDto, required: false })
-  async findAllBySearch(@Param('page') page: number,
-                @Param('limit') limit: number,
-                @Body() userSearchDto?: UserSearchDto) {
+  async findAllBySearch(
+    @Param('page') page: number,
+    @Param('limit') limit: number,
+    @Body() userSearchDto?: UserSearchDto,
+  ) {
     try {
       const filters: any = {};
-      if(userSearchDto?.lastName != null) filters.lastName = userSearchDto.lastName;
-      if(userSearchDto?.phone != null) filters.phone = userSearchDto.phone;
-      if(userSearchDto?.email != null) filters.email = userSearchDto.email;
-      if(userSearchDto?.role != null) filters.role = userSearchDto.role;
-      if(userSearchDto?.isActive != null) filters.isActive = userSearchDto.isActive;
-      const users = await this.usersService.findAllBySearch(page, limit, filters);
-      console.log(users);
+      if (userSearchDto?.lastName != null)
+        filters.lastName = userSearchDto.lastName;
+      if (userSearchDto?.phone != null) filters.phone = userSearchDto.phone;
+      if (userSearchDto?.email != null) filters.email = userSearchDto.email;
+      if (userSearchDto?.role != null) filters.role = userSearchDto.role;
+      if (userSearchDto?.isActive != null)
+        filters.isActive = userSearchDto.isActive;
+      const users = await this.usersService.findAllBySearch(
+        page,
+        limit,
+        filters,
+      );
       return responseHandler.ok(users);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
@@ -91,7 +96,7 @@ export class UserController {
   }
 
   //get info user for admin
-  @Get(':user_id:/user_id_get')
+  @Get(':user_id/:user_id_get')
   @ApiOperation({
     summary: 'get info user by admin',
     description: 'get info user by admin',
@@ -129,7 +134,7 @@ export class UserController {
     }
   }
 
-  @Patch(':user_id:/user_id_user')
+  @Patch(':user_id/:user_id_user')
   @ApiOperation({
     summary: 'update info user by admin',
     description: 'update info user by admin',
@@ -148,7 +153,7 @@ export class UserController {
     }
   }
 
-  @Delete(':user_id:/user_id_user')
+  @Delete(':user_id/:user_id_user')
   @Roles('admin')
   async remove(@Param('user_id_user') user_id_user: string) {
     try {

@@ -1,14 +1,22 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query} from '@nestjs/common';
-import { SupplierService } from './supplier.service';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
+import { responseHandler } from 'src/Until/responseUtil';
+import { AuthGuard } from 'src/guards/JwtAuth.guard';
+import { RolesGuard } from 'src/guards/Roles.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Roles } from 'src/decorator/Role.decorator';
+import { SupplierService } from 'src/backend/supplier/supplier.service';
 import { CreateSupplierDto } from 'src/dto/supplierDTO/create-supplier.dto';
 import { UpdateSupplierDto } from 'src/dto/supplierDTO/update-supplier.dto';
-import {responseHandler} from "src/Until/responseUtil";
-import {AuthGuard} from "src/guards/JwtAuth.guard";
-import {RolesGuard} from "src/guards/Roles.guard";
-import {ApiBearerAuth, ApiQuery, ApiTags} from "@nestjs/swagger";
-import {Roles} from "src/decorator/Role.decorator";
-import {SearchSupplierDto} from "src/dto/supplierDTO/search-supplier.dto";
-
+import { SearchSupplierDto } from 'src/dto/supplierDTO/search-supplier.dto';
 
 @Controller('supplier')
 @ApiTags('Supplier')
@@ -17,18 +25,15 @@ import {SearchSupplierDto} from "src/dto/supplierDTO/search-supplier.dto";
 export class SupplierController {
   constructor(private readonly supplierService: SupplierService) {}
 
-  @Get(':page/:limit')
+  @Get(':user_id/:page/:limit')
   @Roles('admin')
-  async getList(
-      @Param('page') page: number,
-      @Param('limit') limit: number
-  ) {
+  async getList(@Param('page') page: number, @Param('limit') limit: number) {
     try {
       const filters: any = {};
       const listcategory = await this.supplierService.getList(
-          page,
-          limit,
-          filters
+        page,
+        limit,
+        filters,
       );
       return responseHandler.ok(listcategory);
     } catch (e) {
@@ -40,18 +45,20 @@ export class SupplierController {
   @Post('search/:page/:limit')
   @Roles('admin')
   async getAllBySearch(
-      @Param('page') page: number,
-      @Param('limit') limit: number,
-      @Body() searchSupplierDto?: SearchSupplierDto
+    @Param('page') page: number,
+    @Param('limit') limit: number,
+    @Body() searchSupplierDto?: SearchSupplierDto,
   ) {
     try {
       const filters: any = {};
-      if(searchSupplierDto?.name != null) filters.name = searchSupplierDto.name;
-      if(searchSupplierDto?.phone != null) filters.phone = searchSupplierDto.phone;
+      if (searchSupplierDto?.name != null)
+        filters.name = searchSupplierDto.name;
+      if (searchSupplierDto?.phone != null)
+        filters.phone = searchSupplierDto.phone;
       const listcategory = await this.supplierService.getList(
-          page,
-          limit,
-          filters
+        page,
+        limit,
+        filters,
       );
       return responseHandler.ok(listcategory);
     } catch (e) {
@@ -60,7 +67,7 @@ export class SupplierController {
     }
   }
 
-  @Post()
+  @Post(':user_id')
   @Roles('admin')
   async create(@Body() createSupplierDto: CreateSupplierDto) {
     try {
@@ -72,7 +79,7 @@ export class SupplierController {
     }
   }
 
-  @Get(':id')
+  @Get(':user_id/:id')
   @Roles('admin')
   async findOne(@Param('id') id: string) {
     try {
@@ -84,11 +91,17 @@ export class SupplierController {
     }
   }
 
-  @Patch(':id')
+  @Patch('user_id/:id')
   @Roles('admin')
-  async update(@Param('id') id: string, @Body() updateSupplierDto: UpdateSupplierDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateSupplierDto: UpdateSupplierDto,
+  ) {
     try {
-      const updateSupplier = await this.supplierService.update(updateSupplierDto, id);
+      const updateSupplier = await this.supplierService.update(
+        updateSupplierDto,
+        id,
+      );
       return responseHandler.ok(updateSupplier);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
@@ -96,7 +109,7 @@ export class SupplierController {
     }
   }
 
-  @Delete(':id')
+  @Delete('user_id/:id')
   @Roles('admin')
   async remove(@Param('id') id: string) {
     try {

@@ -1,19 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {FindOptionsWhere, In, Like, Repository} from 'typeorm';
+import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/entities/user_entity/user.entity';
 import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
 import { UpdateUserDto } from 'src/dto/userDTO/user.update.dto';
 import { plainToClass } from 'class-transformer';
-import { v4 as uuidv4 } from 'uuid';
-import {ProductEntity} from "src/entities/product_entity/product.entity";
 
 @Injectable()
 export class UserService {
   constructor(
-      @InjectRepository(User)
-      private readonly usersRepository: Repository<User>,
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
   ) {}
   async create(createUserDto: CreateUserDto) {
     const userAdd = plainToClass(User, createUserDto);
