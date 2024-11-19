@@ -16,6 +16,9 @@ export class Location_userEntity extends BaseEntity {
   address: string;
 
   @Column({ type: 'text' })
+  name: string;
+
+  @Column({ type: 'text' })
   phone: string;
 
   @Column({ type: 'boolean', default: false })
