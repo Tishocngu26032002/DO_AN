@@ -10,14 +10,12 @@ import {
   updateCart,
 } from "../../services/cart-service.js";
 import { useNavigate } from "react-router-dom";
-// import { postOrder } from "../../services/order-service.js";
+import { Link } from "react-router-dom";
+
 const Cart = () => {
   const [carts, setCarts] = useState([]);
   const [totalCost, setTotalCost] = useState(0);
   const [selectedCarts, setSelectedCarts] = useState([]);
-  // const [phone, setPhone] = useState(""); // Nhập từ form hoặc dữ liệu người dùng
-  // const [address, setAddress] = useState(""); // Nhập từ form hoặc dữ liệu người dùng
-  // const [paymentMethod, setPaymentMethod] = useState(0); // Ví dụ: 0 - tiền mặt, 1 - thẻ, etc.
   const navigate = useNavigate();
 
   const handleIncrease = (cartId, currentQuantity) => {
@@ -92,45 +90,14 @@ const Cart = () => {
     }
   };
 
-  // const handleOrder = async () => {
-  //   if (selectedCarts.length === 0) {
-  //     alert("Vui lòng chọn ít nhất một sản phẩm để đặt hàng.");
-  //     return;
-  //   }
-
-  //   // Chuẩn bị dữ liệu sản phẩm và tổng giá
-  //   const products = selectedCarts.map((cart) => ({
-  //     product_id: cart.product_id,
-  //     quantity: cart.quantity,
-  //     priceout: cart.priceout,
-  //   }));
-  //   const totalPrice = products.reduce(
-  //     (sum, item) => sum + item.quantity * item.priceout,
-  //     0,
-  //   );
-
-  //   try {
-  //     // Gọi API để tạo Order
-  //     const orderData = await postOrder({
-  //       totalPrice,
-  //       paymentMethod,
-  //       userId: userIdLocal.getUserId(), // Lấy userId từ local storage hoặc context
-  //       phone,
-  //       address,
-  //       products,
-  //     });
-
-  //     alert("Đặt hàng thành công!");
-  //     navigate("/order-confirmation", { state: { orderData } });
-
-  //     // Xóa các sản phẩm đã đặt khỏi giỏ hàng
-  //     fetchCarts();
-  //     setSelectedCarts([]); // Reset danh sách đã chọn
-  //   } catch (error) {
-  //     alert("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.");
-  //     console.error(error);
-  //   }
-  // };
+  const handleNavigate = () => {
+    navigate("/checkout", {
+      state: {
+        carts: carts, // Truyền giỏ hàng
+        totalCost: totalCost, // Truyền tổng tiền
+      },
+    });
+  };
 
   return (
     <div>
@@ -145,7 +112,7 @@ const Cart = () => {
         }}
       >
         <div className="flex h-full w-full flex-col items-center justify-center bg-[rgba(8,28,14,0.79)] text-center">
-          <h2 className="text-2xl font-bold text-white">YOUR CART</h2>
+          <h2 className="text-2xl font-bold text-white">GIỎ HÀNG CỦA BẠN</h2>
           <p className="text-white"></p>
           <a href="#" className="to-top">
             <i className="fas fa-chevron-up"></i>
@@ -157,18 +124,6 @@ const Cart = () => {
         <table className="w-full border-collapse">
           <thead>
             <tr>
-              {/* <th className="">
-                <input
-                  type="checkbox"
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setSelectedCarts(carts.map((cart) => cart.id));
-                    } else {
-                      setSelectedCarts([]);
-                    }
-                  }}
-                />
-              </th> */}
               <th className="w-1/2 rounded-tl-md bg-[#006532] p-2 pl-6 text-left font-normal text-white md:w-1/3">
                 Sản phẩm
               </th>
@@ -187,20 +142,6 @@ const Cart = () => {
               <tr key={cart.id} className="border-t-2 border-[#00653294]">
                 <td className="mx-2 w-2/5 p-2 md:w-2/3">
                   <div className="cart-info flex flex-wrap items-center">
-                    {/* <input
-                      type="checkbox"
-                      className="mt-[2px] size-[14px]"
-                      checked={selectedCarts.includes(cart.id)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedCarts([...selectedCarts, cart.id]);
-                        } else {
-                          setSelectedCarts(
-                            selectedCarts.filter((id) => id !== cart.id),
-                          );
-                        }
-                      }}
-                    /> */}
                     <img
                       src={cart.product.url_images}
                       alt="Image"
@@ -276,24 +217,16 @@ const Cart = () => {
         </div>
         {console.log("length", carts.length)}
         <div className="mt-4 flex justify-end">
-          <a href="/payment">
-            <button className="w-[320px] rounded border-2 border-[#006532] bg-[#006532] px-4 py-2 text-white hover:bg-[#80c9a4] hover:text-[#006532]">
-              Checkout
-            </button>
-          </a>
+          <button
+            onClick={handleNavigate}
+            className="w-[320px] rounded border-2 border-[#006532] bg-[#006532] px-4 py-2 text-white hover:bg-[#80c9a4] hover:text-[#006532]"
+          >
+            Thanh toán
+          </button>
         </div>
       </div>
 
-      {/* <div className="mt-4 flex justify-end">
-        <button
-          onClick={handleOrder}
-          className="w-[320px] rounded border-2 border-[#006532] bg-[#006532] px-4 py-2 text-white hover:bg-[#80c9a4] hover:text-[#006532]"
-        >
-          Order
-        </button>
-      </div> */}
-
-      <section
+      {/* <section
         id="product1"
         className="mt-10 bg-[#f9f9f9] py-10 pt-10 text-center"
       >
@@ -333,7 +266,7 @@ const Cart = () => {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
       <Footer />
     </div>
   );

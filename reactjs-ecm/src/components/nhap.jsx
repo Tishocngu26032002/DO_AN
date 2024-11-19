@@ -12,26 +12,26 @@ const Payment = () => {
   const products = [
     {
       id: 1,
-      name: "Orange Printed Tshirt",
+      name: "Cám gà",
       quantity: 2,
       price: 78.0,
-      size: "M",
+      weight: "5kg",
       imgSrc: "./images/product/262.png",
     },
     {
       id: 2,
-      name: "Orange Printed Tshirt",
+      name: "Cám cá",
       quantity: 1,
       price: 78.0,
-      size: "L",
+      weight: "2kg",
       imgSrc: "./images/product/264.png",
     },
     {
       id: 3,
-      name: "Orange Printed Tshirt",
+      name: "Cám lợn",
       quantity: 3,
       price: 78.0,
-      size: "S",
+      weight: "10kg",
       imgSrc: "./images/product/266.png",
     },
   ];
@@ -50,7 +50,7 @@ const Payment = () => {
         }}
       >
         <div className="flex h-full w-full flex-col items-center justify-center bg-[rgba(8,28,14,0.69)] text-center">
-          <h2 className="text-2xl font-bold text-white">CHECKOUT</h2>
+          <h2 className="text-2xl font-bold text-white">THANH TOÁN</h2>
           <p className="text-white"></p>
           <a href="#" className="to-top">
             <i className="fas fa-chevron-up"></i>
@@ -63,7 +63,7 @@ const Payment = () => {
           {/* Sản phẩm */}
           <div className="order-1">
             <h3 className="mb-6 text-2xl font-semibold text-gray-800">
-              Your Order
+              Đặt hàng của bạn
             </h3>
             <div className="grid grid-cols-1 gap-4">
               {products.map((product) => (
@@ -81,31 +81,30 @@ const Payment = () => {
                       {product.name}
                     </h4>
                     <p className="text-sm text-gray-500">
-                      Quantity: {product.quantity}
+                      Số lượng: {product.quantity}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Size: {product.size}
+                      Bao: {product.weight}
                     </p>
                     <p className="text-sm font-medium text-gray-700">
-                      Price: ${product.price}
+                      Số tiền: {product.price}đ
                     </p>
                   </div>
                 </div>
               ))}
             </div>
-
             <div className="shadow-lg mt-6 rounded-lg border border-gray-200 bg-white p-4">
               <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
-                <span>Subtotal</span>
-                <span>$234.00</span>
+                <span>Tổng phụ</span>
+                <span>234.00đ</span>
               </div>
               <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
-                <span>Delivery Fee</span>
-                <span>$35.00</span>
+                <span>Phí giao hàng</span>
+                <span>0đ</span>
               </div>
               <div className="flex items-center justify-between text-lg font-semibold text-[#006532]">
-                <span>Total</span>
-                <span>$269.00</span>
+                <span>Tổng cộng</span>
+                <span>234.00đ</span>
               </div>
             </div>
           </div>
@@ -113,27 +112,25 @@ const Payment = () => {
           {/* Địa chỉ giao hàng và phương thức thanh toán */}
           <div className="order-2">
             <h3 className="mb-6 text-2xl font-semibold text-gray-800">
-              Shipping Address
+              Địa chỉ giao hàng
             </h3>
             <form className="shadow-lg space-y-4 rounded-lg border border-gray-200 bg-white p-6">
-              {["Full Name", "Address", "City", "Country", "Phone"].map(
-                (label, idx) => (
-                  <div key={idx}>
-                    <label className="block text-sm font-medium text-gray-700">
-                      {label}
-                    </label>
-                    <input
-                      type="text"
-                      className="shadow-sm mt-1 block w-full rounded-md border border-gray-300 p-2 focus:border-green-600 focus:ring-green-600"
-                    />
-                  </div>
-                ),
-              )}
+              {["Họ và tên", "Địa chỉ", "Số điện thoại"].map((label, idx) => (
+                <div key={idx}>
+                  <label className="block text-sm font-medium text-gray-700">
+                    {label}
+                  </label>
+                  <input
+                    type="text"
+                    className="shadow-sm mt-1 block w-full rounded-md border border-gray-300 p-2 focus:border-green-600 focus:ring-green-600"
+                  />
+                </div>
+              ))}
             </form>
 
             <div className="mt-8">
               <h3 className="mb-4 text-2xl font-semibold text-gray-800">
-                Payment Method
+                Phương thức thanh toán
               </h3>
               <div className="shadow-lg flex space-x-4 rounded-lg border border-gray-200 bg-white p-6">
                 {["cash", "card"].map((method) => (
@@ -147,14 +144,14 @@ const Payment = () => {
                     }`}
                   >
                     {method === "cash"
-                      ? "Cash on Delivery"
-                      : "Credit/Debit Card"}
+                      ? "Thanh toán khi nhận hàng"
+                      : "Chuyển khoản ngân hàng"}
                   </button>
                 ))}
               </div>
               <div className="mt-8 flex justify-end">
                 <button className="shadow-md w-full rounded-md border-2 border-[#006532] bg-[#006532] px-6 py-2 text-white transition hover:bg-[#006532ca] hover:text-white">
-                  Place Order
+                  Đặt hàng
                 </button>
               </div>
             </div>

@@ -21,7 +21,7 @@ import ManageUser from "./components/Admin/ManageUser/manage-user.jsx";
 
 import Report from "./components/Admin/Report/report.jsx";
 import ManageSupplier from "./components/Admin/ManageSupplier/manage-supplier.jsx";
-import Payment from "./components/Payment/payment.jsx";
+import Checkout from "./components/Checkout/checkout.jsx";
 import ShipOrder from "./components/Shipping/ship-order.jsx";
 import ShipHistory from "./components/Shipping/ship-history.jsx";
 import OrderDetails from "./components/OrderDetails/order-details";
@@ -69,7 +69,7 @@ root.render(
           />
           {/* <Route path="/report" element={<Report />} /> */}
           <Route path="/dashboard" element={<Report />} />
-          <Route path="/payment" element={<Payment />} />
+          <Route path="/checkout" element={<Checkout />} />
 
           <Route
             path="/manage-supplier/:page/:limit"
