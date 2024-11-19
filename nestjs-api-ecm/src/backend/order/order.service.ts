@@ -68,7 +68,7 @@ export class OrderService extends BaseService<OrderEntity>{
   async getAllOrder(allOderDTO: OrderAllOrderDto) {
     const [productOrders, totalOrders] = await this.orderRepo.findAndCount({
       where: { user_id: allOderDTO.user_id },
-      relations: ['Order_productEntity'],
+      relations: ['orderProducts'],
       skip: (allOderDTO.page - 1) * allOderDTO.limit,
       take: allOderDTO.limit,
     });
