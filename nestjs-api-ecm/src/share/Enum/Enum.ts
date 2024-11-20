@@ -35,3 +35,10 @@ export enum PaymentMethod {
     BankTransfer = "Chuyển khoản ngân hàng",
 }
 
+export enum TimeFilter {
+    Week = "Tuần",
+    Month = "Tháng",
+    Quarter = "Quý",
+    Year = "Năm",
+}
+
