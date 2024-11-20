@@ -54,9 +54,6 @@ export class DashboardService {
     }
 
     async getFinancialSummaryByTime(timeFilter: TimeFilter) {
-        if (!Object.values(TimeFilter).includes(timeFilter)) {
-            throw new Error('Invalid time filter');
-        }
         const financialData = await this.orderRepo.getFinancialSummary(timeFilter);
         return financialData.map((data) => ({
             time_period: data.time_period,
