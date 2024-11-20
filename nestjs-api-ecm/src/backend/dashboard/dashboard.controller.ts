@@ -59,8 +59,8 @@ export class DashboardController {
       @Query('timeFilter') timeFilter: TimeFilter
   ) {
     try {
-      const top10Products = await this.dashboardService.getTop10ProductsByRevenue(timeFilter);
-      return responseHandler.ok(top10Products);
+      const topProducts = await this.dashboardService.getTopProductsByRevenue(timeFilter);
+      return responseHandler.ok(topProducts);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
       return responseHandler.error(errorMessage);
@@ -78,8 +78,8 @@ export class DashboardController {
       @Query('timeFilter') timeFilter: TimeFilter
   ) {
     try {
-      const top10Customers = await this.dashboardService.getTop10CustomersByRevenue(timeFilter);
-      return top10Customers;
+      const topCustomers = await this.dashboardService.getTopCustomersByRevenue(timeFilter);
+      return topCustomers;
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
       return responseHandler.error(errorMessage);

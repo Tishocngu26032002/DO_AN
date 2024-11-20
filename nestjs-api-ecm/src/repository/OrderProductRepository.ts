@@ -9,7 +9,7 @@ export class OrderProductRepository extends Repository<Order_productEntity> {
         super(Order_productEntity, dataSource.manager);
     }
 
-    async getTop10ProductsByRevenue(startDate: Date, endDate: Date): Promise<any[]> {
+    async getTopProductsByRevenue(startDate: Date, endDate: Date): Promise<any[]> {
         const result = await this.createQueryBuilder('order_product')
             .select('order_product.product_id', 'productId')
             .addSelect('product.name', 'productName')

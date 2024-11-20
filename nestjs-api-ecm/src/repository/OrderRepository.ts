@@ -59,7 +59,7 @@ export class OrderRepository extends Repository<OrderEntity> {
         };
     }
 
-    async getTop10CustomersByRevenue(startDate: Date, endDate: Date): Promise<any[]> {
+    async getTopCustomersByRevenue(startDate: Date, endDate: Date): Promise<any[]> {
         const result = await this.createQueryBuilder('orders')
             .select('orders.user_id', 'userId')
             .addSelect('CONCAT(user.firstName, " ", user.lastName)', 'userName')

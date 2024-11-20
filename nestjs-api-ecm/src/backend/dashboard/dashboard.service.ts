@@ -63,20 +63,20 @@ export class DashboardService {
         }));
     }
 
-    async getTop10ProductsByRevenue(timeFilter: TimeFilter) {
+    async getTopProductsByRevenue(timeFilter: TimeFilter) {
         const { startDate, endDate } = this.timeFilterCreate(timeFilter);
         const { lastStartDate, lastEndDate } = this.lastTimeFilterCreate(startDate, endDate, timeFilter);
 
-        const top10Products = await this.orderProductRepo.getTop10ProductsByRevenue(startDate, endDate);
+        const top10Products = await this.orderProductRepo.getTopProductsByRevenue(startDate, endDate);
         return top10Products;
     }
 
-    async getTop10CustomersByRevenue(timeFilter: TimeFilter) {
+    async getTopCustomersByRevenue(timeFilter: TimeFilter) {
         const { startDate, endDate } = this.timeFilterCreate(timeFilter);
         const { lastStartDate, lastEndDate } = this.lastTimeFilterCreate(startDate, endDate, timeFilter);
 
-        const top10Customers = await this.orderRepo.getTop10CustomersByRevenue(startDate, endDate);
-        return top10Customers;
+        const topCustomers = await this.orderRepo.getTopCustomersByRevenue(startDate, endDate);
+        return topCustomers;
     }
 
     async getRevenueBySupplier(timeFilter: TimeFilter) {
