@@ -172,7 +172,7 @@ export class OrderRepository extends Repository<OrderEntity> {
             .select('category.id', 'categoryId')
             .addSelect('category.name', 'categoryName')
             .addSelect('SUM(order.total_price)', 'totalRevenue')
-            .innerJoin('order.orderProducts', 'order_product') // Join với bảng products
+            .innerJoin('order.orderProducts', 'order_product') // Join với bảng order_product
             .innerJoin('order_product.product', 'product') // Join với bảng products
             .innerJoin('product.category', 'category') // Join với bảng categories
             .where('order.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
@@ -195,7 +195,7 @@ export class OrderRepository extends Repository<OrderEntity> {
             .select('supplier.id', 'supplierId')
             .addSelect('supplier.name', 'supplierName')
             .addSelect('SUM(order.total_price)', 'totalRevenue')
-            .innerJoin('order.orderProducts', 'order_product') // Join với bảng products
+            .innerJoin('order.orderProducts', 'order_product') // Join với bảng order_product
             .innerJoin('order_product.product', 'product') // Join với bảng products
             .innerJoin('product.supplier', 'supplier') // Join với bảng suppliers
             .where('order.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
