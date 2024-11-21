@@ -21,7 +21,7 @@ import { UserSearchDto } from 'src/dto/userDTO/user.search.dto';
 export class UserController {
   constructor(private readonly usersService: UserService) {}
 
-  @Get(':user_id/:page/:limit')
+  @Get(':page/:limit')
   @ApiOperation({
     summary: 'get all user',
     description: 'get all user by admin',

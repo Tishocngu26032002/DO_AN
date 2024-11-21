@@ -5,7 +5,6 @@ import { ImportEntity } from 'src/entities/import_entity/import.entity';
 import { Import_productEntity } from 'src/entities/import_entity/import_product.entity';
 import { CreateImportDto } from 'src/dto/importDTO/import.create.dto';
 import { UpdateImpotyDTO } from 'src/dto/importDTO/import.update.dto';
-import { Order_productEntity } from 'src/entities/order_entity/order_product.entity';
 
 @Injectable()
 export class ImportService {
@@ -56,30 +55,46 @@ export class ImportService {
     }
   }
 
-  findAll() {
-    return `This action returns all import`;
+  async findAll(page: number, limit: number) {
+    const [productImports, totalImport] = await this.importRepo.findAndCount({
+      relations: ['Import_productEntity'],
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+    return {
+      list: productImports,
+      total: totalImport,
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} import`;
+  async findOne(importProd_id: string) {
+    const importProd = await this.importRepo.findOne({
+      where: { id: importProd_id },
+      relations: ['Import_productEntity'],
+    });
+
+    if (!importProd) {
+      throw new Error('IMPORT.IMPORT DETAIL NOT EXISTS!');
+    }
+    return importProd;
   }
 
   async update(updateImportDto: UpdateImpotyDTO) {
-    const import_ = await this.importRepo.findOne({
+    const importProd = await this.importRepo.findOne({
       where: { id: updateImportDto.import_id },
       relations: ['Import_productEntity'],
     });
 
-    if (!import_) {
+    if (!importProd) {
       throw new Error('ORDER.ORDER UPDATE NOT FOUND!');
     }
 
-    import_.total_amount = updateImportDto.totalAmount;
-    import_.employee_id = updateImportDto.user_id;
+    importProd.total_amount = updateImportDto.totalAmount;
+    importProd.employee_id = updateImportDto.user_id;
 
-    // Cập nhật danh sách sản phẩm trong Order_productEntity
+    // Cập nhật danh sách sản phẩm trong Import_productEntity
     for (const productDto of updateImportDto.products) {
-      const product = import_.importProducts.find(
+      const product = importProd.importProducts.find(
         (prod) => prod.product_id === productDto.product_id,
       );
 
@@ -93,14 +108,14 @@ export class ImportService {
         newProduct.product_id = productDto.product_id;
         newProduct.quantity = productDto.quantity;
         newProduct.price_in = productDto.pricein;
-        newProduct.import = import_; // Gán liên kết với order
+        newProduct.import = importProd; // Gán liên kết với order
 
-        import_.importProducts.push(newProduct); // Thêm vào danh sách sản phẩm
+        importProd.importProducts.push(newProduct); // Thêm vào danh sách sản phẩm
       }
     }
 
     // Lưu thay đổi vào cơ sở dữ liệu
-    return await this.importRepo.save(import_);
+    return await this.importRepo.save(importProd);
   }
 
   remove(id: number) {
