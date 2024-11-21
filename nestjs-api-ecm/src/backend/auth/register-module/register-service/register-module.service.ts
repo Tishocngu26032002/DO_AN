@@ -80,6 +80,7 @@ export class RegisterModuleService {
 
       // Prepare location data
       const location = this.locationRepository.create({
+        name: createUserDto.firstName + " " + createUserDto.lastName,
         address: createUserDto.address,
         phone: createUserDto.phone,
         default_location: true,

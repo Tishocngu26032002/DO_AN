@@ -1,18 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {FindOptionsWhere, In, Like, Repository} from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/entities/user_entity/user.entity';
 import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
 import { UpdateUserDto } from 'src/dto/userDTO/user.update.dto';
 import { plainToClass } from 'class-transformer';
 import { v4 as uuidv4 } from 'uuid';
+import {ProductEntity} from "src/entities/product_entity/product.entity";
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User)
-    private readonly usersRepository: Repository<User>,
+      @InjectRepository(User)
+      private readonly usersRepository: Repository<User>,
   ) {}
   async create(createUserDto: CreateUserDto) {
     const userAdd = plainToClass(User, createUserDto);
@@ -24,7 +25,6 @@ export class UserService {
       throw new Error('ACCOUNT EXSIST!');
     }
 
-    userAdd.id = uuidv4();
     // hashPassword
     const hashPassword = await bcrypt.hash(userAdd.password, 10);
     userAdd.password = hashPassword;
@@ -41,15 +41,38 @@ export class UserService {
   }
 
   async findAll(page: number = 1, limit: number = 10) {
-    if (page < 1) {
-      throw new Error('PAGE NUMBER MUST BE GREATER THAN 0!');
-    }
-
-    if (limit < 1) {
-      throw new Error('LIMIT MUST BE GREATER THAN 0!');
+    if (page < 1 || limit < 1) {
+      throw new Error('Page and limit must be greater than 0.');
     }
 
     const [users, total] = await this.usersRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    if (!users) throw new Error('NO USER!');
+
+    return {
+      data: users,
+      total,
+      page,
+      limit,
+    };
+  }
+
+  async findAllBySearch(page: number = 1, limit: number = 10, filters: any) {
+    if (page < 1 || limit < 1) {
+      throw new Error('Page and limit must be greater than 0.');
+    }
+    const whereConditions: FindOptionsWhere<User> = {
+      ...(filters.lastName && { lastName: Like(`%${filters.lastName}%`) }),
+      ...(filters.email && { email: Like(`%${filters.email}%`) }),
+      ...(filters.phone && { phone: Like(`%${filters.phone}%`) }),
+      ...(filters.role && { role: filters.role }),
+      ...(filters.isActive !== undefined && { isActive: filters.isActive }),
+    };
+    const [users, total] = await this.usersRepository.findAndCount({
+      where: whereConditions,
       skip: (page - 1) * limit,
       take: limit,
     });

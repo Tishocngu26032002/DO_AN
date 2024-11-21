@@ -1,31 +1,31 @@
 import {ApiProperty} from "@nestjs/swagger";
-import {IsNotEmpty, IsPhoneNumber} from "class-validator";
+import {IsEmail, IsNotEmpty, IsPhoneNumber, Length} from "class-validator";
 import {Expose} from "class-transformer";
 
-export class CreateLocationUserDto {
+export class UserSearchDto {
     @ApiProperty()
     @IsNotEmpty()
     @Expose()
-    name: string;
+    lastName?: string;
 
     @ApiProperty()
     @IsNotEmpty()
     @Expose()
-    address: string;
+    phone?: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsEmail()
+    @Expose()
+    email?: string;
 
     @ApiProperty()
     @IsNotEmpty()
     @Expose()
-    @IsPhoneNumber('VN')
-    phone: string;
+    isActive?: boolean;
 
     @ApiProperty()
     @IsNotEmpty()
     @Expose()
-    default_location: boolean;
-
-    @ApiProperty()
-    @IsNotEmpty()
-    @Expose()
-    user_id: string;
+    role?: string;
 }
