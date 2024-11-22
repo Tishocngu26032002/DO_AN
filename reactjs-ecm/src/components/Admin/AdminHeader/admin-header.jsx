@@ -64,7 +64,7 @@ function HeaderAdmin() {
                   : "text-[#006532] hover:text-white"
               }
             >
-              Dashboard
+              Thống Kê
             </NavLink>
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
@@ -76,7 +76,7 @@ function HeaderAdmin() {
                   : "text-[#006532] hover:text-white"
               }
             >
-              Manage User
+              Quản lý người dùng
             </NavLink>
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
@@ -88,7 +88,7 @@ function HeaderAdmin() {
                   : "text-[#006532] hover:text-white"
               }
             >
-              Manage Category
+              Quản lý danh mục
             </NavLink>
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
@@ -100,7 +100,19 @@ function HeaderAdmin() {
                   : "text-[#006532] hover:text-white"
               }
             >
-              Manage Product
+              Quản lý sản phẩm
+            </NavLink>
+          </li>
+          <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
+            <NavLink
+              to="/import-product"
+              className={({ isActive }) =>
+                isActive
+                  ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
+                  : "text-[#006532] hover:text-white"
+              }
+            >
+              Quản lý đơn nhập hàng
             </NavLink>
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
@@ -112,7 +124,7 @@ function HeaderAdmin() {
                   : "text-[#006532] hover:text-white"
               }
             >
-              Manage Order
+              Quản lý đơn hàng
             </NavLink>
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
@@ -124,7 +136,7 @@ function HeaderAdmin() {
                   : "text-[#006532] hover:text-white"
               }
             >
-              Manage Supplier
+              Quản lý nhà cung cấp
             </NavLink>
           </li>
         </ul>
