@@ -5,7 +5,8 @@ import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye, FaSort } from 'react-icons/fa
 import { MdOutlineInbox } from "react-icons/md";
 import { getUsers, deleteUser, updateUser, createUser } from '../../../services/user-service.js';
 import { getLocationUserById, createLocationUser,updateLocationUser,deleteLocationUser } from '../../../services/location-user-service.js';
-
+import { showNotification, notificationTypes, NotificationList } from '../../Notification/NotificationService.jsx';
+import NotificationHandler from '../../Notification/notification-handle.jsx';
 const Modal = ({ children, showModal, setShowModal }) => (
   showModal ? (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
@@ -13,6 +14,7 @@ const Modal = ({ children, showModal, setShowModal }) => (
         {children}
         <button onClick={() => setShowModal(false)} className="mt-4 ml-3 bg-red-600 text-white px-4 py-2 rounded">Close</button>
       </div>
+
     </div>
   ) : null
 );
@@ -35,7 +37,8 @@ const ManageUser = () => {
   const currentPage = parseInt(paramCurrentPage) || 1;
   const [totalPages, setTotalPages] = useState(1);
   const [locations, setLocations] = useState({});
-  
+  const [notifications, setNotifications] = useState([]);
+
 
   useEffect(() => {
     const fetchAllUsers = async () => {
@@ -73,11 +76,11 @@ const ManageUser = () => {
             locationData[user.id] = response.data.data[0];
             
           } else {
-            locationData[user.id] = { phone: '', address: '',id: '',default_location: true, user_id: '' };
+            locationData[user.id] = { name:'', phone: '', address: '',id: '',default_location: true, user_id: '' };
           }
         } catch (error) {
           console.error('Error fetching location data:', error);
-          locationData[user.id] = { phone: '', address: '',id: '',default_location: true, user_id: '' };
+          locationData[user.id] = { name:'', phone: '', address: '',id: '',default_location: true, user_id: '' };
         }
       }
       setLocations(locationData);
@@ -116,6 +119,7 @@ const ManageUser = () => {
     try {
 
       const locationData = {
+        name: currentUser.lastName,
         address: currentUser.address,
         phone: currentUser.phone,
         default_location: currentUser.locationdefault || false,
@@ -130,9 +134,9 @@ const ManageUser = () => {
         if (locations[currentUser.id]?.address && locations[currentUser.id]?.phone) {
           const updateLocationResponse = await updateLocationUser(locationData);
           console.log('Location Updated:', updateLocationResponse);
-          window.location.reload();
         } else {
           const createLocationResponse = await createLocationUser({
+            name: currentUser.lastName,
             address: currentUser.address,
             phone: currentUser.phone,
             default_location: currentUser.locationdefault || false,
@@ -142,7 +146,12 @@ const ManageUser = () => {
         }
   
         const userResponse = await updateUser(currentUser.id, currentUser);
+
         console.log('User Updated:', userResponse);
+        sessionStorage.setItem('notification', JSON.stringify({
+          message: 'Cập nhật người dùng thành công!',
+          type: notificationTypes.SUCCESS
+        }));
         window.location.reload();
       } else {
         const createUserResponse = await createUser(currentUser);
@@ -154,6 +163,7 @@ const ManageUser = () => {
   
         // Cập nhật user_id trong locationAddData
         const locationAddData = {
+          name: currentUser.lastName,
           address: currentUser.address,
           phone: currentUser.phone,
           default_location: currentUser.locationdefault || false,
@@ -162,13 +172,20 @@ const ManageUser = () => {
   
         const createLocationResponse = await createLocationUser(locationAddData);
         console.log('Location Created:', createLocationResponse);
+        sessionStorage.setItem('notification', JSON.stringify({
+          message: 'Thêm người dùng thành công!',
+          type: notificationTypes.SUCCESS
+        }));
         window.location.reload();
       }
     } catch (error) {
       console.error('Error in handleSaveUser:', error);
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xảy ra lỗi.',
+        type: notificationTypes.ERROR
+      }));
     }
   };
-  
   
   
 
@@ -178,11 +195,23 @@ const ManageUser = () => {
         deleteUser(userId),
         deleteLocationUser(userId)
       ]);
+
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xóa người dùng thành công!',
+        type: notificationTypes.SUCCESS
+      }));
       window.location.reload();
     } catch (error) {
       console.error('Failed to delete user or user location:', error);
+  
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xóa không thành công.',
+        type: notificationTypes.ERROR
+      }));
+      window.location.reload();
     }
   };
+  
   
   const handleDeleteSelectedUsers = async () => {
     try {
@@ -192,9 +221,18 @@ const ManageUser = () => {
           deleteLocationUser(userId)
         ])
       ));
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xóa người dùng thành công!',
+        type: notificationTypes.SUCCESS
+      }));
       window.location.reload();
     } catch (error) {
       console.error('Failed to delete selected users or their locations:', error);
+
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xóa không thành công.',
+        type: notificationTypes.ERROR
+      }));
     }
   };
   
@@ -203,6 +241,7 @@ const ManageUser = () => {
     setCurrentUser({
       ...user,
       isActive: user.isActive ? true : false,
+      name: locations[user.id].lastName || '',
       phone: locations[user.id].phone || '',
       address: locations[user.id].address || '',
       locationId: locations[user.id].id || '',
@@ -227,6 +266,7 @@ const ManageUser = () => {
   const handleViewUser = (user) => {
     setCurrentUser({
       ...user,
+      name: locations[user.id].lastName || '',
       phone: locations[user.id]?.phone || '',
       address: locations[user.id]?.address || '',
       locationid:locations[user.id]?.id || '',
@@ -275,9 +315,14 @@ const ManageUser = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen">
+      <div className="fixed z-50 space-y-3">
+        <NotificationList notifications={notifications} />
+      </div>
+      <NotificationHandler setNotifications={setNotifications} />
       <AdminHeader />
+
       <div className="lg:mx-12 p-4">
-        <h1 className="text-4xl font-bold mb-8 mt-4 text-[#006532] text-start">Manage User</h1>
+        <h1 className="text-4xl font-bold mb-8 mt-4 text-[#006532] text-start">Quản lý người dùng</h1>
 
         <Modal showModal={showModal} setShowModal={setShowModal}>
           <h2 className="text-2xl font-semibold mb-4 text-gray-600">{currentUser?.id ? 'Update User' : 'Add User'}</h2>

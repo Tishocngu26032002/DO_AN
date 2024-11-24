@@ -34,3 +34,10 @@ export enum PaymentMethod {
   CashOnDelivery = 'Thanh toán khi nhận hàng',
   BankTransfer = 'Chuyển khoản ngân hàng',
 }
+
+export enum TimeFilter {
+  Week = 'Tuần',
+  Month = 'Tháng',
+  Quarter = 'Quý',
+  Year = 'Năm',
+}
