@@ -1,76 +1,66 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Header from "../Header/header";
 import Footer from "../Footer/footer";
 import { PiShoppingCart } from "react-icons/pi";
-import { authLocal, userIdLocal } from "../../util/auth-local";
+import { getUserId } from "../../util/auth-local";
 import { useLocation } from "react-router-dom";
+import {
+  createNewAddress,
+  createOrder,
+  getAddresses,
+} from "../../services/order-service";
+import {
+  OrderStatus,
+  PaymentMethod,
+  PaymentStatus,
+} from "../../constants/enums";
+import {
+  NotificationList,
+  notificationTypes,
+  showNotification,
+} from "../Notification/NotificationService";
 
 const Checkout = () => {
-  const [firstNameUser, setFirstNameUser] = useState("");
-  const [lastNameUser, setLastNameUser] = useState("");
+  const [nameUser, setNameUser] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [paymentMethod, setPaymentMethod] = useState(
+    "Thanh toán khi nhận hàng",
+  );
   const [addresses, setAddresses] = useState([]); // Để lưu danh sách địa chỉ
   const [showModal, setShowModal] = useState(false); // Hiển thị popup
-  const [newAddress, setNewAddress] = useState(""); // Địa chỉ mới (nếu cần thêm)
+  const [newName, setNewName] = useState("");
+  const [newAddress, setNewAddress] = useState("");
   const [newPhone, setNewPhone] = useState("");
 
   const location = useLocation();
-  console.log("location", location);
+
   const [carts, setCarts] = useState([]);
   const [totalCost, setTotalCost] = useState(0);
 
   const [selectedLocationId, setSelectedLocationId] = useState("");
 
+  const [notifications, setNotifications] = useState([]);
+
   const handlePaymentChange = (method) => {
     setPaymentMethod(method);
   };
 
-  // Fetch user and location data when the component is mounted
   useEffect(() => {
     const fetchData = async () => {
       try {
-        let token = authLocal.getToken();
-        token = token.replace(/^"|"$/g, "");
-
-        let userId = userIdLocal.getUserId();
-        userId = userId.replace(/^"|"$/g, "");
-
-        // Get user info from /users/{userId}
-        const userResponse = await axios.get(
-          `http://localhost:6006/users/${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        setFirstNameUser(userResponse.data.data.firstName);
-        setLastNameUser(userResponse.data.data.lastName);
-
-        // Get address info from /location-user/{userId}
-        const addressResponse = await axios.get(
-          `http://localhost:6006/location-user/${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
+        const addressResponse = await getAddresses();
         setAddresses(addressResponse.data.data.data); // Lưu danh sách địa chỉ vào state
 
-        // Lọc địa chỉ và số điện thoại của địa chỉ có default_location = true
-        console.log(
-          "addressResponse.data.data.data",
-          addressResponse.data.data.data,
-        );
+        // Lọc tên địa chỉ và số điện thoại của địa chỉ có default_location = true
         const defaultLocation = addressResponse.data.data.data.find(
           (location) => location.default_location === true,
         );
+        setNameUser(defaultLocation?.name || "");
         setAddress(defaultLocation?.address || "");
         setPhone(defaultLocation?.phone || "");
+        setSelectedLocationId(defaultLocation?.id || "");
+        console.log("key", defaultLocation.id);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -83,13 +73,13 @@ const Checkout = () => {
     if (location.state) {
       setCarts(location.state.carts);
       setTotalCost(location.state.totalCost);
-      console.log("carts", carts);
-      console.log("totals", totalCost);
     }
   }, [location]);
 
   // Hàm xử lý chọn địa chỉ
   const handleAddressChange = (selectedAddress) => {
+    console.log("key2", selectedAddress.id);
+    setNameUser(selectedAddress.name);
     setAddress(selectedAddress.address);
     setPhone(selectedAddress.phone);
     setSelectedLocationId(selectedAddress.id); // Cập nhật ID địa chỉ được chọn
@@ -98,29 +88,9 @@ const Checkout = () => {
 
   // Hàm xử lý thêm địa chỉ mới
   const handleAddNewAddress = async () => {
-    if (newAddress && newPhone) {
-      // Kiểm tra nếu cả địa chỉ và số điện thoại đều có giá trị
+    if (newName && newAddress && newPhone) {
       try {
-        let token = authLocal.getToken();
-        token = token.replace(/^"|"$/g, "");
-
-        let userId = userIdLocal.getUserId();
-        userId = userId.replace(/^"|"$/g, "");
-
-        await axios.post(
-          "http://localhost:6006/location-user",
-          {
-            address: newAddress,
-            phone: newPhone, // Thêm số điện thoại vào request
-            default_location: true,
-            user_id: userId,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
+        await createNewAddress(newName, newAddress, newPhone);
         setShowModal(false);
         alert("Địa chỉ và số điện thoại đã được thêm!");
         window.location.reload(); // Tải lại trang để lấy danh sách địa chỉ mới
@@ -128,25 +98,24 @@ const Checkout = () => {
         console.error("Error adding new address:", error);
       }
     } else {
-      alert("Vui lòng điền đủ thông tin địa chỉ và số điện thoại!");
+      alert("Vui lòng điền đủ thông tin tên địa chỉ và số điện thoại!");
     }
   };
 
   // Hàm xử lý đặt hàng
   const handleOrder = async () => {
-    let token = authLocal.getToken();
-    token = token.replace(/^"|"$/g, "");
-
-    let userId = userIdLocal.getUserId();
-    userId = userId.replace(/^"|"$/g, "");
+    let userId = getUserId();
 
     const orderData = {
       totalPrice: totalCost,
-      paymentMethod: "Thanh toán khi nhận hàng",
+      paymentMethod:
+        paymentMethod === PaymentMethod.CashOnDelivery
+          ? PaymentMethod.CashOnDelivery
+          : PaymentMethod.BankTransfer,
       user_id: userId,
       location_id: selectedLocationId,
-      orderStatus: "Đang kiểm hàng",
-      paymentStatus: "Chưa thanh toán",
+      orderStatus: OrderStatus.Checking,
+      paymentStatus: PaymentStatus.Unpaid,
       products: carts.map((cart) => ({
         product_id: cart.product.id,
         quantity: cart.quantity,
@@ -155,29 +124,36 @@ const Checkout = () => {
     };
 
     try {
-      const response = await axios.post(
-        "http://localhost:6006/order",
-        orderData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+      console.log("Dữ liệu gửi đến API createOrder:", orderData);
+      const response = await createOrder(orderData);
 
       console.log("Response Order:", response.data);
-      alert("Đặt hàng thành công!");
+      if (response.data.data.total_price > 0) {
+        showNotification(
+          "Thanh toán thành công! Cảm ơn bạn đã mua sắm.",
+          notificationTypes.SUCCESS,
+          setNotifications,
+        );
+      } else {
+        showNotification(
+          "Lỗi thanh toán! Vui lòng thử lại.",
+          notificationTypes.ERROR,
+          setNotifications,
+        );
+      }
+
       // Xử lý sau khi đặt hàng thành công, ví dụ: xóa giỏ hàng hoặc điều hướng
-      setCarts([]);
+      // setCarts([]);
     } catch (error) {
       console.error("Lỗi khi đặt hàng:", error);
-      alert("Có lỗi xảy ra khi đặt hàng.");
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
+      {/* Hiển thị các thông báo */}
+      <NotificationList notifications={notifications} />
       <section
         id="page-header"
         className="h-52"
@@ -250,9 +226,7 @@ const Checkout = () => {
               Địa chỉ giao hàng
             </h3>
             <div className="shadow-lg space-y-4 rounded-lg border border-gray-200 bg-white p-6">
-              {console.log("address", address)}
-              {console.log("phone", phone)}
-              {address && phone ? (
+              {nameUser && address && phone ? (
                 <>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
@@ -260,7 +234,7 @@ const Checkout = () => {
                     </label>
                     <input
                       type="text"
-                      value={`${firstNameUser} ${lastNameUser}`}
+                      value={nameUser}
                       className="shadow-sm mt-1 block w-full rounded-md border border-gray-300 p-2 focus:border-green-600 focus:ring-green-600"
                       readOnly
                     />
@@ -305,21 +279,23 @@ const Checkout = () => {
                 Phương thức thanh toán
               </h3>
               <div className="shadow-lg flex space-x-4 rounded-lg border border-gray-200 bg-white p-6">
-                {["cash", "card"].map((method) => (
-                  <button
-                    key={method}
-                    onClick={() => handlePaymentChange(method)}
-                    className={`rounded border-2 border-[#006532] px-4 py-2 transition hover:bg-[#006532] hover:text-white ${
-                      paymentMethod === method
-                        ? "bg-[#006532] text-white"
-                        : "bg-white text-gray-700 hover:bg-[#006532ca] hover:text-white"
-                    }`}
-                  >
-                    {method === "cash"
-                      ? "Thanh toán khi nhận hàng"
-                      : "Chuyển khoản ngân hàng"}
-                  </button>
-                ))}
+                {["Thanh toán khi nhận hàng", "Chuyển khoản ngân hàng"].map(
+                  (method) => (
+                    <button
+                      key={method}
+                      onClick={() => handlePaymentChange(method)}
+                      className={`rounded border-2 border-[#006532] px-4 py-2 transition hover:bg-[#006532] hover:text-white ${
+                        paymentMethod === method
+                          ? "bg-[#006532] text-white"
+                          : "bg-white text-gray-700 hover:bg-[#006532ca] hover:text-white"
+                      }`}
+                    >
+                      {method === "Thanh toán khi nhận hàng"
+                        ? "Thanh toán khi nhận hàng"
+                        : "Chuyển khoản ngân hàng"}
+                    </button>
+                  ),
+                )}
               </div>
               <div className="mt-8 flex justify-end">
                 <button
@@ -353,6 +329,7 @@ const Checkout = () => {
                 className="mb-2 flex items-center justify-between"
               >
                 <div>
+                  <p>{item.name}</p>
                   <p>{item.address}</p>
                   <p>{item.phone}</p>
                 </div>
@@ -369,10 +346,17 @@ const Checkout = () => {
             <div className="mt-4">
               <input
                 type="text"
+                placeholder="Thêm tên mới"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                className="w-full rounded-md border border-gray-300 p-2"
+              />
+              <input
+                type="text"
                 placeholder="Thêm địa chỉ mới"
                 value={newAddress}
                 onChange={(e) => setNewAddress(e.target.value)}
-                className="w-full rounded-md border border-gray-300 p-2"
+                className="mt-2 w-full rounded-md border border-gray-300 p-2"
               />
               <input
                 type="text"
@@ -400,6 +384,47 @@ const Checkout = () => {
           </div>
         </div>
       )}
+      <section
+        id="product1"
+        className="mt-10 bg-[#f9f9f9] py-10 pt-10 text-center"
+      >
+        <div className="text-[46px] font-semibold leading-[54px] text-[#006532]">
+          Newest Products
+        </div>
+        <div className="container mx-auto flex flex-wrap justify-evenly pt-5">
+          {[...Array(4)].map((_, index) => (
+            <div
+              key={index}
+              className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
+            >
+              <img
+                src="/images/products/262.png"
+                alt={`Product ${index + 1}`}
+                className="w-full rounded-xl"
+              />
+              <div className="des pt-3 text-start">
+                <span className="text-[13px] text-[#1a1a1a]">Adidas</span>
+                <h5 className="pt-2 text-[15px] font-semibold text-[#006532]">
+                  Cotton shirts pure cotton
+                </h5>
+                <h5 className="pt-2 text-[13px] text-[#1a1a1a]">Bao: 20kg</h5>
+                <h4 className="flex pt-2 text-[16px] font-semibold text-[#006532]">
+                  <p className="mr-1 mt-[2px] text-sm font-normal underline">
+                    đ
+                  </p>
+                  78000
+                </h4>
+              </div>
+              <a
+                href="#"
+                className="cart absolute bottom-5 right-2 -mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] font-medium leading-10 text-[#006532]"
+              >
+                <PiShoppingCart />
+              </a>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <Footer />
     </div>

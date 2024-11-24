@@ -1,25 +1,36 @@
 import axios from "axios";
-import { authLocal } from "../util/auth-local";
+import { getToken, getUserId } from "../util/auth-local";
 
-export const postOrder = async ({
-  totalPrice,
-  paymentMethod,
-  userId,
-  phone,
-  address,
-  products,
-}) => {
+const BASE_URL = "http://localhost:6006";
+
+export async function getAddresses() {
   try {
-    let token = authLocal.getToken().replace(/^"|"$/g, "");
-    const response = await axios.post(
-      "http://localhost:6006/order", // URL của API
+    const token = getToken();
+    const userId = getUserId();
+    const res = await axios.get(`${BASE_URL}/location-user/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res;
+  } catch (error) {
+    console.error("Error fetching addresses:", error);
+    throw error;
+  }
+}
+
+export const createNewAddress = async (newName, newAddress, newPhone) => {
+  try {
+    const token = getToken();
+    const userId = getUserId();
+    const res = await axios.post(
+      `${BASE_URL}/location-user`,
       {
-        totalPrice,
-        paymentMethod,
+        name: newName,
+        address: newAddress,
+        phone: newPhone,
+        default_location: true,
         user_id: userId,
-        phone,
-        address,
-        products,
       },
       {
         headers: {
@@ -27,9 +38,24 @@ export const postOrder = async ({
         },
       },
     );
-    return response.data;
+    return res;
   } catch (error) {
-    console.error("Error posting order:", error);
+    console.error("Error creating new address:", error);
+    throw error;
+  }
+};
+
+export const createOrder = async (orderData) => {
+  try {
+    const token = getToken();
+    const res = await axios.post(`${BASE_URL}/order`, orderData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res;
+  } catch (error) {
+    console.error("Error creating order", error);
     throw error;
   }
 };

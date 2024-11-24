@@ -3,20 +3,26 @@ import Header from "../Header/header.jsx";
 import Footer from "../Footer/footer.jsx";
 import { PiShoppingCart } from "react-icons/pi";
 import { PiMinusBold, PiPlusBold } from "react-icons/pi";
-import { authLocal, userIdLocal } from "../../util/auth-local.js";
+import { getUserId } from "../../util/auth-local.js";
 import {
   deleteCart,
   getCarts,
   updateCart,
 } from "../../services/cart-service.js";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import {
+  NotificationList,
+  notificationTypes,
+  showNotification,
+} from "../Notification/NotificationService.jsx";
 
 const Cart = () => {
   const [carts, setCarts] = useState([]);
   const [totalCost, setTotalCost] = useState(0);
   const [selectedCarts, setSelectedCarts] = useState([]);
   const navigate = useNavigate();
+
+  const [notifications, setNotifications] = useState([]);
 
   const handleIncrease = (cartId, currentQuantity) => {
     const newQuantity = currentQuantity + 1;
@@ -31,13 +37,15 @@ const Cart = () => {
   const handleQuantityChange = async (cartId, newQuantity) => {
     const cartIndex = carts.findIndex((cart) => cart.id === cartId);
 
-    let token = authLocal.getToken();
-    token = token.replace(/^"|"$/g, "");
-
     if (cartIndex !== -1) {
       try {
-        await updateCart({ ...carts[cartIndex], quantity: newQuantity }, token);
+        await updateCart({ ...carts[cartIndex], quantity: newQuantity });
         fetchCarts();
+        showNotification(
+          "Giỏ hàng của bạn đã được cập nhật!",
+          notificationTypes.INFO,
+          setNotifications,
+        );
       } catch (error) {
         console.error("Error updating cart quantity:", error);
       }
@@ -58,11 +66,13 @@ const Cart = () => {
 
   const handleDeleteCart = async (cartId) => {
     try {
-      let token = authLocal.getToken();
-      token = token.replace(/^"|"$/g, "");
-
-      await deleteCart(cartId, token);
+      await deleteCart(cartId);
       fetchCarts();
+      showNotification(
+        "Sản phẩm đã được xóa khỏi giỏ hàng!",
+        notificationTypes.WARNING,
+        setNotifications,
+      );
     } catch (error) {
       console.log(error);
     }
@@ -74,14 +84,10 @@ const Cart = () => {
 
   const fetchCarts = async () => {
     try {
-      let token = authLocal.getToken();
-      token = token.replace(/^"|"$/g, "");
-
-      let userId = userIdLocal.getUserId();
-      userId = userId.replace(/^"|"$/g, "");
+      let userId = getUserId();
 
       if (userId) {
-        const cartsData = await getCarts(userId, token);
+        const cartsData = await getCarts();
         setCarts(cartsData.data.data.cart);
         calculateTotalCost(cartsData.data.data.cart);
       }
@@ -102,6 +108,8 @@ const Cart = () => {
   return (
     <div>
       <Header />
+      {/* Hiển thị các thông báo */}
+      <NotificationList notifications={notifications} />
       <section
         id="page-header"
         className="h-52"
@@ -215,7 +223,7 @@ const Cart = () => {
             </tbody>
           </table>
         </div>
-        {console.log("length", carts.length)}
+
         <div className="mt-4 flex justify-end">
           <button
             onClick={handleNavigate}
@@ -226,7 +234,7 @@ const Cart = () => {
         </div>
       </div>
 
-      {/* <section
+      <section
         id="product1"
         className="mt-10 bg-[#f9f9f9] py-10 pt-10 text-center"
       >
@@ -266,7 +274,7 @@ const Cart = () => {
             </div>
           ))}
         </div>
-      </section> */}
+      </section>
       <Footer />
     </div>
   );

@@ -9,6 +9,11 @@ import { PiShoppingCart } from "react-icons/pi";
 import { getCategory } from "../../services/category-service";
 import { authLocal, userIdLocal } from "../../util/auth-local";
 import img from "../../../public/images/banner/image-4.jpg";
+import {
+  NotificationList,
+  notificationTypes,
+  showNotification,
+} from "../Notification/NotificationService";
 const ShopGrid = () => {
   const navigate = useNavigate();
 
@@ -25,6 +30,8 @@ const ShopGrid = () => {
   const [products, setProducts] = useState([]);
 
   const [carts, setCarts] = useState([]);
+
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     getProductsOnPage();
@@ -139,7 +146,12 @@ const ShopGrid = () => {
       );
     }
     getCartsOnPage();
-    alert("Đã add sản phẩm vào giỏ hàng");
+
+    showNotification(
+      "Sản phẩm đã được thêm vào giỏ hàng!",
+      notificationTypes.SUCCESS,
+      setNotifications,
+    );
   };
 
   const handleSearch = (e) => {
@@ -233,6 +245,8 @@ const ShopGrid = () => {
   return (
     <div>
       <Header />
+      {/* Hiển thị các thông báo */}
+      <NotificationList notifications={notifications} />
       <section
         id="page-header"
         className="h-[47vh]"

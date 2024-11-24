@@ -5,10 +5,11 @@ import {
   createCategory,
   deleteCategories,
   deleteCategory,
-  getCategory,
+  getQueryCategory,
   updateCategory,
 } from "../../../services/category-service.js";
-import { authLocal } from "../../../util/auth-local.js";
+
+import { PER_PAGE } from "../../../constants/per-page.js";
 
 const Modal = ({ children, showModal, setShowModal }) =>
   showModal ? (
@@ -40,23 +41,62 @@ const ManageCategory = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [page, setPage] = useState(1); // Trang hiện tại
-  const [limit, setLimit] = useState(4); // Giới hạn số mục mỗi trang
-  const [totalPages, setTotalPages] = useState(1);
-  const [currentPage, setCurrentPage] = useState(1);
+
+  const [params, setParams] = useState({
+    limit: PER_PAGE,
+    page: 1,
+    total: 0,
+    name: "",
+    status: "",
+  });
 
   // Hàm gọi API để lấy danh mục
-  const fetchCategories = async () => {
-    const response = await getCategory(page, limit);
-    if (response.success) {
-      setCategories(response.data.data); // Cập nhật dữ liệu danh mục
-      setTotalPages(Math.ceil(response.data.total / limit));
+  const getQueryCategoryOnPage = async () => {
+    try {
+      const response = await getQueryCategory(
+        params.page,
+        params.limit,
+        params.name,
+        params.status,
+      );
+
+      if (response.success) {
+        setCategories(response.data.data); // Cập nhật dữ liệu danh mục
+        if (response.data.total !== params.total) {
+          setParams((prev) => ({
+            ...prev,
+            total: response.data.total,
+          }));
+        }
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
   useEffect(() => {
-    fetchCategories();
-  }, [page, limit, showModal]); // Gọi lại API khi trang hoặc giới hạn thay đổi
+    getQueryCategoryOnPage();
+  }, [params.page, params.limit, showModal, params.name, params.status]);
+
+  const handlePageChange = (page) => {
+    setParams((prev) => ({ ...prev, page: page }));
+  };
+
+  const handleSearch = (e) => {
+    setParams((prev) => ({
+      ...prev,
+      name: e.target.value.trim(),
+      page: 1,
+    }));
+  };
+
+  const handleFilter = (e) => {
+    setParams((prev) => ({
+      ...prev,
+      status: e.target.value.trim(),
+      page: 1,
+    }));
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -71,11 +111,8 @@ const ManageCategory = () => {
   };
 
   const addCategory = async (categoryData) => {
-    let token = authLocal.getToken();
-    token = token.replace(/^"|"$/g, "");
-
     categoryData.status = "Áp dụng";
-    const response = await createCategory(categoryData, token);
+    const response = await createCategory(categoryData);
     if (response.success) {
       setCategories([...categories, response.data]);
       setShowModal(false);
@@ -94,9 +131,7 @@ const ManageCategory = () => {
   };
 
   const deleteOneCategory = async (id) => {
-    let token = authLocal.getToken();
-    token = token.replace(/^"|"$/g, "");
-    const response = await deleteCategory(id, token);
+    const response = await deleteCategory(id);
     if (response.success) {
       setCategories(categories.filter((category) => category.id !== id));
     }
@@ -113,10 +148,7 @@ const ManageCategory = () => {
   };
 
   const updateOneCategory = async (categoryData) => {
-    let token = authLocal.getToken();
-    token = token.replace(/^"|"$/g, "");
-
-    const response = await updateCategory(categoryData, token);
+    const response = await updateCategory(categoryData);
     if (response.success) {
       // Cập nhật danh sách categories
       setCategories((prevCategories) =>
@@ -159,13 +191,8 @@ const ManageCategory = () => {
   };
 
   const deleteSelectedCategories = async () => {
-    let token = authLocal.getToken();
-    token = token.replace(/^"|"$/g, "");
-
     try {
-      await Promise.all(
-        selectedCategories.map((id) => deleteCategories(id, token)),
-      );
+      await Promise.all(selectedCategories.map((id) => deleteCategories(id)));
       setCategories(
         categories.filter(
           (category) => !selectedCategories.includes(category.id),
@@ -196,8 +223,27 @@ const ManageCategory = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
+  const renderPagination = () => {
+    if (params.total < PER_PAGE) return null;
+    const totalPages = Math.ceil(params.total / PER_PAGE);
+    return (
+      <div>
+        {[...Array(totalPages)].map((_, index) => (
+          <a
+            key={index + 1}
+            data-page={index + 1}
+            className={`mx-1 rounded px-3 py-1 ${
+              index + 1 === params.page
+                ? "bg-[#006532] text-white"
+                : "bg-gray-200 text-gray-800 hover:bg-blue-200"
+            }`}
+            onClick={() => handlePageChange(index + 1)}
+          >
+            {index + 1}
+          </a>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -292,8 +338,7 @@ const ManageCategory = () => {
               <input
                 type="text"
                 placeholder="Search by name"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onInput={handleSearch}
                 className="w-full rounded-lg border border-[#00653287] px-4 py-2"
               />
               <FaSearch className="absolute right-4 top-3 text-gray-400" />
@@ -301,8 +346,7 @@ const ManageCategory = () => {
           </div>
           <div className="flex w-2/5 items-center justify-end space-x-2 tablet:w-full">
             <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
+              onChange={handleFilter}
               className="rounded border border-[#00653287] p-2"
             >
               <option value="">Tất cả</option>
@@ -380,22 +424,7 @@ const ManageCategory = () => {
         </div>
 
         {/* Nút phân trang */}
-        <div className="mt-4 flex justify-center">
-          {Array.from({ length: totalPages }, (_, index) => (
-            <button
-              key={index + 1}
-              onClick={() => handlePageChange(index + 1)}
-              className={`mx-1 rounded px-3 py-1 ${
-                index + 1 === page
-                  ? "bg-[#006532] text-white"
-                  : "bg-gray-200 text-gray-800 hover:bg-blue-200"
-              }`}
-              disabled={index + 1 === page}
-            >
-              {index + 1}
-            </button>
-          ))}
-        </div>
+        <div className="mt-4 flex justify-center">{renderPagination()}</div>
 
         <button
           onClick={() => {

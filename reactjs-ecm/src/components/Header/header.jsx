@@ -10,13 +10,13 @@ import {
   NotificationList,
   notificationTypes,
   showNotification,
-} from "../Notification/NotificationService"; // Import hàm và danh sách thông báo
+} from "../Notification/NotificationService";
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState(null); // Thêm state để lưu trữ thông tin người dùng
 
-  const [notifications, setNotifications] = useState([]); // State lưu thông báo
+  const [notifications, setNotifications] = useState([]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -39,23 +39,20 @@ function Header() {
     ? user.lastName.substring(0, 4).toUpperCase()
     : "";
 
-  const handleLogout = () => {
+  const handleLogoutUser = async () => {
     localStorage.clear();
-    setUser(null);
-  };
-  const handleLogoutUser = () => {
-    handleLogout();
+    setUser(null); // Đặt lại user state sau khi đăng xuất
+
     showNotification(
       "Bạn đã đăng xuất thành công.",
       notificationTypes.INFO,
       setNotifications,
     );
-    console.log("Thông báo đăng xuất:", notifications); // Kiểm tra danh sách thông báo
   };
 
   return (
     <>
-      {/* Hiển thị danh sách thông báo */}
+      {/* Hiển thị các thông báo */}
       <NotificationList notifications={notifications} />
       <div className="shadow-lg sticky top-0 z-50 flex flex-col items-end bg-white px-12 py-3 shadow-custom-dark">
         <a href="/home-page" className="absolute left-10 -mt-1 xl:ml-36">
@@ -153,12 +150,12 @@ function Header() {
             </li>
             {user && (
               <li id="lg-bag" className="md:mb-3 md:h-5 md:px-4">
-                <Link to="/" onClick={handleLogoutUser}>
+                <NavLink to="/home-page" onClick={handleLogoutUser}>
                   <FiLogOut
                     aria-hidden="true"
                     className="h-[23px] w-[23px] text-[#006532] transition duration-300 hover:text-[#80c9a4]"
                   />
-                </Link>
+                </NavLink>
               </li>
             )}
           </ul>
