@@ -26,7 +26,7 @@ import ShipOrder from "./components/Shipping/ship-order.jsx";
 import ShipHistory from "./components/Shipping/ship-history.jsx";
 import OrderDetails from "./components/OrderDetails/order-details";
 import NotificationsPage from "./components/Notification/notification.jsx";
-
+import ImportProduct from "./components/Admin/Import/import.jsx";
 import "react-toastify/dist/ReactToastify.css";
 
 const queryClient = new QueryClient();
@@ -62,6 +62,7 @@ root.render(
           <Route path="/order-details" element={<OrderDetails />} />
           <Route path="/manage-category" element={<ManageCategory />} />
           <Route path="/manage-order" element={<ManageOrder />} />
+          <Route path="/import-product" element={<ImportProduct />} />
           <Route
             path="/manage-product/:currentPage/:productsPerPage"
             element={<ManageProduct />}
@@ -81,7 +82,10 @@ root.render(
             path="/manage-supplier/:page/:limit"
             element={<ManageSupplier />}
           />
+
+
           <Route path="/test-notification" element={<NotificationsPage />} />
+
         </Routes>
       </QueryClientProvider>
     </BrowserRouter>
