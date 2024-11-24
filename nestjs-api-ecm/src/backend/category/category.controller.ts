@@ -61,7 +61,7 @@ export class CategoryController {
     }
   }
 
-  @Post(':user_id')
+  @Post()
   @Roles('admin')
   async create(@Body() createCate: CategoryCreateDTO) {
     try {
@@ -73,7 +73,7 @@ export class CategoryController {
     }
   }
 
-  @Get(':user_id/:id')
+  @Get(':id')
   @Roles('admin')
   async detail(@Param('id') id: string) {
     try {
@@ -84,7 +84,7 @@ export class CategoryController {
     }
   }
 
-  @Patch(':user_id ')
+  @Patch()
   @Roles('admin')
   async update(@Body() categoryUpdateDTO: categoryUpdateDTO) {
     try {
@@ -99,7 +99,7 @@ export class CategoryController {
     }
   }
 
-  @Delete(':user_id/:id')
+  @Delete(':id')
   @Roles('admin')
   async delete(@Param('id') id: string) {
     try {

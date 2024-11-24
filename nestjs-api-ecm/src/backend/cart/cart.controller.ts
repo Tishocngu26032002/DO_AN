@@ -40,7 +40,7 @@ export class CartController {
     }
   }
 
-  @Post('add-to-cart')
+  @Post('add-to-cart/:user_id')
   @Roles('user')
   async addToCart(@Body() createCartDto: CreateCartDto) {
     try {

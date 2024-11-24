@@ -62,7 +62,7 @@ export class OrderController {
     required: false,
     description: 'Trạng thái thanh toán (All, Paid, Unpaid, Debt)',
   })
-  @Get('manage-order/:user_id/:page/:limit')
+  @Get('manage-order/:page/:limit')
   @Roles('admin')
   async getOrderManagement(
     @Param('page') page: number,

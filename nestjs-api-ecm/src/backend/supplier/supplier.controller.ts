@@ -25,7 +25,7 @@ import { SearchSupplierDto } from 'src/dto/supplierDTO/search-supplier.dto';
 export class SupplierController {
   constructor(private readonly supplierService: SupplierService) {}
 
-  @Get(':user_id/:page/:limit')
+  @Get(':page/:limit')
   @Roles('admin')
   async getList(@Param('page') page: number, @Param('limit') limit: number) {
     try {
@@ -67,7 +67,7 @@ export class SupplierController {
     }
   }
 
-  @Post(':user_id')
+  @Post()
   @Roles('admin')
   async create(@Body() createSupplierDto: CreateSupplierDto) {
     try {
@@ -79,7 +79,7 @@ export class SupplierController {
     }
   }
 
-  @Get(':user_id/:id')
+  @Get(':id')
   @Roles('admin')
   async findOne(@Param('id') id: string) {
     try {
@@ -91,7 +91,7 @@ export class SupplierController {
     }
   }
 
-  @Patch('user_id/:id')
+  @Patch(':id')
   @Roles('admin')
   async update(
     @Param('id') id: string,
@@ -109,7 +109,7 @@ export class SupplierController {
     }
   }
 
-  @Delete('user_id/:id')
+  @Delete(':id')
   @Roles('admin')
   async remove(@Param('id') id: string) {
     try {

@@ -61,6 +61,7 @@ export class ImportController {
   }
 
   @Patch()
+  @Roles('admin')
   async update(@Body() updateImportDto: UpdateImpotyDTO) {
     try {
       const resultUpdate = await this.importService.update(updateImportDto);
@@ -72,6 +73,7 @@ export class ImportController {
   }
 
   @Delete(':id')
+  @Roles('admin')
   remove(@Param('id') id: string) {
     return this.importService.remove(+id);
   }
