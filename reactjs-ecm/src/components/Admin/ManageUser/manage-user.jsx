@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import {useLocation, useParams, useNavigate } from 'react-router-dom';
 import AdminHeader from "../AdminHeader/admin-header.jsx";
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye, FaSort } from 'react-icons/fa';
 import { MdOutlineInbox } from "react-icons/md";
-import { getUsers, deleteUser, updateUser, createUser } from '../../../services/user-service.js';
+import { getUsers, deleteUser, updateUser, createUser, getSearchUsers } from '../../../services/user-service.js';
 import { getLocationUserById, createLocationUser,updateLocationUser,deleteLocationUser } from '../../../services/location-user-service.js';
 import { showNotification, notificationTypes, NotificationList } from '../../Notification/NotificationService.jsx';
 import NotificationHandler from '../../Notification/notification-handle.jsx';
+
 const Modal = ({ children, showModal, setShowModal }) => (
   showModal ? (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
@@ -22,14 +23,13 @@ const Modal = ({ children, showModal, setShowModal }) => (
 const ManageUser = () => {
   const { currentPage: paramCurrentPage, usersPerPage: paramUsersPerPage } = useParams();
   const navigate = useNavigate();
-  
-  const [allUsers, setAllUsers] = useState([]);
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+
   const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterRole, setFilterRole] = useState('');
-  const [filterStatus, setFilterStatus] = useState('');
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [showViewPopup, setShowViewPopup] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -38,33 +38,72 @@ const ManageUser = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [locations, setLocations] = useState({});
   const [notifications, setNotifications] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(queryParams.get('search') || '');
+  const [filterStatus, setFilterStatus] = useState(queryParams.get('status') || '');
+  const [filterRole, setFilterRole] = useState(queryParams.get('role') || '');
 
+  // Cập nhật URL khi thay đổi filter
+  useEffect(() => {
+    const queryParams = new URLSearchParams();
+    if (searchTerm) queryParams.set('search', searchTerm);
+    if (filterStatus) queryParams.set('status', filterStatus);
+    if (filterRole) queryParams.set('role', filterRole);
+    window.history.replaceState(null, '', `/manage-user/${currentPage}/${usersPerPage}?${queryParams.toString()}`);
+  }, [searchTerm, filterStatus, filterRole, currentPage, usersPerPage]);
 
   useEffect(() => {
-    const fetchAllUsers = async () => {
-      const fetchedUsers = [];
-      let page = 1;
-      let totalUsers = 0;
-      do {
-        const result = await getUsers(page, usersPerPage); 
-        if (result.success) {
-          fetchedUsers.push(...result.data.data);
-          totalUsers = result.data.total;
-          page++;
-        } else {
-          console.error('Failed to fetch users:', result.message);
-          break;
+    const fetchUsers = async () => {
+
+      console.log(filterRole);
+      if (searchTerm || filterStatus || filterRole) {
+        const searchData = {
+          lastName: searchTerm,
+          phone: "",
+          email: searchTerm,
+          isActive: filterStatus === "" ? undefined : filterStatus === "1",
+          role: filterRole === "" ? undefined : filterRole,
+        };
+        console.log(searchData);
+  
+        try {
+          
+          const result = await getSearchUsers(currentPage, usersPerPage, searchData);
+          
+          if (Array.isArray(result.data.data)) {
+            setUsers(result.data.data);
+            const totalPages = Math.ceil(parseInt(result.data.total) / parseInt(result.data.limit));
+            setTotalPages(totalPages);
+          } else {
+            console.error("Data returned from API is not an array:", result.data.data);
+          }
+        } catch (error) {
+          console.error('Error fetching search users:', error);
         }
-      } while (fetchedUsers.length < totalUsers);
-
-      setAllUsers(fetchedUsers);
-      setTotalPages(Math.ceil(totalUsers / usersPerPage));
-      setUsers(fetchedUsers.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage));
+      } else {
+        const fetchedUsers = [];
+        let page = 1;
+        let totalUsers = 0;
+        do {
+          const result = await getUsers(page, usersPerPage);
+          if (result.success) {
+            fetchedUsers.push(...result.data.data);
+            totalUsers = result.data.total;
+            page++;
+          } else {
+            console.error('Failed to fetch users:', result.message);
+            break;
+          }
+        } while (fetchedUsers.length < totalUsers);
+  
+        setAllUsers(fetchedUsers);
+        setTotalPages(Math.ceil(totalUsers / usersPerPage));
+        setUsers(fetchedUsers.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage));
+      }
     };
-
-    fetchAllUsers();
-  }, [currentPage, usersPerPage]);
-
+  
+    fetchUsers();
+  }, [searchTerm, filterRole, filterStatus, currentPage, usersPerPage]);
+  
   useEffect(() => {
     const fetchLocations = async () => {
     
@@ -238,17 +277,21 @@ const ManageUser = () => {
   
 
   const openUpdateModal = (user) => {
+    const userLocation = locations[user.id] || {};  // Nếu không có location, sử dụng đối tượng rỗng
+  
     setCurrentUser({
       ...user,
       isActive: user.isActive ? true : false,
-      name: locations[user.id].lastName || '',
-      phone: locations[user.id].phone || '',
-      address: locations[user.id].address || '',
-      locationId: locations[user.id].id || '',
-      locationdefault:locations[user.id]?.default_location || ''
+      name: userLocation.lastName || '',  // Đảm bảo lastName tồn tại
+      phone: userLocation.phone || '',  // Đảm bảo phone tồn tại
+      address: userLocation.address || '',  // Đảm bảo address tồn tại
+      locationId: userLocation.id || '',  // Đảm bảo locationId tồn tại
+      locationdefault: userLocation.default_location || false  // Đảm bảo default_location tồn tại
     });
+  
     setShowModal(true);
   };
+  
 
   const openAddModal = () => {
     setCurrentUser({ firstname: '', lastname: '',phone:'',address:'', email: '',locationdefault:true, role: 'customer', isActive: true });
@@ -266,7 +309,7 @@ const ManageUser = () => {
   const handleViewUser = (user) => {
     setCurrentUser({
       ...user,
-      name: locations[user.id].lastName || '',
+      // name: locations[user.id].lastName || '',
       phone: locations[user.id]?.phone || '',
       address: locations[user.id]?.address || '',
       locationid:locations[user.id]?.id || '',
@@ -274,44 +317,37 @@ const ManageUser = () => {
     });
     setShowViewPopup(true);
   };
-  
-  useEffect(() => {
-    const filteredUsers = allUsers.filter(user => {
-      const matchesSearch = (
-        user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-
-      const matchesRole = filterRole ? user.role === filterRole : true;
-      const matchesStatus = filterStatus ? user.isActive === (filterStatus === '1') : true;
-
-      return matchesSearch && matchesRole && matchesStatus;
-    });
-
-    setTotalPages(Math.ceil(filteredUsers.length / usersPerPage));
-
-    const startIndex = (currentPage - 1) * usersPerPage;
-    const endIndex = startIndex + usersPerPage;
-
-    setUsers(filteredUsers.slice(startIndex, endIndex));
-  }, [currentPage, searchTerm, allUsers, filterRole, filterStatus, usersPerPage]);
 
   const handlePageChange = (page) => {
-    navigate(`/manage-user/${page}/${usersPerPage}`);
+    const queryParams = new URLSearchParams();
+    if (searchTerm) queryParams.set('search', searchTerm);
+    if (filterStatus) queryParams.set('status', filterStatus);
+    if (filterRole) queryParams.set('role', filterRole);
+  
+    navigate(`/manage-user/${page}/${usersPerPage}?${queryParams.toString()}`);
   };
+  
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
+// Khi tìm kiếm hoặc filter thay đổi, cập nhật URL
+const handleSearchChange = (event) => {
+  const newSearchTerm = event.target.value;
+  setSearchTerm(newSearchTerm);
 
-  const handleRoleChange = (e) => {
-    setFilterRole(e.target.value);
-  };
+};
 
-  const handleStatusChange = (e) => {
-    setFilterStatus(e.target.value);
-  };
+const handleStatusChange = (event) => {
+  const newStatus = event.target.value;
+  setFilterStatus(newStatus);
+
+};
+
+const handleRoleChange = (event) => {
+  const newRole = event.target.value;
+  setFilterRole(newRole);
+
+ 
+};
+
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -502,7 +538,7 @@ const ManageUser = () => {
                 <th className="py-3 px-6 text-left hidden sm:table-cell">Họ Tên<FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('firstName')}/></th>
                 <th className="py-3 px-6 text-left">Điện thoại<FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('phone')}/></th>
                 <th className="py-3 px-6 text-left hidden md:table-cell ">Email <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('email')}/></th>
-                <th className="py-3 px-6 text-left ">Địa chỉ<FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('address')}/></th>
+                <th className="py-3 px-6 text-left hidden md:table-cell">Địa chỉ<FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('address')}/></th>
                 <th className="py-3 px-6 text-left hidden sm:table-cell">Chức vụ <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('role')}/></th>
                 <th className="py-3 px-6 text-left hidden lg:table-cell ">Trạng thái <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('isActive')}/></th>
                 

@@ -30,7 +30,7 @@ export async function deleteUser(userId) {
         accept: "*/*",
       },
     });
-    return res.data; // Hoặc bạn có thể chỉ cần return true nếu xóa thành công
+    return res.data.data; 
   } catch (error) {
     console.error("Error deleting user:", error);
     throw error;
@@ -76,13 +76,30 @@ export async function getUser() {
     const token = getToken();
     const res = await axios.get(`${BASE_URL}/users/${userId}`, {
       headers: {
-        Authorization: `Bearer ${token}`, // Truyền token ở đây
+        Authorization: `Bearer ${token}`,
         accept: "*/*",
       },
     });
-    return res.data; // Hoặc bạn có thể chỉ cần return true nếu xóa thành công
+    return res.data; 
   } catch (error) {
     console.error("Error deleting user:", error);
+    throw error;
+  }
+}
+
+export async function getSearchUsers(page, limit, searchData) {
+  try {
+    const token = getToken();
+    const res = await axios.post(`${BASE_URL}/users/search/${page}/${limit}`, searchData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: "*/*",
+        'Content-Type': 'application/json'
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error searching users:", error);
     throw error;
   }
 }

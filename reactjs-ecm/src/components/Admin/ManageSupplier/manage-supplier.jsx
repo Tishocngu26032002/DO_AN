@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import  { useEffect, useState } from "react";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import AdminHeader from "../AdminHeader/admin-header.jsx";
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaFilter } from "react-icons/fa";
-import { createSupplier,deleteSuppliers,deleteSupplier, getSupplier,updateSupplier,} from "../../../services/supplier-service.js";
+import { FaPlus, FaEdit, FaTrash, FaSearch } from "react-icons/fa";
+import { createSupplier,deleteSuppliers,deleteSupplier, getSupplier,updateSupplier,getSearchSuppliers} from "../../../services/supplier-service.js";
 import { uploadImage } from "../../../services/image-service.js";
 import { ClipLoader } from 'react-spinners';
 import { showNotification, notificationTypes, NotificationList } from '../../Notification/NotificationService.jsx';
@@ -27,6 +27,9 @@ const Modal = ({ children, showModal, setShowModal }) =>
 const ManageSupplier = () => {
   const { page: paramPage, limit: paramLimit } = useParams(); 
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+
   const [suppliers, setSuppliers] = useState([]);
   const [newSupplier, setNewSupplier] = useState({
     name: "",
@@ -37,7 +40,7 @@ const ManageSupplier = () => {
   });
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(queryParams.get('search') || '');
   const [selectedSuppliers, setSelectedSuppliers] = useState([]);
   const [page, setPage] = useState(Number(paramPage) || 1);
   const [limit, setLimit] = useState(Number(paramLimit) || 4);
@@ -45,24 +48,94 @@ const ManageSupplier = () => {
   const [loading, setLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-  const fetchSuppliers = async () => {
-    const response = await getSupplier(page, limit);
-    if (response.success) {
-      setSuppliers(response.data.data); 
-      setTotalPages(Math.ceil(response.data.total / limit));
-    }
-  };
+  useEffect(() => {
+    const queryParams = new URLSearchParams();
+    if (searchTerm) queryParams.set('search', searchTerm);
+    window.history.replaceState(null, '', `/manage-supplier/${page}/${limit}?${queryParams.toString()}`);
+  }, [searchTerm, page, limit]);
+
+
+  // const fetchSuppliers = async () => {
+  //   const response = await getSupplier(page, limit);
+  //   if (response.success) {
+  //     setSuppliers(response.data.data); 
+  //     setTotalPages(Math.ceil(response.data.total / limit));
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchSuppliers();
+  // }, [page, limit, showModal]);
+
+  // useEffect(() => {
+  //   navigate(`/manage-supplier/${page}/${limit}`); 
+  // }, [page, limit]);
 
   useEffect(() => {
-    fetchSuppliers();
-  }, [page, limit, showModal]);
+    const fetchSuppliers = async () => {
 
-  useEffect(() => {
-    navigate(`/manage-supplier/${page}/${limit}`); 
-  }, [page, limit]);
+      
+      if (searchTerm ) {
+        const searchData = {
+          name: searchTerm,
+          phone: '',
+        
+        };
+        console.log(searchData);
+  
+        try {
+          
+          const result = await getSearchSuppliers(page,limit, searchData);
+          
+          if (Array.isArray(result.data.data)) {
+            setSuppliers(result.data.data);
+            const totalPages = Math.ceil(parseInt(result.data.total) / parseInt(result.data.limit));
+            setTotalPages(totalPages);
+          } else {
+            console.error("Data returned from API is not an array:", result.data.data);
+          }
+        } catch (error) {
+          console.error('Error fetching search users:', error);
+        }
+      } else {
+        const fetchedSupplier = [];
+        let newpage = 1;
+        let totalUsers = 0;
+        do {
+          const result = await getSupplier(newpage, limit);
+          if (result.success) {
+            fetchedSupplier.push(...result.data.data);
+            totalUsers = result.data.total;
+            newpage++;
+          } else {
+            console.error('Failed to fetch users:', result.message);
+            break;
+          }
+        } while (fetchedSupplier.length < totalUsers);
+  
+        setSuppliers(fetchedSupplier.slice((page - 1) * limit, page * limit));
+        setTotalPages(Math.ceil(totalUsers / limit));
+       
+      }
+    };
+        fetchSuppliers();
+  }, [searchTerm, page, limit]);
+
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
+  };
+  // const handlePageChange = (newPage) => {
+  //   const queryParams = new URLSearchParams();
+  //   if (searchTerm) queryParams.set('search', searchTerm);
+  
+  //   navigate(`/manage-supplier/${newPage}/${limit}?${queryParams.toString()}`);
+  // };
+  
+  const handleSearchChange = (event) => {
+    const newSearchTerm = event.target.value;
+    setSearchTerm(newSearchTerm);
+  
   };
 
   const handleInputChange = (e) => {
@@ -264,14 +337,9 @@ const ManageSupplier = () => {
   };
 
   // Hàm lọc danh sách suppliers
-  const filteredSuppliers = suppliers.filter((supplier) => {
-    if (!supplier.name) return false;
-
-    const matchesSearch = supplier.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  });
+  const filteredSuppliers = suppliers.filter((supplier) =>
+    supplier.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   
 
@@ -370,7 +438,7 @@ const ManageSupplier = () => {
                 type="text"
                 placeholder="Search by name"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
                 className="w-full rounded-lg border border-[#00653287] px-4 py-2"
               />
               <FaSearch className="absolute right-4 top-3 text-gray-400" />
@@ -435,12 +503,8 @@ const ManageSupplier = () => {
           <button
             key={index + 1}
             onClick={() => handlePageChange(index + 1)}
-            className={`mx-1 rounded px-3 py-1 ${
-              index + 1 === page
-                ? "bg-[#006532] text-white"
-                : "bg-gray-200 text-gray-800 hover:bg-blue-200"
-            }`}
-            disabled={index + 1 === page}
+            className={`mx-1 px-3 py-1 rounded ${index + 1 === page ? 'bg-[#006532] text-white' : 'bg-gray-200 text-gray-800 hover:bg-blue-200'}`}
+            disabled={index + 1 === page} // Vô hiệu hóa nút hiện tại
           >
             {index + 1}
           </button>
