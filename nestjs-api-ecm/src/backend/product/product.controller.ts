@@ -88,7 +88,7 @@ export class ProductController {
     }
   }
 
-  @Post(':user_id')
+  @Post()
   @Roles('admin')
   async create(@Body() createProduct: ProductCreateDTO) {
     try {

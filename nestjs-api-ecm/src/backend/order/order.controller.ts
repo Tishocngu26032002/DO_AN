@@ -30,8 +30,7 @@ import {
 export class OrderController {
   constructor(private readonly order_Service: OrderService) {}
 
-  @Get('all-user-order')
-  @Get(':user_id')
+  @Post('all-user-order/:user_id')
   @Roles('user')
   async getAllOrder(
     @Param('user_id') user_id: string,

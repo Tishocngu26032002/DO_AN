@@ -3,10 +3,15 @@ import { IsNotEmpty, IsPhoneNumber } from 'class-validator';
 import { Expose } from 'class-transformer';
 
 export class CreateLocationUserDto {
-  @ApiProperty()
-  @IsNotEmpty()
-  @Expose()
-  address: string;
+    @ApiProperty()
+    @IsNotEmpty()
+    @Expose()
+    name: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @Expose()
+    address: string;
 
   @ApiProperty()
   @IsNotEmpty()
