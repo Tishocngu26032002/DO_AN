@@ -13,6 +13,7 @@ import {SupplierModule} from "src/backend/supplier/supplier.module";
 import {LocationUserModule} from "src/backend/location_user/location_user.module";
 import {CartModule} from "src/backend/cart/cart.module";
 import {DashboardModule} from "src/backend/dashboard/dashboard.module";
+import {NotificationModule} from "src/backend/notification/notification.module";
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import {DashboardModule} from "src/backend/dashboard/dashboard.module";
     LocationUserModule,
     CartModule,
     DashboardModule,
+    NotificationModule,
   ],
 })
 export class BackendModule {}

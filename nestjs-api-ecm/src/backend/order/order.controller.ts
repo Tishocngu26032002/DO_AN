@@ -91,7 +91,7 @@ export class OrderController {
   async updateOrder(@Body() updateOrderDTO: UpdateOrderDTO) {
     try {
       const orderUpdate = await this.order_Service.updateOrder(updateOrderDTO);
-      return orderUpdate;
+      return responseHandler.ok(orderUpdate);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
       return responseHandler.error(errorMessage);

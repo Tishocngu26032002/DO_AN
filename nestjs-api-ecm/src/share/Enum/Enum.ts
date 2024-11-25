@@ -42,3 +42,9 @@ export enum TimeFilter {
     Year = "Năm",
 }
 
+export enum NotificationType {
+    NewOrder = "Bạn có đơn hàng mới",
+    Delivered = "Bạn có đơn hàng được giao hàng thành công",
+    Cancel = "Bạn có đơn hàng bị hủy",
+}
+

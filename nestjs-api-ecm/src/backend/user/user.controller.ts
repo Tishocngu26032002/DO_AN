@@ -13,7 +13,6 @@ import { responseHandler } from 'src/Until/responseUtil';
 import { UpdateUserDto } from 'src/dto/userDTO/user.update.dto';
 import {ApiBearerAuth, ApiBody, ApiQuery, ApiTags} from '@nestjs/swagger';
 import { Roles } from 'src/decorator/Role.decorator';
-import {ParseBooleanPipe} from "src/share/ParseBooleanPipe";
 import {UserSearchDto} from "src/dto/userDTO/user.search.dto";
 
 @Controller('users')

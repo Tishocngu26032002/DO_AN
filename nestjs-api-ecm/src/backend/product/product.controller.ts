@@ -53,6 +53,17 @@ export class ProductController {
     }
   }
 
+  @Get('latest-product')
+  async getLatestProduct() {
+    try {
+      const listProduct= await this.productService.getLatestProduct();
+      return responseHandler.ok(listProduct);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
+    }
+  }
+
   @Get('search/:page/:limit')
   @ApiQuery({
     name: 'name',
