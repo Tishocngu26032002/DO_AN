@@ -8,7 +8,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { PiShoppingCart } from "react-icons/pi";
 import { getCategory } from "../../services/category-service";
 import { authLocal, userIdLocal } from "../../util/auth-local";
-import img from '../../../public/images/banner/image-4.jpg'
+import img from "../../../public/images/banner/image-4.jpg";
+import {
+  NotificationList,
+  notificationTypes,
+  showNotification,
+} from "../Notification/NotificationService";
 const ShopGrid = () => {
   const navigate = useNavigate();
 
@@ -25,6 +30,8 @@ const ShopGrid = () => {
   const [products, setProducts] = useState([]);
 
   const [carts, setCarts] = useState([]);
+
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     getProductsOnPage();
@@ -139,6 +146,12 @@ const ShopGrid = () => {
       );
     }
     getCartsOnPage();
+
+    showNotification(
+      "Sản phẩm đã được thêm vào giỏ hàng!",
+      notificationTypes.SUCCESS,
+      setNotifications,
+    );
   };
 
   const handleSearch = (e) => {
@@ -162,44 +175,46 @@ const ShopGrid = () => {
 
     return products.map((product) => (
       <div
-      key={product.id}
-      onClick={() => navigate(`/product-detail/${product.id}`)}
-      className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
-    >
-      <img
-        src={product.url_images} alt={product.name}
-        className="w-full rounded-xl"
-      />
-      <div className="des pt-3 text-start">
-        <span className="text-[13px] text-[#1a1a1a]">{product.category.name}</span>
-        <h5 className="pt-2 text-[15px] font-semibold text-[#006532]">
-        {product.name}
-        </h5>
-        <h5 className="pt-2 text-[13px] text-[#1a1a1a]">Bao: {product.weight}kg</h5>
-        <h4 className="flex pt-2 text-[16px] font-semibold text-[#006532]">
-          <p className="mr-1 mt-[2px] text-sm font-normal underline">
-            đ
-          </p>
-          {new Intl.NumberFormat('vi-VN').format(product.priceout)}
-        </h4>
-      </div>
-      <a
-        href="#"
-        className="cart absolute bottom-5 right-2 -mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] font-medium leading-10 text-[#006532]"
+        key={product.id}
+        onClick={() => navigate(`/product-detail/${product.id}`)}
+        className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
       >
-      <Link to="">
-        <PiShoppingCart
-          data-id={product.id}
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            handleAddToCart(product.id);
-          }}
-         />
-         </Link>
-      </a>
-  </div>
-      
+        <img
+          src={product.url_images}
+          alt={product.name}
+          className="w-full rounded-xl"
+        />
+        <div className="des pt-3 text-start">
+          <span className="text-[13px] text-[#1a1a1a]">
+            {product.category.name}
+          </span>
+          <h5 className="pt-2 text-[15px] font-semibold text-[#006532]">
+            {product.name}
+          </h5>
+          <h5 className="pt-2 text-[13px] text-[#1a1a1a]">
+            Bao: {product.weight}kg
+          </h5>
+          <h4 className="flex pt-2 text-[16px] font-semibold text-[#006532]">
+            <p className="mr-1 mt-[2px] text-sm font-normal underline">đ</p>
+            {new Intl.NumberFormat("vi-VN").format(product.priceout)}
+          </h4>
+        </div>
+        <a
+          href="#"
+          className="cart absolute bottom-5 right-2 -mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] font-medium leading-10 text-[#006532]"
+        >
+          <Link to="">
+            <PiShoppingCart
+              data-id={product.id}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                handleAddToCart(product.id);
+              }}
+            />
+          </Link>
+        </a>
+      </div>
     ));
   };
 
@@ -230,6 +245,8 @@ const ShopGrid = () => {
   return (
     <div>
       <Header />
+      {/* Hiển thị các thông báo */}
+      <NotificationList notifications={notifications} />
       <section
         id="page-header"
         className="h-[47vh]"
@@ -249,7 +266,7 @@ const ShopGrid = () => {
       </section>
 
       <section id="newsletter" className="section-p1 section-m1">
-        <div className="flex flex-wrap items-center justify-between bg-[#041e42] bg-[url(src/assets/images/b14.png)] bg-[20%_30%] bg-no-repeat p-4">
+        <div className="flex flex-wrap items-center justify-between bg-[#006532] bg-[url(src/assets/images/b14.png)] bg-[20%_30%] bg-no-repeat p-4">
           <div className="relative w-1/3">
             <select
               onChange={handleFilter}
@@ -289,7 +306,9 @@ const ShopGrid = () => {
         id="pagination"
         className="section-p1 flex justify-center space-x-2"
       >
-        <div className="mt-4 flex justify-center">{renderPagination()}</div>
+        <div className="mb-4 mt-2 flex justify-center">
+          {renderPagination()}
+        </div>
       </section>
 
       <Footer />

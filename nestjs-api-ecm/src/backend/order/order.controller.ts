@@ -17,7 +17,7 @@ import {ExpirationStatus, OrderStatus, PaymentStatus} from "src/share/Enum/Enum"
 export class OrderController {
   constructor(private readonly order_Service: OrderService) {}
 
-  @Get('all-user-order')
+  @Post('all-user-order')
   @Roles('user')
   async getAllOrder(@Body() allOderDTO: OrderAllOrderDto) {
     try {

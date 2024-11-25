@@ -5,7 +5,7 @@ import "./index.css";
 import Home from "./components/HomePages/home-page.jsx";
 import ProductDetail from "./components/ProductDetails/product-detail.jsx";
 import "./index.css";
-import Cart from "./components/Cart/cart.jsx";
+import Cart from "./components/Cart/Cart.jsx";
 import RegisterForm from "./components/Register/register.jsx";
 import LoginForm from "./components/Login/login.jsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -18,14 +18,15 @@ import ManageCategory from "./components/Admin/ManageCategory/manage-category.js
 import ManageOrder from "./components/Admin/ManageOrder/manage-order.jsx";
 import ManageProduct from "./components/Admin/ManageProduct/manage-product.jsx";
 import ManageUser from "./components/Admin/ManageUser/manage-user.jsx";
+
 import Report from "./components/Admin/Report/report.jsx";
-import ProductionStatistics from "./components/Admin/Statistics/production-statistics.jsx";
 import ManageSupplier from "./components/Admin/ManageSupplier/manage-supplier.jsx";
-import Payment from "./components/Payment/payment.jsx";
+import Checkout from "./components/Checkout/checkout.jsx";
 import ShipOrder from "./components/Shipping/ship-order.jsx";
 import ShipHistory from "./components/Shipping/ship-history.jsx";
 import OrderDetails from "./components/OrderDetails/order-details";
 import NotificationsPage from "./components/Notification/notification.jsx";
+import ImportProduct from "./components/Admin/Import/import.jsx";
 import UserProfile from "./components/ProfileUser/profile-user.jsx";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -49,10 +50,7 @@ root.render(
           <Route path="/ship-order" element={<ShipOrder />} />
           <Route path="/ship-history" element={<ShipHistory />} />
           <Route path="/home-page" element={<Home />} />
-          <Route
-            path="/products"
-            element={<ShopGrid />}
-          />
+          <Route path="/products" element={<ShopGrid />} />
           <Route
             path="/product-detail/:productId"
             element={<ProductDetail />}
@@ -63,6 +61,7 @@ root.render(
           <Route path="/order-details" element={<OrderDetails />} />
           <Route path="/manage-category" element={<ManageCategory />} />
           <Route path="/manage-order" element={<ManageOrder />} />
+          <Route path="/import-product" element={<ImportProduct />} />
           <Route
             path="/manage-product/:currentPage/:productsPerPage"
             element={<ManageProduct />}
@@ -71,6 +70,18 @@ root.render(
             path="/manage-user/:currentPage/:usersPerPage"
             element={<ManageUser />}
           />
+          {/* <Route path="/report" element={<Report />} /> */}
+          <Route path="/dashboard" element={<Report />} />
+          <Route path="/checkout" element={<Checkout />} />
+
+          <Route
+            path="/manage-supplier/:page/:limit"
+            element={<ManageSupplier />}
+          />
+
+
+          <Route path="/test-notification" element={<NotificationsPage />} />
+
           <Route path="/report" element={<Report />} />
           <Route
             path="/production-statistics"
