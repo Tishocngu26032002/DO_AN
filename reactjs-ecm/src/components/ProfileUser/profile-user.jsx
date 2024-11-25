@@ -16,7 +16,7 @@ const UserProfile = () => {
     default_location: true,
     user_id: userId,
   });
-  const [isEditing, setIsEditing] = useState(false); // Để mở modal chỉnh sửa
+  const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     firstName: '',
     lastName: '',

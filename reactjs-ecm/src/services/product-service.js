@@ -41,21 +41,56 @@ export const fetchProductDetail = async (productId) => {
 };
 
 // Hàm lấy danh sách sản phẩm
-export const fetchProducts = async (currentPage, productsPerPage, categoryId = null) => {
+export const fetchProducts = async (currentPage, productsPerPage) => {
   try {
     const token = getToken(); 
     console.log(token);
-    let url = `${BASE_URL}/product/${currentPage}/${productsPerPage}`;
-    if (categoryId) {
-      url += `?category=${categoryId}`;
+    const response = await axios.get(`${BASE_URL}/product/${currentPage}/${productsPerPage}`);
+    console.log(response.data);
+    if (response.status === 200 && response.data.success && Array.isArray(response.data.data.products)) {
+      const totalProducts = response.data.data.total;
+      console.log("Total Products:", totalProducts);
+      return {
+        products: response.data.data.products.map((product) => ({
+          id: product.id,
+          name: product.name,
+          priceout: product.priceout,
+          category_id: product.category_id,
+          supplier_id: product.supplier_id,
+          url_images: product.url_images,
+          description: product.description,
+          stockQuantity: product.stockQuantity,
+          weight: product.weight,
+          expire_date: format(new Date(product.expire_date), 'yyyy-MM-dd'),
+        })),
+        totalProducts,
+      };
+    } else {
+      console.error("No products data received from server.");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    throw error;
+  }
+};
+
+// Hàm tìm kiểm sản phẩm
+export const searchProducts = async (page, limit, filters = {}) => {
+  try {
+    const params = new URLSearchParams();
+    
+    if (filters.name) {
+      params.append('name', filters.name.trim());
+    }
+    if (filters.category_id) {
+      params.append('category', filters.category_id.trim());
     }
 
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${token}`, // Nếu cần token trong header
-      },
+    const response = await axios.get(`${BASE_URL}/product/search/${page}/${limit}`, {
+      params,
     });
-    console.log(response.data);
+
     if (response.status === 200 && response.data.success && Array.isArray(response.data.data.products)) {
       return {
         products: response.data.data.products.map((product) => ({
@@ -70,17 +105,14 @@ export const fetchProducts = async (currentPage, productsPerPage, categoryId = n
           weight: product.weight,
           expire_date: format(new Date(product.expire_date), 'yyyy-MM-dd'),
         })),
-        totalProducts: response.data.data.totalProducts || 0, // Tổng số sản phẩm từ API
+        totalProducts: response.data.data.totalProducts || 0,
       };
     } else {
-      console.error("No products data received from server.");
-      return {
-        products: [],
-        totalProducts: 0,
-      };
+      console.error("No products data received from server for search.");
+      return [];
     }
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error("Error searching products:", error);
     throw error;
   }
 };
@@ -137,6 +169,8 @@ export const deleteProduct = async (id) => {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log("Response status:", response.status);
+    console.log("Response data:", response.data);
     if (response.status === 200 && response.data) {
       return response.data;
     } else {

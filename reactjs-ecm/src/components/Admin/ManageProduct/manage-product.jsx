@@ -2,8 +2,9 @@ import AdminHeader from "../AdminHeader/admin-header.jsx";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
-import { fetchProducts, addProduct, editProduct, deleteProduct } from '../../../services/product-service.js';
-import { uploadImage } from '../../../services/image-service.js'
+import { uploadImage } from '../../../services/image-service.js';
+import { fetchProducts, searchProducts, addProduct, editProduct, deleteProduct } from '../../../services/product-service.js';
+import { getCategory } from "../../../services/category-service.js";
 
 const ManageProduct = () => {
   const { currentPage: pageParam, productsPerPage: perPageParam } = useParams();
@@ -11,6 +12,7 @@ const ManageProduct = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [form, setForm] = useState({
+    id: "",
     name: "",
     priceout: "",
     category_id: "",
@@ -22,103 +24,148 @@ const ManageProduct = () => {
     expire_date: ""
   });
   const [filterCategory, setFilterCategory] = useState("");
+  const [category, setCategory] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [categories, setCategories] = useState([]);
+  const [searchQuery, setSearchQuery] = useState({
+    name: "",
+    category: "",
+  });
+  const [searchMode, setSearchMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [totalProducts, setTotalProducts] = useState(0);
-  const currentPage = parseInt(pageParam, 10) || 1;
-  const productsPerPage = parseInt(perPageParam, 10) || 8;
+  const [totalProducts, setTotalProducts] = useState();
+  const currentPage = parseInt(pageParam) || 1;
+  const productsPerPage = parseInt(perPageParam) || 8;
 
   useEffect(() => {
-    // Load danh mục
     const loadCategories = async () => {
       try {
-        const { items: categoriesData } = await getCategory(1, 50);
-        setCategories(categoriesData || []);
+        const response = await getCategory(1, 20);
+  
+        setCategory(response.data.data);
       } catch (error) {
-        console.error("Error loading categories:", error);
+        console.log(error);
       }
     };
     loadCategories();
-  }, []);
+  });
 
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const { products: productsData, totalProducts } = await fetchProducts(
-          currentPage,
-          productsPerPage
-        );
-        console.log("API Response:", productsData, "Total Products:", totalProducts);
-        setProducts(productsData || []);
-        setFilteredProducts(productsData || []);
-        setTotalProducts(totalProducts); // Cập nhật tổng số sản phẩm
+        if (!searchMode) {
+          const { products: productsData, totalProducts } = await fetchProducts(
+            currentPage,
+            productsPerPage
+          );
+          setProducts(productsData || []);
+          setFilteredProducts(productsData || []);
+          setTotalProducts(totalProducts);
+        }
       } catch (error) {
         console.error("Error loading products:", error);
       }
     };
     loadProducts();
-  }, [currentPage, productsPerPage]);
+  }, [currentPage, productsPerPage, searchMode]);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const formattedForm = {
-      ...form,
-      expire_date: form.expire_date
-        ? new Date(form.expire_date).toISOString().split("T")[0]
-        : ""
-    };
+    e.preventDefault();
+    try {
+      const formattedForm = {
+        ...form,
+        expire_date: form.expire_date
+          ? new Date(form.expire_date).toISOString().split("T")[0]
+          : ""
+      };
 
-    // Upload hình ảnh nếu có
-    if (form.url_images) {
-      const uploadResult = await uploadImage(form.url_images); // Gọi service upload
-      formattedForm.url_images = uploadResult.imageUrl; // Gán URL từ API trả về
+      // Upload hình ảnh nếu có
+      if (form.url_images) {
+        const uploadResult = await uploadImage(form.url_images); // Gọi service upload
+        formattedForm.url_images = uploadResult.imageUrl; // Gán URL từ API trả về
+      }
+
+      if (editMode) {
+        // Chế độ chỉnh sửa
+        await editProduct(editId, formattedForm);
+        window.location.reload();
+        setProducts(
+          products.map((product) =>
+            product.id === editId ? { ...formattedForm, id: editId } : product
+          )
+        );
+        setEditMode(false);
+        setEditId(null);
+      } else {
+        // Chế độ thêm sản phẩm mới
+        const newProduct = await addProduct(formattedForm);
+        setProducts([...products, newProduct]);
+      }
+
+      // Reset form và đóng modal
+      setForm({
+        id: "",
+        name: "",
+        priceout: "",
+        category_id: "",
+        supplier_id: "",
+        url_images: "",
+        description: "",
+        stockQuantity: "",
+        weight: "",
+        expire_date: ""
+      });
+      setIsModalOpen(false);
+      handleFilter(filterCategory);
+    } catch (error) {
+      console.error("Error saving product:", error);
     }
+  };
 
-    if (editMode) {
-      // Chế độ chỉnh sửa
-      await editProduct(editId, formattedForm);
-      setProducts(
-        products.map((product) =>
-          product.id === editId ? { ...formattedForm, id: editId } : product
-        )
-      );
-      setEditMode(false);
-      setEditId(null);
+  const handleFilter = (categoryId) => {
+    setFilterCategory(categoryId);
+    if (categoryId) {
+      setFilteredProducts(products.filter((product) => product.category_id === categoryId));
     } else {
-      // Chế độ thêm sản phẩm mới
-      const newProduct = await addProduct(formattedForm);
-      setProducts([...products, newProduct]);
+      setFilteredProducts(products);
     }
-
-    // Reset form và đóng modal
-    setForm({
-      name: "",
-      priceout: "",
-      category_id: "",
-      supplier_id: "",
-      url_images: "",
-      description: "",
-      stockQuantity: "",
-      weight: "",
-      expire_date: ""
-    });
-    setIsModalOpen(false);
-    handleFilter(filterCategory);
-  } catch (error) {
-    console.error("Error saving product:", error);
-  }
-};
-
+  };
   const handleImageChange = (e) => {
     setForm({ ...form, url_images: e.target.files[0] });
+  };
+
+  const handleSearch = async () => {
+    try {
+      const filters = {
+        ...(searchQuery.name && { name: searchQuery.name }),
+        ...(searchQuery.category && { category: searchQuery.category }),
+      };
+  
+      const { products: searchedProducts, totalProducts } = await searchProducts(
+        currentPage,
+        productsPerPage,
+        filters
+      );
+  
+      setProducts(searchedProducts || []);
+      setFilteredProducts(searchedProducts || []);
+      setTotalProducts(totalProducts);
+      setSearchMode(true);
+    } catch (error) {
+      console.error("Error searching products:", error);
+    }
+  };
+  
+  const handleResetSearch = () => {
+    setSearchQuery({ name: "", category: "" });
+    setSearchMode(false);
+    fetchProducts(); // Gọi lại API để hiển thị tất cả sản phẩm
   };
 
   const handleDelete = async (id) => {
     try {
       await deleteProduct(id);
+      window.location.reload();
       setProducts(products.filter((product) => product.id !== id));
       handleFilter(filterCategory);
     } catch (error) {
@@ -129,6 +176,7 @@ const ManageProduct = () => {
   const handleEdit = (id) => {
     const product = products.find((product) => product.id === id);
     setForm({
+      id: product.id,
       name: product.name,
       priceout: product.priceout,
       category_id: product.category_id,
@@ -144,25 +192,8 @@ const ManageProduct = () => {
     setIsModalOpen(true);
   };
 
-  const handleFilter = async (categoryId) => {
-    setFilterCategory(categoryId);
-    try {
-      const { products: filteredData } = await fetchProductsByCategory(
-        categoryId,
-        currentPage,
-        productsPerPage
-      );
-      setFilteredProducts(filteredData || []);
-    } catch (error) {
-      console.error("Error filtering products by category:", error);
-    }
-  };
-
   const handlePageChange = (page) => {
     navigate(`/manage-product/${page}/${productsPerPage}`);
-    if (filterCategory) {
-      handleFilter(filterCategory);
-    }
   };
 
   const totalPages = Math.ceil(totalProducts / productsPerPage);
@@ -173,23 +204,50 @@ const ManageProduct = () => {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4 text-[#225a3e]">Quản lý sản phẩm</h1>
 
-        {/* Filter by Category */}
-        <div className="filter-section">
-        <label htmlFor="category-filter">Filter by Category:</label>
-        <select
-          id="category-filter"
-          value={filterCategory}
-          onChange={(e) => handleFilter(e.target.value)}
-        >
-          <option value="">All Categories</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
+        <div className="p-4 bg-white shadow-md rounded-md mb-4">
+          <h2 className="text-xl font-bold mb-4">Tìm kiếm sản phẩm</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block mb-2 font-medium">Tên sản phẩm</label>
+              <input
+                type="text"
+                value={searchQuery.name}
+                onChange={(e) => setSearchQuery({ ...searchQuery, name: e.target.value })}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                placeholder="Nhập tên sản phẩm"
+              />
+            </div>
+            <div>
+              <label className="block mb-2 font-medium">Danh mục</label>
+              <select
+                value={filterCategory}
+                onChange={(e) => handleFilter(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md"
+              >
+                <option value="">Tất cả danh mục</option>
+              {category.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+              </select>
+            </div>
+          </div>
+          <div className="mt-4 flex gap-4">
+            <button
+              onClick={handleSearch}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            >
+              Tìm kiếm
+            </button>
+            <button
+              onClick={handleResetSearch}
+              className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+            >
+              Đặt lại
+            </button>
+          </div>
+        </div>
         {/* Product List */}
         <div>
           <h2 className="text-xl font-bold mb-4 text-[#225a3e]">Danh sách sản phẩm</h2>
@@ -199,39 +257,69 @@ const ManageProduct = () => {
                 <th className="border px-4 py-2">STT</th>
                 <th className="border px-4 py-2">Tên sản phẩm</th>
                 <th className="border px-4 py-2">Giá</th>
+                <th className="border px-4 py-2">Danh mục</th>
                 <th className="border px-4 py-2">Mô tả</th>
                 <th className="border px-4 py-2">Số lượng trong kho</th>
                 <th className="border px-4 py-2">Khối lượng</th>
                 <th className="border px-4 py-2">Hình ảnh</th>
                 <th className="border px-4 py-2">Ngày hết hạn</th>
+                <th className="border px-4 py-2">Hành động</th>
               </tr>
             </thead>
             <tbody>
-              {(Array.isArray(filteredProducts) ? filteredProducts : []).map((product) => (
-                <tr key={product.id} className="border-t">
-                  <td className="border px-4 py-2">{product.id}</td>
-                  <td className="border px-4 py-2">{product.name}</td>
-                  <td className="border px-4 py-2">{product.priceout}</td>
-                  <td className="border px-4 py-2">{product.description}</td>
-                  <td className="border px-4 py-2">{product.stockQuantity}</td>
-                  <td className="border px-4 py-2">{product.weight}</td>
-                  <td className="border px-4 py-2">
-                    <img src={product.url_images} alt={product.name} style={{ width: '50px' }} />
-                  </td>
-                  <td className="border px-4 py-2">{product.expire_date}</td>
-                  <td className="px-4 py-2 flex space-x-2">
-                    <button onClick={() => handleEdit(product.id)} className="text-[#225a3e]">
-                      <FaEdit />
-                    </button>
-                    <button onClick={() => handleDelete(product.id)} className="text-red-500">
-                      <FaTrash />
-                    </button>
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((product, index) => (
+                  <tr key={product.id} className="border-t">
+                    <td className="border px-4 py-2">{index + 1}</td>
+                    <td className="border px-4 py-2">{product.name}</td>
+                    <td className="border px-4 py-2">{product.priceout}</td>
+                    <td className="border px-4 py-2">
+                      {category.find((cat) => cat.id === product.category_id)?.name || "Không rõ"}
+                    </td>
+                    <td className="border px-4 py-2">{product.description}</td>
+                    <td className="border px-4 py-2">{product.stockQuantity}</td>
+                    <td className="border px-4 py-2">{product.weight}</td>
+                    <td className="border px-4 py-2 text-center">
+                      <img
+                        src={product.url_images}
+                        alt={product.name}
+                        className="h-12 mx-auto"
+                      />
+                    </td>
+                    <td className="border px-4 py-2">
+                      {new Date(product.expire_date).toLocaleDateString("vi-VN", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </td>
+                    <td className="px-4 py-2 flex justify-center space-x-2">
+                      <button
+                        onClick={() => handleEdit(product.id)}
+                        className="text-[#225a3e] hover:text-green-700"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="10" className="text-center py-4">
+                    Không có sản phẩm nào.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
+
 
         {/* Floating Add Button */}
         <button
@@ -299,7 +387,7 @@ const ManageProduct = () => {
             </div>
           </div>
         )}
-        <div className="flex justify-center items-center mt-4">
+        {/* <div className="flex justify-center items-center mt-4">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
@@ -325,6 +413,22 @@ const ManageProduct = () => {
           >
             Tiếp
           </button>
+        </div> */}
+        <div className="mt-4 flex justify-center">
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => handlePageChange(index + 1)}
+              className={`mx-1 rounded px-3 py-1 ${
+                index + 1 === currentPage
+                  ? "bg-[#006532] text-white"
+                  : "bg-gray-200 text-gray-800 hover:bg-blue-200"
+              }`}
+              disabled={index + 1 === currentPage}
+            >
+              {index + 1}
+            </button>
+          ))}
         </div>
       </div>
     </>
