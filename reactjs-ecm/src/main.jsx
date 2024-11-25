@@ -27,6 +27,8 @@ import ShipHistory from "./components/Shipping/ship-history.jsx";
 import OrderDetails from "./components/OrderDetails/order-details";
 import NotificationsPage from "./components/Notification/notification.jsx";
 import ImportProduct from "./components/Admin/Import/import.jsx";
+import UserProfile from "./components/ProfileUser/profile-user.jsx";
+
 import "react-toastify/dist/ReactToastify.css";
 
 const queryClient = new QueryClient();
@@ -80,6 +82,16 @@ root.render(
 
           <Route path="/test-notification" element={<NotificationsPage />} />
 
+          <Route path="/report" element={<Report />} />
+          <Route
+            path="/production-statistics"
+            element={<ProductionStatistics />}
+          />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/user/:userId" element={<UserProfile />} />
+          <Route path="/manage-supplier/:page/:limit" element={<ManageSupplier />} />
+          <Route path="/test-notification" element={< NotificationsPage />} />
+        
         </Routes>
       </QueryClientProvider>
     </BrowserRouter>
