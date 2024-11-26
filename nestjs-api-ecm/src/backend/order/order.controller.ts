@@ -1,5 +1,14 @@
-import {Body, Controller, Get, Param, Patch, Post, Query, UseGuards} from '@nestjs/common';
-import {ApiBearerAuth, ApiQuery, ApiTags} from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/guards/JwtAuth.guard';
 import { RolesGuard } from 'src/guards/Roles.guard';
 import { OrderService } from 'src/backend/order/order.service';
@@ -8,7 +17,11 @@ import { responseHandler } from 'src/Until/responseUtil';
 import { Roles } from 'src/decorator/Role.decorator';
 import { OrderAllOrderDto } from 'src/dto/orderDTO/order.allOrder.dto';
 import { UpdateOrderDTO } from 'src/dto/orderDTO/order.update.dto';
-import {ExpirationStatus, OrderStatus, PaymentStatus} from "src/share/Enum/Enum";
+import {
+  ExpirationStatus,
+  OrderStatus,
+  PaymentStatus,
+} from 'src/share/Enum/Enum';
 
 @Controller('order')
 @ApiTags('Order')
@@ -17,11 +30,17 @@ import {ExpirationStatus, OrderStatus, PaymentStatus} from "src/share/Enum/Enum"
 export class OrderController {
   constructor(private readonly order_Service: OrderService) {}
 
-  @Post('all-user-order')
+  @Post('all-user-order/:user_id')
   @Roles('user')
-  async getAllOrder(@Body() allOderDTO: OrderAllOrderDto) {
+  async getAllOrder(
+    @Param('user_id') user_id: string,
+    @Body() allOderDTO: OrderAllOrderDto,
+  ) {
     try {
-      const allOrder = await this.order_Service.getAllOrder(allOderDTO);
+      const allOrder = await this.order_Service.getAllOrder(
+        user_id,
+        allOderDTO,
+      );
       return responseHandler.ok(allOrder);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
@@ -33,7 +52,8 @@ export class OrderController {
     name: 'orderStatus',
     enum: OrderStatus,
     required: false,
-    description: 'Trạng thái đơn hàng (All, Checking, InTransit, Delivered, Canceled)',
+    description:
+      'Trạng thái đơn hàng (All, Checking, InTransit, Delivered, Canceled)',
   })
   @ApiQuery({
     name: 'paymentStatus',
@@ -44,17 +64,21 @@ export class OrderController {
   @Get('manage-order/:page/:limit')
   @Roles('admin')
   async getOrderManagement(
-      @Param('page') page: number,
-      @Param('limit') limit: number,
-      @Query('orderStatus') orderStatus?: OrderStatus,
-      @Query('paymentStatus') paymentStatus?: PaymentStatus,
+    @Param('page') page: number,
+    @Param('limit') limit: number,
+    @Query('orderStatus') orderStatus?: OrderStatus,
+    @Query('paymentStatus') paymentStatus?: PaymentStatus,
   ) {
     try {
       const filters = {
         orderStatus: orderStatus !== undefined ? orderStatus : '',
         paymentStatus: paymentStatus !== undefined ? paymentStatus : '',
       };
-      const allOrder = await this.order_Service.getOrderManagement(page, limit, filters);
+      const allOrder = await this.order_Service.getOrderManagement(
+        page,
+        limit,
+        filters,
+      );
       return responseHandler.ok(allOrder);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
@@ -62,9 +86,12 @@ export class OrderController {
     }
   }
 
-  @Post()
-  @Roles('user', 'admin')
-  async createOrder(@Body() oderDTO: CreateOrderDto) {
+  @Post(':user_id')
+  @Roles('user')
+  async createOrder(
+    @Param('user_id') user_id: string,
+    @Body() oderDTO: CreateOrderDto,
+  ) {
     try {
       const order = await this.order_Service.createOrder(oderDTO);
       return responseHandler.ok(order);
@@ -74,7 +101,7 @@ export class OrderController {
     }
   }
 
-  @Get('detail/:id')
+  @Get('detail/:user_id/:id')
   @Roles('user', 'admin')
   async getDetailOrder(@Param('id') id: string) {
     try {
@@ -86,7 +113,7 @@ export class OrderController {
     }
   }
 
-  @Patch()
+  @Patch(':user_id')
   @Roles('user', 'admin', 'employee')
   async updateOrder(@Body() updateOrderDTO: UpdateOrderDTO) {
     try {

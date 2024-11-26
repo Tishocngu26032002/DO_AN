@@ -47,6 +47,17 @@ export class AuthGuard implements CanActivate {
       const user = await this.userService.findOne(payload.id);
 
       if (user.isActive === false) return false;
+
+      if (user.role != 'admin') {
+        // Lấy user_id từ params
+        const paramUserId = request.params.user_id;
+        if (paramUserId && paramUserId !== payload.id) {
+          return responseHandler.error(
+            'GUARD.USER ID IN PARAM DOES NOT MATCH WITH TOKEN!',
+          );
+        }
+      }
+
       request.user = user;
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);

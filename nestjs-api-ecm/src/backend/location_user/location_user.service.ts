@@ -1,14 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateLocationUserDto } from '../../dto/locationUserDTO/create-location_user.dto';
-import { UpdateLocationUserDto } from '../../dto/locationUserDTO/update-location_user.dto';
 import { BaseService } from 'src/base/baseService/base.service';
-import { CategoryEntity } from 'src/entities/category_entity/category.entity';
 import { Location_userEntity } from 'src/entities/user_entity/location_user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { LocationUserRepository } from 'src/repository/LocationUserRepository';
-import { CategoryCreateDTO } from 'src/dto/categoryDTO/category.create.dto';
-import { ApplyStatus } from 'src/share/Enum/Enum';
+import { UpdateLocationUserDto } from 'src/dto/locationUserDTO/update-location_user.dto';
 
 @Injectable()
 export class LocationUserService extends BaseService<Location_userEntity> {
@@ -34,6 +29,7 @@ export class LocationUserService extends BaseService<Location_userEntity> {
     };
   }
 
+  // @ts-ignore
   async createLocation(createLocationUserDto: CreateLocationUserDto) {
     if (createLocationUserDto.default_location) {
       await this.updateDefaultMethod(createLocationUserDto);

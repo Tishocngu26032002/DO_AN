@@ -1,15 +1,12 @@
 import {
-  IsString,
   IsArray,
-  IsNotEmpty,
   IsInt,
+  IsNotEmpty,
+  IsString,
   ValidateNested,
-  IsPhoneNumber,
-  IsEnum,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { ApplyStatus, OrderStatus, PaymentMethod } from 'src/share/Enum/Enum';
+import { Type } from 'class-transformer';
 
 class ProductDto {
   @IsString()
@@ -25,47 +22,19 @@ class ProductDto {
   @IsInt()
   @IsNotEmpty()
   @ApiProperty()
-  priceout: number;
+  pricein: number;
 }
 
-export class UpdateOrderDTO {
-  @IsString()
-  @ApiProperty()
-  @IsNotEmpty()
-  order_id: string;
-
+export class CreateImportDto {
   @IsInt()
   @IsNotEmpty()
   @ApiProperty()
-  totalPrice: number;
-
-  @IsEnum(PaymentMethod)
-  @IsNotEmpty()
-  @ApiProperty({ enum: PaymentMethod })
-  paymentMethod: PaymentMethod;
-
-  @IsInt()
-  @IsNotEmpty()
-  @ApiProperty({ enum: OrderStatus })
-  orderStatus: OrderStatus;
+  totalAmount: number;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
   user_id: string;
-
-  @IsString()
-  @ApiProperty()
-  employee_id: string;
-
-  @IsString()
-  @ApiProperty()
-  location_id: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty()
-  paymentStatus: string;
 
   @IsArray()
   @ValidateNested({ each: true }) // Áp dụng xác thực cho từng phần tử trong mảng
