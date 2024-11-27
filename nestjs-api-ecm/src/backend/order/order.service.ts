@@ -96,11 +96,11 @@ export class OrderService extends BaseService<OrderEntity>{
     if (emailList.length > 0) {
       const emailEntities: Email_entity[] = emailList.map((adminEmail) => {
         const email = new Email_entity();
-        email.emailSend = AccountNotify.USER;     // Email gửi
-        email.emailReceive = adminEmail;         // Email nhận
-        email.header = 'Thông báo từ hệ thống';  // Tiêu đề email
-        email.content = message;                 // Nội dung dạng text
-        email.htmlContent = `<p>${message}</p>`; // Nội dung HTML
+        email.emailSend = AccountNotify.USER;      // Email gửi
+        email.emailReceive = adminEmail;           // Email nhận
+        email.header = NotificationType.NewOrder;  // Tiêu đề email
+        email.content = message;                   // Nội dung dạng text
+        email.htmlContent = `<p>${message}</p>`;   // Nội dung HTML
         return email;
       });
 

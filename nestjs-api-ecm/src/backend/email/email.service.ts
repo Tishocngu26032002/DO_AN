@@ -29,7 +29,7 @@ export class EmailService {
         try {
             for (const email of emailEntities) {
                 await this.transporter.sendMail({
-                    from: '"Hệ thống thông báo" <vuong2k2002@gmail.com>', // Tên người gửi
+                    from: '"Admin" <vuong2k2002@gmail.com>',             // Tên người gửi
                     to: email.emailReceive,                              // Email người nhận
                     subject: email.header,                               // Tiêu đề email
                     text: email.content,                                 // Nội dung dạng text
