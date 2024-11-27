@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { PiShoppingCartBold } from "react-icons/pi";
 import { FaRegUser } from "react-icons/fa";
-import { IoMenu, IoClose } from "react-icons/io5";
+import {IoMenu, IoClose } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
 import img from "../../../public/images/Crops organic farm.png"
 import { getUser } from "../../services/user-service";
@@ -32,13 +32,13 @@ function Header() {
 
   return (
     <div className="sticky top-0 z-50 flex flex-col items-end bg-white px-12 py-3 shadow-lg shadow-custom-dark">
-      <a href="/home-page" className=" -mt-1 absolute left-10 xl:ml-36">
-        <img
-          src={img}
-          className="rounded-[0_30px_30px_30px] hover:rounded-[30px_30px_0_30px] shadow-custom-dark transition-all duration-500 ease-in-out p-1 w-24 h-[100px] md:w-[100px] md:h-[105px] bg-white fadeInUp md:border-0 border-2 border-[#006633]"
-          alt="Logo"
-        />
-      </a>
+        <a href="/home-page" className=" -mt-1 absolute left-10 xl:ml-36">
+          <img
+              src={img}
+              className="rounded-[0_30px_30px_30px] hover:rounded-[30px_30px_0_30px] shadow-custom-dark transition-all duration-500 ease-in-out p-1 w-24 h-[100px] md:w-[100px] md:h-[105px] bg-white fadeInUp md:border-0 border-2 border-[#006633]"
+              alt="Logo"
+          />
+        </a>
 
       <div className="flex items-center pt-3 pb-3 xl:mr-28">
         <ul id="navbar" className={`hidden items-center md:flex ${isMenuOpen ? "block" : "hidden"} md:block`}>

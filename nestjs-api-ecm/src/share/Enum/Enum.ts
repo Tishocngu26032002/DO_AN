@@ -43,8 +43,13 @@ export enum TimeFilter {
 }
 
 export enum NotificationType {
-    NewOrder = "Bạn có đơn hàng mới",
-    Delivered = "Bạn có đơn hàng được giao hàng thành công",
-    Cancel = "Bạn có đơn hàng bị hủy",
+    NewOrder = "Đơn hàng mới",
+    Delivered = "Đơn hàng được giao hàng thành công",
+    Cancel = "Đơn hàng bị hủy",
+}
+
+export enum NotificationStatus {
+    Success = "Success",
+    Warning = "Warning",
 }
 

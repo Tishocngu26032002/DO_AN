@@ -17,6 +17,6 @@ import {WebsocketGateway} from "src/share/WebsocketGateway";
   controllers: [OrderController],
   providers: [OrderService, NotificationService,
     UserRepository, NotificationRepository, EmailService,
-    WebsocketGateway],
+    WebsocketGateway, NotificationService],
 })
 export class OrderModule {}

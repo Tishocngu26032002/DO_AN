@@ -5,15 +5,25 @@ import {BaseService} from "src/base/baseService/base.service";
 import {OrderEntity} from "src/entities/order_entity/oder.entity";
 import {InjectRepository} from "@nestjs/typeorm";
 import {CreateNotificationDto} from "src/dto/notificationDTO/create-notification.dto";
-import {NotificationType} from "src/share/Enum/Enum";
-
+import {NotificationStatus, NotificationType} from "src/share/Enum/Enum";
+import * as admin from 'firebase-admin';
 
 @Injectable()
 export class NotificationService{
+    private db;
     constructor(
         @InjectRepository(Notification)
         private readonly notiRepo: NotificationRepository
-    ) {}
+    ) {
+        if (!admin.apps.length) {
+            const serviceAccount = require("D:\\Code\\Do_an\\nestjs-api-ecm\\src\\config\\serviceAccountKey.json");
+
+            admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount),
+                databaseURL: "https://shoppe-cam-default-rtdb.firebaseio.com"
+            });
+        }
+    }
 
     // Tạo thông báo mới
     async createNotification(orderId: string, message: string, admins: any[], notificationType: NotificationType) {
@@ -29,15 +39,18 @@ export class NotificationService{
         await this.notiRepo.save(notifications);
     }
 
-    // Lấy các thông báo chưa đọc
-    async getUnreadNotifications(adminId: string) {
-    }
 
-    // Đánh dấu thông báo là đã đọc
-    async markManyAsRead(notificationIds: string[]) {
-        // Iterate over the notification IDs and mark each as read
-        for (const notificationId of notificationIds) {
-            await this.notiRepo.update(notificationId, { isRead: true });
-        }
+    async sendNotification(order: OrderEntity, message: string, status: NotificationStatus.Success, notificationType: NotificationType): Promise<void> {
+        const db = admin.database();
+        const notificationsRef = db.ref('notificationAdmins');
+        const newNotification = {
+            order_id: order.id,
+            isRead: false,
+            message,
+            createdAt: order.createdAt.toISOString(),
+            status: status,
+            notificationType: notificationType
+        };
+        await notificationsRef.push(newNotification);
     }
 }

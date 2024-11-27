@@ -6,7 +6,7 @@ import {Order_productEntity} from 'src/entities/order_entity/order_product.entit
 import {CreateOrderDto} from 'src/dto/orderDTO/order.create.dto';
 import {OrderAllOrderDto} from 'src/dto/orderDTO/order.allOrder.dto';
 import {UpdateOrderDTO} from 'src/dto/orderDTO/order.update.dto';
-import {NotificationType, OrderStatus, PaymentStatus} from "src/share/Enum/Enum";
+import {NotificationStatus, NotificationType, OrderStatus, PaymentStatus} from "src/share/Enum/Enum";
 import {OrderRepository} from "src/repository/OrderRepository";
 import {BaseService} from "src/base/baseService/base.service";
 import {NotificationService} from "src/backend/notification/notification.service";
@@ -29,7 +29,7 @@ export class OrderService extends BaseService<OrderEntity>{
     private readonly dataSource: DataSource,
     private readonly notiService: NotificationService,
     private readonly emailService: EmailService,
-    private readonly websocketGateway: WebsocketGateway
+    private readonly notificationService: NotificationService,
   ) {
     super(orderRepo);
   }
@@ -81,26 +81,20 @@ export class OrderService extends BaseService<OrderEntity>{
     }
   }
 
-  async createNotificationOrderSuccess(order: OrderEntity){
+  async createNotificationOrderSuccess(order: OrderEntity) {
     const user = await this.userRepo.findOneBy({id: order.user_id});
     const message = `Bạn có đơn hàng mới từ khách hàng ${user.firstName + " " + user.lastName}`;
 
-    // Lấy danh sách admin từ cơ sở dữ liệu
     const admins = await this.userRepo.find({
-      where: { role: 'admin', isActive: true }
+      where: {role: 'admin', isActive: true}
     });
     const emailList = admins.map(admin => admin?.email);
     await this.notiService.createNotification(order.id, message, admins, NotificationType.NewOrder);
 
-    const adminOnlines = this.websocketGateway.adminOnlines(emailList); // Lấy danh sách admin online
-    const offlineAdmins = emailList.filter((email) => !adminOnlines.includes(email)); // Lấy danh sách admin offline
+    await this.notificationService.sendNotification(order, message, NotificationStatus.Success, NotificationType.NewOrder);
 
-    if (adminOnlines.length > 0) {
-      this.websocketGateway.notifyAdmin(adminOnlines, message); // Gửi WebSocket nếu online
-    }
-
-    if (offlineAdmins.length > 0) {
-      const emailEntities: Email_entity[] = offlineAdmins.map((adminEmail) => {
+    if (emailList.length > 0) {
+      const emailEntities: Email_entity[] = emailList.map((adminEmail) => {
         const email = new Email_entity();
         email.emailSend = AccountNotify.USER;     // Email gửi
         email.emailReceive = adminEmail;         // Email nhận
