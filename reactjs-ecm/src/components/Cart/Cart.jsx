@@ -3,15 +3,26 @@ import Header from "../Header/header.jsx";
 import Footer from "../Footer/footer.jsx";
 import { PiShoppingCart } from "react-icons/pi";
 import { PiMinusBold, PiPlusBold } from "react-icons/pi";
-import { authLocal, userIdLocal } from "../../util/auth-local.js";
+import { getUserId } from "../../util/auth-local.js";
 import {
   deleteCart,
   getCarts,
   updateCart,
 } from "../../services/cart-service.js";
+import { useNavigate } from "react-router-dom";
+import {
+  NotificationList,
+  notificationTypes,
+  showNotification,
+} from "../Notification/NotificationService.jsx";
+
 const Cart = () => {
   const [carts, setCarts] = useState([]);
   const [totalCost, setTotalCost] = useState(0);
+  const [selectedCarts, setSelectedCarts] = useState([]);
+  const navigate = useNavigate();
+
+  const [notifications, setNotifications] = useState([]);
 
   const handleIncrease = (cartId, currentQuantity) => {
     const newQuantity = currentQuantity + 1;
@@ -26,13 +37,15 @@ const Cart = () => {
   const handleQuantityChange = async (cartId, newQuantity) => {
     const cartIndex = carts.findIndex((cart) => cart.id === cartId);
 
-    let token = authLocal.getToken();
-    token = token.replace(/^"|"$/g, "");
-
     if (cartIndex !== -1) {
       try {
-        await updateCart({ ...carts[cartIndex], quantity: newQuantity }, token);
+        await updateCart({ ...carts[cartIndex], quantity: newQuantity });
         fetchCarts();
+        showNotification(
+          "Giỏ hàng của bạn đã được cập nhật!",
+          notificationTypes.INFO,
+          setNotifications,
+        );
       } catch (error) {
         console.error("Error updating cart quantity:", error);
       }
@@ -53,11 +66,13 @@ const Cart = () => {
 
   const handleDeleteCart = async (cartId) => {
     try {
-      let token = authLocal.getToken();
-      token = token.replace(/^"|"$/g, "");
-
-      await deleteCart(cartId, token);
+      await deleteCart(cartId);
       fetchCarts();
+      showNotification(
+        "Sản phẩm đã được xóa khỏi giỏ hàng!",
+        notificationTypes.WARNING,
+        setNotifications,
+      );
     } catch (error) {
       console.log(error);
     }
@@ -69,14 +84,10 @@ const Cart = () => {
 
   const fetchCarts = async () => {
     try {
-      let token = authLocal.getToken();
-      token = token.replace(/^"|"$/g, "");
-
-      let userId = userIdLocal.getUserId();
-      userId = userId.replace(/^"|"$/g, "");
+      let userId = getUserId();
 
       if (userId) {
-        const cartsData = await getCarts(userId, token);
+        const cartsData = await getCarts();
         setCarts(cartsData.data.data.cart);
         calculateTotalCost(cartsData.data.data.cart);
       }
@@ -85,9 +96,20 @@ const Cart = () => {
     }
   };
 
+  const handleNavigate = () => {
+    navigate("/checkout", {
+      state: {
+        carts: carts, // Truyền giỏ hàng
+        totalCost: totalCost, // Truyền tổng tiền
+      },
+    });
+  };
+
   return (
     <div>
       <Header />
+      {/* Hiển thị các thông báo */}
+      <NotificationList notifications={notifications} />
       <section
         id="page-header"
         className="h-52"
@@ -98,7 +120,7 @@ const Cart = () => {
         }}
       >
         <div className="flex h-full w-full flex-col items-center justify-center bg-[rgba(8,28,14,0.79)] text-center">
-          <h2 className="text-2xl font-bold text-white">YOUR CART</h2>
+          <h2 className="text-2xl font-bold text-white">GIỎ HÀNG CỦA BẠN</h2>
           <p className="text-white"></p>
           <a href="#" className="to-top">
             <i className="fas fa-chevron-up"></i>
@@ -201,15 +223,17 @@ const Cart = () => {
             </tbody>
           </table>
         </div>
-        {console.log("length", carts.length)}
+
         <div className="mt-4 flex justify-end">
-          <a href="/payment">
-            <button className="w-[320px] rounded border-2 border-[#006532] bg-[#006532] px-4 py-2 text-white hover:bg-[#80c9a4] hover:text-[#006532]">
-              Checkout
-            </button>
-          </a>
+          <button
+            onClick={handleNavigate}
+            className="w-[320px] rounded border-2 border-[#006532] bg-[#006532] px-4 py-2 text-white hover:bg-[#80c9a4] hover:text-[#006532]"
+          >
+            Thanh toán
+          </button>
         </div>
       </div>
+
       <section
         id="product1"
         className="mt-10 bg-[#f9f9f9] py-10 pt-10 text-center"

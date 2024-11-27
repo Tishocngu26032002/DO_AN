@@ -35,7 +35,7 @@ export class ProductCreateDTO {
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  url_images: string;
+  url_image: string;
 
   @ApiProperty()
   @IsNotEmpty()

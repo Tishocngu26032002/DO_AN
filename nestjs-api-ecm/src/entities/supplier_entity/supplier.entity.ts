@@ -10,7 +10,7 @@ export class SupplierEntity {
   name: string;
 
   @Column({ type: 'text' })
-  image: string;
+  url_image: string;
 
   @Column({ type: 'text' })
   phone: string;

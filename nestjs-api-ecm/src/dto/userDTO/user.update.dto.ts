@@ -6,7 +6,11 @@ export class UpdateUserDto {
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  name: string;
+  firstName: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  @Expose()
+  lastName: string;
   @ApiProperty()
   @IsNotEmpty()
   @IsPhoneNumber('VN')
@@ -26,6 +30,9 @@ export class UpdateUserDto {
   @Expose()
   address: string;
   active: boolean;
+  @ApiProperty()
+  @Expose()
+  url_image: string;
   @Expose()
   role: string;
 }

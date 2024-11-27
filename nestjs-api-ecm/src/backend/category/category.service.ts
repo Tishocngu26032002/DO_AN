@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryEntity } from '../../entities/category_entity/category.entity';
-import {In, Like, Repository} from 'typeorm';
+import { In, Like, Repository } from 'typeorm';
 import { CategoryCreateDTO } from '../../dto/categoryDTO/category.create.dto';
 import { categoryUpdateDTO } from '../../dto/categoryDTO/category.update.dto';
 import { BaseService } from '../../base/baseService/base.service';
-import {ApplyStatus, ExpirationStatus} from "src/share/Enum/Enum";
-import {CategoryRepository} from "src/repository/CategoryRepository";
-import {ProductEntity} from "src/entities/product_entity/product.entity";
+import { ApplyStatus, ExpirationStatus } from 'src/share/Enum/Enum';
+import { CategoryRepository } from 'src/repository/CategoryRepository';
+import { ProductEntity } from 'src/entities/product_entity/product.entity';
 
 @Injectable()
 export class CategoryService extends BaseService<CategoryEntity> {
   constructor(
-      @InjectRepository(CategoryEntity)
-      private readonly categoryRepo: CategoryRepository,
+    @InjectRepository(CategoryEntity)
+    private readonly categoryRepo: CategoryRepository,
   ) {
     super(categoryRepo);
   }
@@ -49,8 +49,8 @@ export class CategoryService extends BaseService<CategoryEntity> {
 
   async create(createCate: CategoryCreateDTO) {
     if (
-        createCate.status !== ApplyStatus.True &&
-        createCate.status !== ApplyStatus.False
+      createCate.status !== ApplyStatus.True &&
+      createCate.status !== ApplyStatus.False
     ) {
       throw new Error('Invalid status value');
     }

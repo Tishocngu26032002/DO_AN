@@ -67,6 +67,13 @@ function HeaderAdmin() {
   return (
     <div className="shadow-lg sticky top-0 z-50 flex bg-[#225a3e] px-12 py-3 shadow-custom-dark">
       {/* Logo */}
+      {/*<a href="/home-page" className="absolute right-[70px] -mt-1">
+        <img
+          src={img}
+          className="fadeInUp h-[85px] w-20 rounded-[0_20px_20px_20px] border-2 border-[#006633] bg-white p-1 shadow-custom-dark transition-all duration-500 ease-in-out hover:rounded-[20px_20px_0_20px] md:h-[95px] md:w-[90px] md:border-0"
+          alt="Logo"
+        />
+      </a>*/}
       <div className="left-10 -mt-5 flex items-center pt-6">
         <button id="bar" className="px-4" onClick={toggleMenu}>
           {isMenuOpen ? (
@@ -195,7 +202,7 @@ function HeaderAdmin() {
                   : "text-[#006532] hover:text-white"
               }
             >
-              Dashboard
+              Thống Kê
             </NavLink>
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
@@ -207,7 +214,7 @@ function HeaderAdmin() {
                   : "text-[#006532] hover:text-white"
               }
             >
-              Manage User
+              Quản lý người dùng
             </NavLink>
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
@@ -219,19 +226,31 @@ function HeaderAdmin() {
                   : "text-[#006532] hover:text-white"
               }
             >
-              Manage Category
+              Quản lý danh mục
             </NavLink>
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
             <NavLink
-              to="/manage-product"
+              to="/manage-product/1/10"
               className={({ isActive }) =>
                 isActive
                   ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
                   : "text-[#006532] hover:text-white"
               }
             >
-              Manage Product
+              Quản lý sản phẩm
+            </NavLink>
+          </li>
+          <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
+            <NavLink
+              to="/import-product"
+              className={({ isActive }) =>
+                isActive
+                  ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
+                  : "text-[#006532] hover:text-white"
+              }
+            >
+              Quản lý đơn nhập hàng
             </NavLink>
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
@@ -243,7 +262,7 @@ function HeaderAdmin() {
                   : "text-[#006532] hover:text-white"
               }
             >
-              Manage Order
+              Quản lý đơn hàng
             </NavLink>
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
@@ -255,7 +274,7 @@ function HeaderAdmin() {
                   : "text-[#006532] hover:text-white"
               }
             >
-              Manage Supplier
+              Quản lý nhà cung cấp
             </NavLink>
           </li>
         </ul>

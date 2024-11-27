@@ -5,6 +5,9 @@ import { FaPlus, FaEdit, FaTrash, FaSearch, FaFilter } from "react-icons/fa";
 import { createSupplier,deleteSuppliers,deleteSupplier, getSupplier,updateSupplier,} from "../../../services/supplier-service.js";
 import { uploadImage } from "../../../services/image-service.js";
 import { ClipLoader } from 'react-spinners';
+import { showNotification, notificationTypes, NotificationList } from '../../Notification/NotificationService.jsx';
+import NotificationHandler from '../../Notification/notification-handle.jsx';
+
 
 const Modal = ({ children, showModal, setShowModal }) =>
   showModal ? (
@@ -23,7 +26,7 @@ const Modal = ({ children, showModal, setShowModal }) =>
 
 const ManageSupplier = () => {
   const { page: paramPage, limit: paramLimit } = useParams(); 
-  const navigate = useNavigate(); // Hook điều hướng
+  const navigate = useNavigate();
   const [suppliers, setSuppliers] = useState([]);
   const [newSupplier, setNewSupplier] = useState({
     name: "",
@@ -40,6 +43,7 @@ const ManageSupplier = () => {
   const [limit, setLimit] = useState(Number(paramLimit) || 4);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
   const fetchSuppliers = async () => {
     const response = await getSupplier(page, limit);
@@ -75,7 +79,10 @@ const ManageSupplier = () => {
   
         const response = await uploadImage(files[0]); 
         if (response && Array.isArray(response) && response.length > 0) {
-          
+          response[0] = JSON.stringify(response[0]);
+          if (response[0].startsWith('"') && response[0].endsWith('"')) {
+            response[0] = response[0].slice(1, -1); // Loại bỏ dấu ngoặc kép
+          }
           setNewSupplier({ ...newSupplier, [name]: response[0] }); 
           console.log("Uploaded image URL:", response[0]); 
         } else {
@@ -103,19 +110,31 @@ const ManageSupplier = () => {
           address: "",
         }); 
       }
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Thêm nhà cung cấp thành công!',
+        type: notificationTypes.SUCCESS
+      }));
+      window.location.reload();
     } catch (error) {
+
       console.error("Failed to add supplier:", error);
-      
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Thêm không thành công. Vui long thử lại',
+        type: notificationTypes.ERROR
+      }));
+      window.location.reload();
     }
   };
   
   const handleAddSupplier = () => {
     if (!newSupplier.image) {
       console.error("Image is required for adding supplier.");
+      showNotification('Chưa có ảnh!', notificationTypes.WARNING, setNotifications);
       return; 
     }
     addSupplier(newSupplier);
   };
+  
 
   const updateOneSupplier = async (supplierData) => {
     const supplierId = supplierData.id; 
@@ -131,9 +150,19 @@ const ManageSupplier = () => {
         );
         setEditingSupplier(null); 
         setShowModal(false); 
+        window.location.reload();
+        sessionStorage.setItem('notification', JSON.stringify({
+          message: 'Cập nhật nhà cung cấp thành công!',
+          type: notificationTypes.SUCCESS
+        }));
       }
     } catch (error) {
       console.error("Failed to update supplier:", error);
+      window.location.reload();
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Cập nhật không thành công. Vui long thử lại',
+        type: notificationTypes.ERROR
+      }));
     }
   };
   
@@ -147,7 +176,6 @@ const ManageSupplier = () => {
       newSupplier.id = editingSupplier.id; 
       console.log(newSupplier);
       updateOneSupplier(newSupplier); 
-  
 
       setNewSupplier({
         name: "",
@@ -156,20 +184,37 @@ const ManageSupplier = () => {
         address: "",
         id: "", 
       });
+      
     }
   };
   
   const deleteOneSupplier = async (id) => {
-    const response = await deleteSupplier(id);
-    if (response.success) {
-      setSuppliers(suppliers.filter((supplier) => supplier.id !== id));
+    try {
+      const response = await deleteSupplier(id);
+      if (response.success) {
+        setSuppliers((prevSuppliers) => prevSuppliers.filter((supplier) => supplier.id !== id));
+        sessionStorage.setItem('notification', JSON.stringify({
+          message: 'Xóa nhà cung cấp thành công!',
+          type: notificationTypes.SUCCESS
+        }));
+      } else {
+        throw new Error('Failed to delete supplier');
+        
+      }
+    } catch (error) {
+      console.error('Failed to delete supplier:', error);
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xóa không thành công. Vui long thử lại',
+        type: notificationTypes.ERROR
+      }));
     }
   };
 
-  const handleDeleteSupplier = (id) => {
-    deleteOneSupplier(id);
+  const handleDeleteSupplier = async (id) => {
+    await deleteOneSupplier(id);
     window.location.reload();
   };
+  
 
   const handleEditSupplier = (supplier) => {
     setEditingSupplier(supplier);
@@ -200,9 +245,17 @@ const ManageSupplier = () => {
         ),
       );
       setSelectedSuppliers([]);
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xóa nhà cung cấp thành công!',
+        type: notificationTypes.SUCCESS
+      }));
       window.location.reload();
     } catch (error) {
       console.error("Error deleting selected suppliers:", error);
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xóa không thành công. Vui long thử lại',
+        type: notificationTypes.ERROR
+      }));
     }
   };
 
@@ -224,6 +277,10 @@ const ManageSupplier = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      <div className="fixed  z-50 space-y-3">
+        <NotificationList notifications={notifications} />
+      </div>
+      <NotificationHandler setNotifications={setNotifications} />
       <AdminHeader />
       <div className="p-4 lg:mx-12">
       <h1 className="mb-8 mt-4 text-center text-4xl font-bold text-[#006532]">

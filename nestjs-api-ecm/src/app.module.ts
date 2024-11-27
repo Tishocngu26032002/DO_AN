@@ -16,7 +16,6 @@ import { OrderEntity } from 'src/entities/order_entity/oder.entity';
 import { Location_userEntity } from 'src/entities/user_entity/location_user.entity';
 import { UserModule } from 'src/backend/user/user.module';
 import { Order_productEntity } from 'src/entities/order_entity/order_product.entity';
-import {Notification} from "src/entities/notification_entity/Notification";
 import { EmailModule } from './backend/email/email.module';
 
 @Module({
@@ -53,7 +52,6 @@ import { EmailModule } from './backend/email/email.module';
           SupplierEntity,
           OrderEntity,
           Location_userEntity,
-          Notification
         ],
         synchronize: true,
         logging: true,
