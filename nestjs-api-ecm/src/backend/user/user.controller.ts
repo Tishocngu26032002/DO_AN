@@ -5,7 +5,7 @@ import {
   Param,
   Patch,
   Post,
-  Body,
+  Body, Query,
 } from '@nestjs/common';
 import { UserService } from 'src/backend/user/user.service';
 import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
@@ -13,7 +13,8 @@ import { responseHandler } from 'src/Until/responseUtil';
 import { UpdateUserDto } from 'src/dto/userDTO/user.update.dto';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/decorator/Role.decorator';
-import { UserSearchDto } from 'src/dto/userDTO/user.search.dto';
+import {ParseBooleanPipe} from "src/share/ParseBooleanPipe";
+import {UserSearchDto} from "src/dto/userDTO/user.search.dto";
 
 @Controller('users')
 @ApiBearerAuth()
