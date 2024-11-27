@@ -1,7 +1,7 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity } from 'src/base/baseEntity/base.entity';
 import { ProductEntity } from 'src/entities/product_entity/product.entity';
-import {ApplyStatus} from "src/share/Enum/Enum";
+import { ApplyStatus } from 'src/share/Enum/Enum';
 
 @Entity('categories')
 export class CategoryEntity extends BaseEntity {
@@ -9,7 +9,7 @@ export class CategoryEntity extends BaseEntity {
   name: string;
 
   @Column()
-  image: string;
+  url_image: string;
 
   @Column()
   banner: string;

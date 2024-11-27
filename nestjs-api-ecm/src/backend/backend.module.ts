@@ -12,6 +12,8 @@ import { CloudinaryModule } from 'src/backend/cloudinary/cloudinary.module';
 import {SupplierModule} from "src/backend/supplier/supplier.module";
 import {LocationUserModule} from "src/backend/location_user/location_user.module";
 import {CartModule} from "src/backend/cart/cart.module";
+import { ImportModule } from './import/import.module';
+import {DashboardModule} from "src/backend/dashboard/dashboard.module";
 
 @Module({
   imports: [
@@ -26,7 +28,9 @@ import {CartModule} from "src/backend/cart/cart.module";
     CloudinaryModule,
     SupplierModule,
     LocationUserModule,
-    CartModule
+    CartModule,
+    ImportModule
+    DashboardModule,
   ],
 })
 export class BackendModule {}
