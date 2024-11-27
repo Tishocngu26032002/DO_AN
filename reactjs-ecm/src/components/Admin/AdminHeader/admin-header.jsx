@@ -124,7 +124,7 @@ function HeaderAdmin() {
                   notifications
                       .sort((a, b) => new Date(b[1].createdAt) - new Date(a[1].createdAt))
                       .map(([key, notification], index) => (
-                      <div key={index} className={`mb-1 ${notification.isRead ? "bg-white" : "bg-[#d3f8e2]"}`}>
+                      <div key={index} className={`${notification.isRead ? "bg-white" : "bg-[#d3f8e2]"}`}>
                         <div className="border-b border-gray-300 pl-3 pr-3 pt-2 pb-1">
                           <h4 className="font-semibold text-[#225a3e] pb-1">
                             {notification.notificationType || "Không có tiêu đề"}

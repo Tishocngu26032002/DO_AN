@@ -16,11 +16,11 @@ export class NotificationService{
         private readonly notiRepo: NotificationRepository
     ) {
         if (!admin.apps.length) {
-            const serviceAccount = require("D:\\Code\\Do_an\\nestjs-api-ecm\\src\\config\\serviceAccountKey.json");
-
+            const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH
+            const serviceAccount = require(serviceAccountPath);
             admin.initializeApp({
                 credential: admin.credential.cert(serviceAccount),
-                databaseURL: "https://shoppe-cam-default-rtdb.firebaseio.com"
+                databaseURL: process.env.FIREBASE_SERVICE_DATABASE
             });
         }
     }
