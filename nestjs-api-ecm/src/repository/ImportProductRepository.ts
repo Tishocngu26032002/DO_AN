@@ -1,30 +1,26 @@
 import {DataSource, EntityRepository, Repository} from 'typeorm';
 import {Import_productEntity} from "src/entities/import_entity/import_product.entity";
+import {Injectable} from "@nestjs/common";
+import {ImportEntity} from "src/entities/import_entity/import.entity";
 
 @EntityRepository(Import_productEntity)
 export class ImportProductRepository extends Repository<Import_productEntity> {
     constructor(private readonly dataSource: DataSource) {
         super(Import_productEntity, dataSource.manager);
     }
-    async getLatestProduct(): Promise<any[]> {
-        const result = await this.createQueryBuilder('import_product')
+
+    async findLatestProducts(): Promise<any[]> {
+        return await this.createQueryBuilder('import_product')
             .select('product.id', 'productId')
             .addSelect('product.name', 'productName')
+            .addSelect('product.url_images', 'productImages')
             .addSelect('product.priceout', 'priceOut')
-            .addSelect('import.createdAt', 'createdAt')
-            .innerJoin('import_product.import', 'import') // Join bảng Import
-            .innerJoin('import_product.product', 'product') // Join bảng Product
-            .where('product.stockQuantity IS NOT NULL AND product.stockQuantity > 0')
-            .orderBy('import.createdAt', 'DESC') // Sắp xếp theo createdAt giảm dần
-            .limit(8)
+            .addSelect('category.name', 'categoryName')
+            .innerJoin('import_product.product', 'product') // Join Product table
+            .innerJoin('product.category', 'category') // Join Category table
+            .innerJoin('import_product.import', 'import') // Join Import table
+            .orderBy('import.createdAt', 'DESC') // Sort by creation time descending
+            .limit(8) // Limit to 8 products
             .getRawMany();
-
-        return result.map(row => ({
-            productId: row.productId,
-            productName: row.productName,
-            priceOut: parseFloat(row.priceOut), // Chuyển đổi priceOut sang số thực
-            createdAt: row.createdAt, // Giữ nguyên ngày tạo
-        }));
     }
-
 }
