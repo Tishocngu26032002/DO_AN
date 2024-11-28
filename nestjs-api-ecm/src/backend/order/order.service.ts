@@ -15,6 +15,8 @@ import {User} from "src/entities/user_entity/user.entity";
 import {EmailService} from "src/backend/email/email.service";
 import {Email_entity} from "src/entities/helper/email_entity";
 import {AccountNotify} from "src/Until/configConst";
+import {Cart_productEntity} from "src/entities/cartproduct_entity/cart_product.entity";
+import {CartRepository} from "src/repository/CartRepository";
 
 @Injectable()
 export class OrderService extends BaseService<OrderEntity> {
@@ -25,6 +27,8 @@ export class OrderService extends BaseService<OrderEntity> {
         private readonly orderProductRepo: Repository<Order_productEntity>,
         @InjectRepository(User)
         private readonly userRepo: UserRepository,
+        @InjectRepository(Cart_productEntity)
+        private readonly cartRepo: CartRepository,
         private readonly dataSource: DataSource,
         private readonly notiService: NotificationService,
         private readonly emailService: EmailService,
@@ -67,7 +71,7 @@ export class OrderService extends BaseService<OrderEntity> {
 
             //Tạo thông báo có order mới
             await this.createNotificationOrderSuccess(order);
-
+            await this.deleteProductInCart(oderDTO.cart_id);
             return orderData;
         } catch (e) {
             // Rollback transaction on error
@@ -217,4 +221,20 @@ export class OrderService extends BaseService<OrderEntity> {
             await queryRunner.release();
         }
     }
+
+    async deleteProductInCart(cart_ids: string[]) {
+        if (!cart_ids || cart_ids.length === 0) {
+            throw new Error('cart_ids cannot be empty');
+        }
+        try {
+            const result = await this.cartRepo.delete(cart_ids);
+            if (result.affected === 0) {
+                throw new Error('No records were deleted. Check cart_ids.');
+            }
+            return result;
+        } catch (error) {
+            throw new Error(`Failed to delete products in cart`);
+        }
+    }
+
 }

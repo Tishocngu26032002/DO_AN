@@ -43,11 +43,6 @@ export class CreateOrderDto {
   @ApiProperty()
   user_id: string;
 
-  @IsPhoneNumber(null) // 'null' để chấp nhận tất cả mã vùng, hoặc bạn có thể thêm mã vùng nếu cần
-  @IsNotEmpty()
-  @ApiProperty()
-  phone: string;
-
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
@@ -69,4 +64,10 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @ApiProperty({ type: ProductDto, isArray: true })
   products: ProductDto[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsNotEmpty({ each: true })
+  @ApiProperty({ type: [String], description: 'Danh sách ID giỏ hàng', isArray: true })
+  cart_id: string[];
 }
