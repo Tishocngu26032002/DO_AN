@@ -39,6 +39,21 @@ export class LocationUserController {
     }
   }
 
+  @Get(':user_id/:user_id_get')
+  @Roles('admin')
+  async getAllLocationAdmin(@Param('user_id_get') user_id_get: string) {
+    try {
+      const filters = {
+        user_id: user_id_get,
+      };
+      const result = await this.locationUserService.getList(filters);
+      return responseHandler.ok(result);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
+    }
+  }
+
   @Post(':user_id')
   @Roles('user')
   async create(@Body() createLocationUserDto: CreateLocationUserDto) {
