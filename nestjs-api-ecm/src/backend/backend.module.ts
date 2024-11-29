@@ -15,6 +15,8 @@ import {CartModule} from "src/backend/cart/cart.module";
 import { ImportModule } from './import/import.module';
 import {DashboardModule} from "src/backend/dashboard/dashboard.module";
 import {NotificationModule} from "src/backend/notification/notification.module";
+import {LogoutModule} from "src/backend/auth/logout/logout.module";
+import {ChangePasswordModule} from "src/backend/auth/change-password/change-password.module";
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import {NotificationModule} from "src/backend/notification/notification.module";
     ImportModule,
     DashboardModule,
     NotificationModule,
+    LogoutModule,
+    ChangePasswordModule
   ],
 })
 export class BackendModule {}
