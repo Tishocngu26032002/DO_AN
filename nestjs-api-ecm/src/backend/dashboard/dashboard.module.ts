@@ -7,17 +7,20 @@ import {Order_productEntity} from "src/entities/order_entity/order_product.entit
 import {OrderRepository} from "src/repository/OrderRepository";
 import {OrderProductRepository} from "src/repository/OrderProductRepository";
 import {ImportRepository} from "src/repository/ImportRepository";
+import {ImportProductRepository} from "src/repository/ImportProductRepository";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([OrderEntity, Order_productEntity, OrderRepository, OrderProductRepository]),
+    TypeOrmModule.forFeature([OrderEntity, Order_productEntity, OrderRepository,
+      OrderProductRepository]),
   ],
   exports: [DashboardService],
   controllers: [DashboardController],
   providers: [DashboardService,
     OrderRepository,
     OrderProductRepository,
-    ImportRepository
+    ImportRepository,
+    ImportProductRepository
   ],
 })
 export class DashboardModule {}
