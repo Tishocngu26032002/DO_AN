@@ -33,7 +33,7 @@ const ManageSupplier = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [newSupplier, setNewSupplier] = useState({
     name: "",
-    image: "",
+    url_image: "",
     phone: "",
     address: "",
 
@@ -47,6 +47,9 @@ const ManageSupplier = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+const [supplierToDelete, setSupplierToDelete] = useState(null);
+const [showConfirmDeleteMultiple, setShowConfirmDeleteMultiple] = useState(false);
 
   useEffect(() => {
     const queryParams = new URLSearchParams();
@@ -54,84 +57,66 @@ const ManageSupplier = () => {
     window.history.replaceState(null, '', `/manage-supplier/${page}/${limit}?${queryParams.toString()}`);
   }, [searchTerm, page, limit]);
 
-
-  // const fetchSuppliers = async () => {
-  //   const response = await getSupplier(page, limit);
-  //   if (response.success) {
-  //     setSuppliers(response.data.data); 
-  //     setTotalPages(Math.ceil(response.data.total / limit));
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchSuppliers();
-  // }, [page, limit, showModal]);
-
-  // useEffect(() => {
-  //   navigate(`/manage-supplier/${page}/${limit}`); 
-  // }, [page, limit]);
-
   useEffect(() => {
     const fetchSuppliers = async () => {
-
-      
-      if (searchTerm ) {
-        const searchData = {
-          name: searchTerm,
-          phone: '',
-        
-        };
-        console.log(searchData);
-  
-        try {
+      try {
+        if (searchTerm) {
+          const searchData = {
+            name: searchTerm,
+            phone: '',
+          };
+          console.log(searchData);
           
-          const result = await getSearchSuppliers(page,limit, searchData);
-          
+          const result = await getSearchSuppliers(page, limit, searchData);
           if (Array.isArray(result.data.data)) {
             setSuppliers(result.data.data);
             const totalPages = Math.ceil(parseInt(result.data.total) / parseInt(result.data.limit));
             setTotalPages(totalPages);
           } else {
             console.error("Data returned from API is not an array:", result.data.data);
+            sessionStorage.setItem('notification', JSON.stringify({
+              message: 'Lỗi trong quá trình xử lý. Vui lòng thử lại',
+              type: notificationTypes.ERROR
+            }));
           }
-        } catch (error) {
-          console.error('Error fetching search users:', error);
+        } else {
+          const fetchedSupplier = [];
+          let newpage = 1;
+          let totalUsers = 0;
+          do {
+            const result = await getSupplier(newpage, limit);
+            console.log(result.data);
+            
+            if (result.success) {
+              fetchedSupplier.push(...result.data.data);
+              totalUsers = result.data.total;
+              newpage++;
+            } else {
+              console.error('Failed to fetch users:', result.message);
+              break;
+            }
+          } while (fetchedSupplier.length < totalUsers);
+      
+          setSuppliers(fetchedSupplier.slice((page - 1) * limit, page * limit));
+          setTotalPages(Math.ceil(totalUsers / limit));
         }
-      } else {
-        const fetchedSupplier = [];
-        let newpage = 1;
-        let totalUsers = 0;
-        do {
-          const result = await getSupplier(newpage, limit);
-          if (result.success) {
-            fetchedSupplier.push(...result.data.data);
-            totalUsers = result.data.total;
-            newpage++;
-          } else {
-            console.error('Failed to fetch users:', result.message);
-            break;
-          }
-        } while (fetchedSupplier.length < totalUsers);
-  
-        setSuppliers(fetchedSupplier.slice((page - 1) * limit, page * limit));
-        setTotalPages(Math.ceil(totalUsers / limit));
-       
+      } catch (error) {
+        console.error('Error fetching suppliers:', error);
+        sessionStorage.setItem('notification', JSON.stringify({
+          message: 'Lỗi trong quá trình xử lý',
+          type: notificationTypes.ERROR
+        }));
       }
     };
-        fetchSuppliers();
+    
+    fetchSuppliers();
   }, [searchTerm, page, limit]);
 
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
   };
-  // const handlePageChange = (newPage) => {
-  //   const queryParams = new URLSearchParams();
-  //   if (searchTerm) queryParams.set('search', searchTerm);
-  
-  //   navigate(`/manage-supplier/${newPage}/${limit}?${queryParams.toString()}`);
-  // };
-  
+
   const handleSearchChange = (event) => {
     const newSearchTerm = event.target.value;
     setSearchTerm(newSearchTerm);
@@ -163,6 +148,10 @@ const ManageSupplier = () => {
         }
       } catch (error) {
         console.error("Error uploading image:", error);
+        sessionStorage.setItem('notification', JSON.stringify({
+          message: 'Lỗi trong quá trình thêm ảnh. Vui lòng thử lại',
+          type: notificationTypes.ERROR
+        }));
       }finally {
         setLoading(false); 
       }
@@ -178,7 +167,7 @@ const ManageSupplier = () => {
         setShowModal(false);
         setNewSupplier({
           name: "",
-          image: "",
+          url_image: "",
           phone: "",
           address: "",
         }); 
@@ -200,9 +189,10 @@ const ManageSupplier = () => {
   };
   
   const handleAddSupplier = () => {
-    if (!newSupplier.image) {
+    if (!newSupplier.url_image) {
       console.error("Image is required for adding supplier.");
       showNotification('Chưa có ảnh!', notificationTypes.WARNING, setNotifications);
+      window.location.reload();
       return; 
     }
     addSupplier(newSupplier);
@@ -241,7 +231,7 @@ const ManageSupplier = () => {
   
   const handleUpdateSupplier = () => {
     if (editingSupplier) {
-      if (!newSupplier.image) {
+      if (!newSupplier.url_image) {
         console.error("Image is required for updating supplier.");
         return; // Nếu không có ảnh, không thực hiện cập nhật
       }
@@ -252,7 +242,7 @@ const ManageSupplier = () => {
 
       setNewSupplier({
         name: "",
-        image: "",
+        url_image: "",
         phone: "",
         address: "",
         id: "", 
@@ -284,18 +274,24 @@ const ManageSupplier = () => {
   };
 
   const handleDeleteSupplier = async (id) => {
-    await deleteOneSupplier(id);
-    window.location.reload();
+    setShowConfirmDelete(true);
+    setSupplierToDelete(id);
   };
   
+  const confirmDeleteSupplier = async () => {
+    if (supplierToDelete !== null) {
+      await deleteOneSupplier(supplierToDelete);
+      setSupplierToDelete(null);
+      setShowConfirmDelete(false);
+      window.location.reload();
+    }
+  };
 
   const handleEditSupplier = (supplier) => {
     setEditingSupplier(supplier);
     setNewSupplier(supplier);
     setShowModal(true);
   };
-
-
   
   const handleSelectSupplier = (id) => {
     if (selectedSuppliers.includes(id)) {
@@ -333,9 +329,13 @@ const ManageSupplier = () => {
   };
 
   const handleDeleteSelectedSuppliers = () => {
-    deleteSelectedSuppliers();
+    setShowConfirmDeleteMultiple(true);
   };
-
+  
+  const confirmDeleteSelectedSuppliers = async () => {
+    await deleteSelectedSuppliers();
+    setShowConfirmDeleteMultiple(false);
+  };
   // Hàm lọc danh sách suppliers
   const filteredSuppliers = suppliers.filter((supplier) =>
     supplier.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -375,7 +375,7 @@ const ManageSupplier = () => {
             />
             <input
               type="file"
-              name="image"
+              name="url_image"
               onChange={handleFileChange}
               className="rounded border p-2"
             />
@@ -460,7 +460,7 @@ const ManageSupplier = () => {
                 <p className="mb-2 text-gray-600">
                   <strong>Avatar:</strong>{" "}
                   <img
-                    src={supplier.image}
+                    src={supplier.url_image}
                     alt={supplier.name}
                     className="h-16 w-16 rounded"
                   />
@@ -496,7 +496,52 @@ const ManageSupplier = () => {
             ))}
           </div>
         </div>
+        {showConfirmDelete && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-600">Xác nhận xóa</h2>
+            <p>Bạn có chắc chắn muốn xóa nhà cung cấp này không?</p>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => setShowConfirmDelete(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={confirmDeleteSupplier}
+                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+              >
+                Xóa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
+      {/* Pop-up xác nhận xóa nhiều nhà cung cấp */}
+      {showConfirmDeleteMultiple && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-600">Xác nhận xóa</h2>
+            <p>Bạn có chắc chắn muốn xóa những nhà cung cấp đã chọn không?</p>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => setShowConfirmDeleteMultiple(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={confirmDeleteSelectedSuppliers}
+                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+              >
+                Xóa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
         {/* Nút phân trang */}
         <div className="mt-4 flex justify-center">
         {Array.from({ length: totalPages }, (_, index) => (
@@ -515,7 +560,7 @@ const ManageSupplier = () => {
           onClick={() => {
             setNewSupplier({
               name: "",
-              image: "",
+              url_image: "",
               phone: "",
               address: "",
         

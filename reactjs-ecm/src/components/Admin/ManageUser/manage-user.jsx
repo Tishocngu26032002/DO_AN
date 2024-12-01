@@ -7,6 +7,7 @@ import { getUsers, deleteUser, updateUser, createUser, getSearchUsers } from '..
 import { getLocationUserById, createLocationUser,updateLocationUser,deleteLocationUser } from '../../../services/location-user-service.js';
 import { showNotification, notificationTypes, NotificationList } from '../../Notification/NotificationService.jsx';
 import NotificationHandler from '../../Notification/notification-handle.jsx';
+import {getUserId} from '../../../util/auth-local.js';
 
 const Modal = ({ children, showModal, setShowModal }) => (
   showModal ? (
@@ -25,7 +26,6 @@ const ManageUser = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-
   const [users, setUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -41,6 +41,9 @@ const ManageUser = () => {
   const [searchTerm, setSearchTerm] = useState(queryParams.get('search') || '');
   const [filterStatus, setFilterStatus] = useState(queryParams.get('status') || '');
   const [filterRole, setFilterRole] = useState(queryParams.get('role') || '');
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [showConfirmPopupMulti, setShowConfirmPopupMulti] = useState(false);
 
   // Cập nhật URL khi thay đổi filter
   useEffect(() => {
@@ -75,6 +78,11 @@ const ManageUser = () => {
             setTotalPages(totalPages);
           } else {
             console.error("Data returned from API is not an array:", result.data.data);
+            sessionStorage.setItem('notification', JSON.stringify({
+              message: 'Lỗi trong quá trình xử lý!',
+              type: notificationTypes.SUCCESS
+            }));
+            
           }
         } catch (error) {
           console.error('Error fetching search users:', error);
@@ -91,6 +99,10 @@ const ManageUser = () => {
             page++;
           } else {
             console.error('Failed to fetch users:', result.message);
+            sessionStorage.setItem('notification', JSON.stringify({
+              message: 'Lỗi trong quá trình xử lý!',
+              type: notificationTypes.SUCCESS
+            }));
             break;
           }
         } while (fetchedUsers.length < totalUsers);
@@ -171,10 +183,12 @@ const ManageUser = () => {
       if (currentUser.id) {
         console.log(' Data:', locations[currentUser.id]?.address);
         if (locations[currentUser.id]?.address && locations[currentUser.id]?.phone) {
-          const updateLocationResponse = await updateLocationUser(locationData);
+          const userId = getUserId();
+          const updateLocationResponse = await updateLocationUser(userId,locationData);
           console.log('Location Updated:', updateLocationResponse);
         } else {
-          const createLocationResponse = await createLocationUser({
+          const userId = getUserId();
+          const createLocationResponse = await createLocationUser(userId,{
             name: currentUser.lastName,
             address: currentUser.address,
             phone: currentUser.phone,
@@ -183,8 +197,8 @@ const ManageUser = () => {
           });
           console.log('Location Created:', createLocationResponse);
         }
-  
-        const userResponse = await updateUser(currentUser.id, currentUser);
+        const adminID = getUserId();
+        const userResponse = await updateUser(adminID, currentUser.id, currentUser);
 
         console.log('User Updated:', userResponse);
         sessionStorage.setItem('notification', JSON.stringify({
@@ -208,8 +222,8 @@ const ManageUser = () => {
           default_location: currentUser.locationdefault || false,
           user_id: newUserId // Sử dụng newUserId từ phản hồi của createUser
         };
-  
-        const createLocationResponse = await createLocationUser(locationAddData);
+        const userId = getUserId();
+        const createLocationResponse = await createLocationUser(userId,locationAddData);
         console.log('Location Created:', createLocationResponse);
         sessionStorage.setItem('notification', JSON.stringify({
           message: 'Thêm người dùng thành công!',
@@ -230,9 +244,11 @@ const ManageUser = () => {
 
   const handleDeleteUser = async (userId) => {
     try {
+      const adminID = getUserId();
+      console.log(adminID)
       await Promise.all([
-        deleteUser(userId),
-        deleteLocationUser(userId)
+        deleteUser(adminID, userId),
+        // deleteLocationUser(adminID,userId)
       ]);
 
       sessionStorage.setItem('notification', JSON.stringify({
@@ -254,12 +270,16 @@ const ManageUser = () => {
   
   const handleDeleteSelectedUsers = async () => {
     try {
-      await Promise.all(selectedUsers.map(userId => 
-        Promise.all([
-          deleteUser(userId),
-          deleteLocationUser(userId)
-        ])
-      ));
+      const adminID = getUserId(); 
+      await Promise.all(
+        selectedUsers.map(userId => 
+          Promise.all([
+            deleteUser(adminID, userId),
+            // deleteLocationUser(adminID, userId)
+          ])
+        )
+      );
+  
       sessionStorage.setItem('notification', JSON.stringify({
         message: 'Xóa người dùng thành công!',
         type: notificationTypes.SUCCESS
@@ -267,15 +287,43 @@ const ManageUser = () => {
       window.location.reload();
     } catch (error) {
       console.error('Failed to delete selected users or their locations:', error);
-
+  
       sessionStorage.setItem('notification', JSON.stringify({
         message: 'Xóa không thành công.',
         type: notificationTypes.ERROR
       }));
+      window.location.reload(); 
     }
   };
   
+  
+  const handleDeleteClick = (userId) => {
+    setUserToDelete(userId);
+    setShowConfirmPopup(true);
+  };
 
+  const confirmDelete = () => {
+    handleDeleteUser(userToDelete);
+    setShowConfirmPopup(false);
+  };
+
+  const cancelDelete = () => {
+    setShowConfirmPopup(false);
+    setUserToDelete(null);
+  };
+
+  const handleMultiDeleteClick = () => {
+    setShowConfirmPopupMulti(true);
+  };
+
+  const confirmMultiDelete = () => {
+    handleDeleteSelectedUsers();
+    setShowConfirmPopupMulti(false);
+  };
+
+  const cancelMultiDelete = () => {
+    setShowConfirmPopupMulti(false);
+  };
   const openUpdateModal = (user) => {
     const userLocation = locations[user.id] || {};  // Nếu không có location, sử dụng đối tượng rỗng
   
@@ -371,6 +419,7 @@ const handleRoleChange = (event) => {
                 value={currentUser?.firstName} 
                 onChange={(e) => setCurrentUser({ ...currentUser, firstName: e.target.value })} 
                 className="border border-[#006532] p-2 rounded w-full"
+                disabled={!!currentUser?.id}
               />
             </div>
             <div>
@@ -380,6 +429,7 @@ const handleRoleChange = (event) => {
                 value={currentUser?.lastName} 
                 onChange={(e) => setCurrentUser({ ...currentUser, lastName: e.target.value })} 
                 className="border border-[#006532] p-2 rounded w-full"
+                disabled={!!currentUser?.id}
               />
             </div>
             <div>
@@ -389,6 +439,7 @@ const handleRoleChange = (event) => {
                 value={currentUser?.email} 
                 onChange={(e) => setCurrentUser({ ...currentUser, email: e.target.value })} 
                 className="border border-[#006532] p-2 rounded w-full"
+                disabled={!!currentUser?.id}
               />
             </div>
             <div>
@@ -397,6 +448,7 @@ const handleRoleChange = (event) => {
                 value={currentUser?.locationdefault ? '1' : '0'} 
                 onChange={(e) => setCurrentUser({ ...currentUser, locationdefault: e.target.value === '1' })} 
                 className="border border-[#006532] p-2 rounded w-full"
+                disabled={!!currentUser?.id}
               >
                 <option value="1">1</option>
                 <option value="0">0</option>
@@ -409,6 +461,7 @@ const handleRoleChange = (event) => {
                 value={currentUser?.phone} 
                 onChange={(e) => setCurrentUser({ ...currentUser, phone: e.target.value })} 
                 className="border border-[#006532] p-2 rounded w-full"
+                disabled={!!currentUser?.id}
               />
             </div>
             <div>
@@ -418,6 +471,7 @@ const handleRoleChange = (event) => {
                 value={currentUser?.address} 
                 onChange={(e) => setCurrentUser({ ...currentUser, address: e.target.value })} 
                 className="border border-[#006532] p-2 rounded w-full"
+                disabled={!!currentUser?.id}
               />
             </div>
             <div>
@@ -483,7 +537,7 @@ const handleRoleChange = (event) => {
           <div className=' tablet:mt-36 tablet:left-16 tablet:absolute'>
             {selectedUsers.length > 0 && (
               <FaTrash 
-                onClick={handleDeleteSelectedUsers} 
+                onClick={handleMultiDeleteClick} 
                 className='text-gray-400 hover:text-red-500  ' 
               />
             )}
@@ -583,7 +637,7 @@ const handleRoleChange = (event) => {
                     <button onClick={() => openUpdateModal(user)} className="text-[#006532] hover:text-[#005a2f]">
                       <FaEdit />
                     </button>
-                    <button onClick={() => handleDeleteUser(user.id)} className="text-gray-400 hover:text-red-500">
+                    <button onClick={() => handleDeleteClick(user.id)} className="text-gray-400 hover:text-red-500">
                       <FaTrash />
                     </button>
                   </div>
@@ -617,6 +671,36 @@ const handleRoleChange = (event) => {
             </div>
           </div>
         )}
+        {showConfirmPopup && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg">
+            <h2 className="text-xl mb-4">Bạn có chắc chắn muốn xóa người dùng này?</h2>
+            <div className="flex justify-end">
+              <button onClick={cancelDelete} className="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded mr-2">
+                Hủy
+              </button>
+              <button onClick={confirmDelete} className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded">
+                Xóa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showConfirmPopupMulti && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg">
+            <h2 className="text-xl mb-4">Bạn có chắc chắn muốn xóa các người dùng này?</h2>
+            <div className="flex justify-end">
+              <button onClick={cancelMultiDelete} className="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded mr-2">
+                Hủy
+              </button>
+              <button onClick={confirmMultiDelete} className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded">
+                Xóa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
         <div className="flex justify-center mt-4">
         {/* Hiển thị các nút phân trang */}
         {Array.from({ length: totalPages }, (_, index) => (
