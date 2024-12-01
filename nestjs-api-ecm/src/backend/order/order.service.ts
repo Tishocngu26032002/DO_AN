@@ -169,7 +169,7 @@ export class OrderService extends BaseService<OrderEntity> {
         try {
             const order = await this.orderRepo.findOne({
                 where: {id: updateOrderDTO.order_id},
-                relations: ['Order_productEntity'],
+                relations: ['orderProducts'],
             });
 
             if (!order) {
