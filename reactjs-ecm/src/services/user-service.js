@@ -36,16 +36,16 @@ export async function getUsers(page, limit) {
 }
 
 // Xóa người dùng theo ID
-export async function deleteUser(userId) {
+export async function deleteUser(adminId,userId) {
   try {
     const token = getToken();
-    const res = await axios.delete(`${BASE_URL}/users/${userId}`, {
+    const res = await axios.delete(`${BASE_URL}/users/${adminId}/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`, // Truyền token ở đây
         accept: "*/*",
       },
     });
-    return res.data; // Hoặc bạn có thể chỉ cần return true nếu xóa thành công
+    return res.data.data; 
   } catch (error) {
     console.error("Error deleting user:", error);
     throw error;
@@ -53,10 +53,10 @@ export async function deleteUser(userId) {
 }
 
 // Cập nhật người dùng
-export const updateUser = async (userId, userData) => {
+export const updateUser = async ( adminId ,userId, userData) => {
   try {
     const token = getToken(); // Lấy token
-    const res = await axios.patch(`${BASE_URL}/users/${userId}`, userData, {
+    const res = await axios.patch(`${BASE_URL}/users/${adminId}/${userId}`, userData, {
       headers: {
         Authorization: `Bearer ${token}`, // Truyền token ở đây
       },
@@ -85,19 +85,35 @@ export const createUser = async (userData) => {
 };
 
 export async function getUser() {
-  
   try {
     const userId = getUserId();
     const token = getToken();
     const res = await axios.get(`${BASE_URL}/users/${userId}`, {
       headers: {
-        Authorization: `Bearer ${token}`, // Truyền token ở đây
+        Authorization: `Bearer ${token}`,
         accept: "*/*",
       },
     });
-    return res.data; // Hoặc bạn có thể chỉ cần return true nếu xóa thành công
+    return res.data; 
   } catch (error) {
     console.error("Error deleting user:", error);
+    throw error;
+  }
+}
+
+export async function getSearchUsers(page, limit, searchData) {
+  try {
+    const token = getToken();
+    const res = await axios.post(`${BASE_URL}/users/search/${page}/${limit}`, searchData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: "*/*",
+        'Content-Type': 'application/json'
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error searching users:", error);
     throw error;
   }
 }

@@ -34,7 +34,8 @@ function HeaderAdmin() {
   const [allRead, setAllRead] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const unreadCount = notifications.filter(([key, notification]) => notification.isRead === false).length;
-
+  const [isHovered, setIsHovered] = useState(false); // Trạng thái để kiểm tra hover
+  
   const handleSeeMore = () => {
     setIsExpanded(true);
   };
@@ -60,6 +61,16 @@ function HeaderAdmin() {
     return unreadCount === 0;
   };
 
+
+  const handlePopupMouseEnter = () => {
+    setIsHovered(true);
+  };
+  
+  const handlePopupMouseLeave = () => {
+    setIsHovered(false); 
+    setIsPopupOpen(false); 
+  };
+  
   useEffect(() => {
     setAllRead(checkAllRead());
   }, [notifications]);
@@ -75,7 +86,9 @@ function HeaderAdmin() {
         />
       </a>*/}
       <div className="left-10 -mt-5 flex items-center pt-6">
-        <button id="bar" className="px-4" onClick={toggleMenu}>
+        <button id="bar" className="px-4"
+        onClick={toggleMenu}>
+        
           {isMenuOpen ? (
             <IoClose
               className="h-[35px] w-[35px] text-white"
@@ -100,7 +113,9 @@ function HeaderAdmin() {
 
       {/* Popup Notification */}
       {isPopupOpen && (
-          <div className="absolute right-8 top-14 bg-white shadow-lg rounded-md w-[400px] h-[600px] p-0 z-50 pb-3">
+          <div className="absolute right-8 top-14 bg-white shadow-lg rounded-md w-[400px] h-[600px] p-0 z-50 pb-3"
+           onMouseEnter={handlePopupMouseEnter}
+           onMouseLeave={handlePopupMouseLeave}>
             <div className="flex items-center justify-between p-4">
               <h3 className="font-semibold text-2xl text-[#225a3e] flex-grow text-center">Thông báo</h3>
               {unreadCount > 0 && (
@@ -174,6 +189,7 @@ function HeaderAdmin() {
       )}
 
       {/* Sidebar Menu */}
+  
       <div
         className={`shadow-lg fixed left-0 top-[63px] z-50 h-full w-[250px] transform border-r-2 border-[#006532] bg-white transition-transform duration-300 ease-in-out ${
           isMenuOpen ? "translate-x-0" : "-translate-x-full"
