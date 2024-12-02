@@ -22,6 +22,7 @@ import {
   OrderStatus,
   PaymentStatus,
 } from 'src/share/Enum/Enum';
+import { log } from 'console';
 
 @Controller('order')
 @ApiTags('Order')
@@ -115,7 +116,7 @@ export class OrderController {
 
   @Patch(':user_id')
   @Roles('user', 'admin', 'employee')
-  async updateOrder(@Body() updateOrderDTO: UpdateOrderDTO) {
+  async updateOrder(@Param('user_id') user_id: string, @Body() updateOrderDTO: UpdateOrderDTO) {
     try {
       const orderUpdate = await this.order_Service.updateOrder(updateOrderDTO);
       return responseHandler.ok(orderUpdate);

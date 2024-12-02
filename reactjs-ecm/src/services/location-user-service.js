@@ -19,9 +19,24 @@ export async function getLocationUserById(userId) {
     throw error;
   }
 }
-
+export async function getLocationUserByAdmin(userIdGet) {
+  try {
+    const token = getToken(); // Lấy token
+    const userId = getUserId();
+    const res = await axios.get(`${BASE_URL}/location-user/${userId}/${userIdGet}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`, // Truyền token ở đây
+        'accept': '*/*',
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching location user:', error);
+    throw error;
+  }
+}
 // Tạo địa chỉ cho người dùng
-export async function createLocationUser(userId,locationData) {
+export async function createLocationUser(locationData) {
   try {
     const userId = getUserId();
     const token = getToken(); // Lấy token
@@ -39,7 +54,7 @@ export async function createLocationUser(userId,locationData) {
 }
 
 // Cập nhật thông tin địa chỉ người dùng
-export async function updateLocationUser(userId, locationData) {
+export async function updateLocationUser(locationData) {
   try {
     const userId = getUserId();
     const token = getToken(); // Lấy token

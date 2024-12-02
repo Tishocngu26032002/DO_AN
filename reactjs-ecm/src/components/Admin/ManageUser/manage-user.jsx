@@ -4,7 +4,7 @@ import AdminHeader from "../AdminHeader/admin-header.jsx";
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye, FaSort } from 'react-icons/fa';
 import { MdOutlineInbox } from "react-icons/md";
 import { getUsers, deleteUser, updateUser, createUser, getSearchUsers } from '../../../services/user-service.js';
-import { getLocationUserById, createLocationUser,updateLocationUser,deleteLocationUser } from '../../../services/location-user-service.js';
+import { getLocationUserByAdmin} from '../../../services/location-user-service.js';
 import { showNotification, notificationTypes, NotificationList } from '../../Notification/NotificationService.jsx';
 import NotificationHandler from '../../Notification/notification-handle.jsx';
 import {getUserId} from '../../../util/auth-local.js';
@@ -122,7 +122,7 @@ const ManageUser = () => {
       const locationData = {};
       for (const user of allUsers) {
         try {
-          const response = await getLocationUserById(user.id);
+          const response = await getLocationUserByAdmin(user.id);
           if (response.success && response.data && response.data.data && response.data.data.length > 0) {
             locationData[user.id] = response.data.data[0];
             
@@ -182,21 +182,6 @@ const ManageUser = () => {
   
       if (currentUser.id) {
         console.log(' Data:', locations[currentUser.id]?.address);
-        if (locations[currentUser.id]?.address && locations[currentUser.id]?.phone) {
-          const userId = getUserId();
-          const updateLocationResponse = await updateLocationUser(userId,locationData);
-          console.log('Location Updated:', updateLocationResponse);
-        } else {
-          const userId = getUserId();
-          const createLocationResponse = await createLocationUser(userId,{
-            name: currentUser.lastName,
-            address: currentUser.address,
-            phone: currentUser.phone,
-            default_location: currentUser.locationdefault || false,
-            user_id: currentUser.id
-          });
-          console.log('Location Created:', createLocationResponse);
-        }
         const adminID = getUserId();
         const userResponse = await updateUser(adminID, currentUser.id, currentUser);
 
@@ -222,8 +207,8 @@ const ManageUser = () => {
           default_location: currentUser.locationdefault || false,
           user_id: newUserId // Sử dụng newUserId từ phản hồi của createUser
         };
-        const userId = getUserId();
-        const createLocationResponse = await createLocationUser(userId,locationAddData);
+   
+        const createLocationResponse = await createLocationUser(locationAddData);
         console.log('Location Created:', createLocationResponse);
         sessionStorage.setItem('notification', JSON.stringify({
           message: 'Thêm người dùng thành công!',
@@ -392,8 +377,6 @@ const handleStatusChange = (event) => {
 const handleRoleChange = (event) => {
   const newRole = event.target.value;
   setFilterRole(newRole);
-
- 
 };
 
 
