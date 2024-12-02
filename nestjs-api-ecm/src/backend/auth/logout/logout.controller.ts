@@ -14,7 +14,7 @@ export class LogoutController {
   constructor(private readonly logoutService: LogoutService) {}
 
   @Post(':user_id')
-  @Roles('user, admin')
+  @Roles('user', 'admin')
   async logout(@Param('user_id') user_id: string, @Body() token: string) {
     try {
       const check = await this.logoutService.logout(user_id, token);
