@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import {OrderEntity} from "src/entities/order_entity/oder.entity";
-import {InjectRepository} from "@nestjs/typeorm";
 import {NotificationStatus, NotificationType} from "src/share/Enum/Enum";
 import * as admin from 'firebase-admin';
+import * as dotenv from 'dotenv';
+import * as path from "path";
+dotenv.config();
+
 
 @Injectable()
 export class NotificationService{
@@ -10,7 +13,7 @@ export class NotificationService{
     constructor(
     ) {
         if (!admin.apps.length) {
-            const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH
+            const serviceAccountPath = path.resolve(process.cwd(), process.env.FIREBASE_SERVICE_ACCOUNT_PATH!);
             const serviceAccount = require(serviceAccountPath);
             admin.initializeApp({
                 credential: admin.credential.cert(serviceAccount),
