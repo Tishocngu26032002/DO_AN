@@ -59,3 +59,53 @@ export const createOrder = async (orderData) => {
     throw error;
   }
 };
+
+// Lấy danh sách đơn hàng (pagination và filter)
+export const getOrderManagement = async (page, limit, filters = {}) => {
+  try {
+    const token = getToken();
+    const { orderStatus, paymentStatus } = filters;
+    const res = await axios.get(`${BASE_URL}/manage-order/${page}/${limit}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: { orderStatus, paymentStatus },
+    });
+    return res.data; // Trả về dữ liệu đã xử lý
+  } catch (error) {
+    console.error("Error fetching order management:", error);
+    throw error;
+  }
+};
+
+// Lấy chi tiết đơn hàng
+export const getDetailOrder = async (id) => {
+  try {
+    const token = getToken();
+    const res = await axios.get(`${BASE_URL}/manage-order/detail/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching order detail:", error);
+    throw error;
+  }
+};
+
+// Cập nhật đơn hàng
+export const updateOrder = async (updateData) => {
+  try {
+    const token = getToken();
+    const res = await axios.patch(`${BASE_URL}/order`, updateData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error updating order:", error);
+    throw error;
+  }
+};

@@ -83,11 +83,11 @@ root.render(
           <Route path="/test-notification" element={<NotificationsPage />} />
 
           <Route path="/report" element={<Report />} />
-          <Route
+          {/* <Route
             path="/production-statistics"
             element={<ProductionStatistics />}
-          />
-          <Route path="/payment" element={<Payment />} />
+          /> */}
+          {/* <Route path="/payment" element={<Payment />} /> */}
           <Route path="/user/:userId" element={<UserProfile />} />
           <Route path="/manage-supplier/:page/:limit" element={<ManageSupplier />} />
           <Route path="/test-notification" element={< NotificationsPage />} />
