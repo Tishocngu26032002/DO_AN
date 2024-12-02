@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import {OrderStatus, PaymentMethod, PaymentStatus} from "src/share/Enum/Enum";
+import { OrderStatus, PaymentMethod, PaymentStatus } from "src/share/Enum/Enum";
 
 class ProductDto {
   @IsString()
@@ -35,7 +35,7 @@ export class CreateOrderDto {
 
   @IsEnum(PaymentMethod)
   @IsNotEmpty()
-  @ApiProperty({enum: PaymentMethod, default: PaymentMethod.CashOnDelivery})
+  @ApiProperty({ enum: PaymentMethod, default: PaymentMethod.CashOnDelivery })
   paymentMethod: PaymentMethod = PaymentMethod.CashOnDelivery;
 
   @IsString()
@@ -55,7 +55,7 @@ export class CreateOrderDto {
 
   @IsEnum(PaymentStatus)
   @IsNotEmpty()
-  @ApiProperty({enum: PaymentStatus, default: PaymentStatus.Unpaid})
+  @ApiProperty({ enum: PaymentStatus, default: PaymentStatus.Unpaid })
   paymentStatus: PaymentStatus = PaymentStatus.Unpaid;
 
   @IsArray()
@@ -64,4 +64,10 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @ApiProperty({ type: ProductDto, isArray: true })
   products: ProductDto[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsNotEmpty({ each: true })
+  @ApiProperty({ type: [String], description: 'Danh sách ID giỏ hàng', isArray: true })
+  cart_id: string[];
 }

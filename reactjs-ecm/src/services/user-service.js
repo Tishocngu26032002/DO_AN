@@ -101,3 +101,8 @@ export async function getUser() {
     throw error;
   }
 }
+
+export const changePassword = async (data) => {
+  const userId = localStorage.getItem('userId'); // Lấy userId từ localStorage hoặc truyền từ FE
+  return await axios.post(`${BASE_URL}/change-password/${userId}`, data);
+};

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { Expose } from 'class-transformer';
-import {ApplyStatus} from "src/share/Enum/Enum";
+import { ApplyStatus } from 'src/share/Enum/Enum';
 
 export class CategoryCreateDTO {
   @ApiProperty()
@@ -12,7 +12,7 @@ export class CategoryCreateDTO {
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  image: string;
+  url_image: string;
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
@@ -22,7 +22,7 @@ export class CategoryCreateDTO {
   @Expose()
   description: string;
 
-  @ApiProperty({enum: ApplyStatus})
+  @ApiProperty({ enum: ApplyStatus })
   @IsNotEmpty()
   @Expose()
   status: ApplyStatus;
