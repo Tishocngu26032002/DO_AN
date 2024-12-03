@@ -158,19 +158,7 @@ export class OrderService extends BaseService<OrderEntity> {
         }
 
         query.skip((page - 1) * limit).take(limit);
-
-        const [orders, total] = await query
-            .select([
-                'order.id', 'order.createdAt', 'order.updatedAt', 'order.total_price', 'order.orderStatus', 'order.paymentStatus', 'order.payment_method', 'order.employee_id', 'order.user_id', 'order.location_id',
-                'user.id AS userId', 'user.firstName', 'user.lastName', 'user.email',
-                'employee.id', 'employee.firstName', 'employee.lastName',
-                'orderProduct.order_id', 'orderProduct.quantity', 'orderProduct.priceout', 'orderProduct.product_id',
-                'product.id', 'product.name', 'product.priceout', 'product.stockQuantity',
-                'location.id', 'location.address', 'location.phone'
-            ])
-            .getManyAndCount();
-
-
+        const [orders, total] = await query.getManyAndCount();
         const ordersWithProducts = orders.map((order) => {
             return {
                 order: order ? {
@@ -183,8 +171,9 @@ export class OrderService extends BaseService<OrderEntity> {
                     products: order.orderProducts?.map(orderProduct => ({
                         productId: orderProduct.product.id,
                         productName: orderProduct.product.name,
-                        priceout: orderProduct.product.priceout,
-                        stockQuantity: orderProduct.product.stockQuantity,
+                        priceout: orderProduct.priceout,
+                        quantityBuy: orderProduct.quantity,
+                        quantityInStock: orderProduct.product.stockQuantity,
                     })) || [],
                     user: order.user ? {
                         id: order.user.id,
