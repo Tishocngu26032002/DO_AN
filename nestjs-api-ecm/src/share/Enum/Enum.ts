@@ -25,7 +25,7 @@ export enum PaymentStatus {
 
 export enum OrderStatus {
     Checking = "Đang kiểm hàng",
-    WaitingForDelivered = "Chờ giao",
+    WaitingForDelivered = "Chờ giao hàng",
     InTransit = "Đang vận chuyển",
     Delivered = "Đã giao hàng",
     Canceled = "Hủy đơn hàng"
