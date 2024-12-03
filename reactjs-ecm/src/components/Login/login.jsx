@@ -59,17 +59,32 @@ function LoginForm() {
         const role = response?.data.user.role;
 
         if (role === "admin") {
-          setTimeout(() => {
-            navigate("/dashboard");
-          }, 2000);
+          sessionStorage.setItem(
+            "notification",
+            JSON.stringify({
+              message: "Đăng nhập thành công! Chào mừng bạn trở lại.",
+              type: notificationTypes.SUCCESS,
+            }),
+          );
+          window.location.href = "/dashboard";
         } else if (role === "user") {
-          setTimeout(() => {
-            navigate("/");
-          }, 2000);
+          sessionStorage.setItem(
+            "notification",
+            JSON.stringify({
+              message: "Đăng nhập thành công! Chào mừng bạn trở lại.",
+              type: notificationTypes.SUCCESS,
+            }),
+          );
+          window.location.href = "/";
         } else {
-          setTimeout(() => {
-            navigate("/shipper");
-          }, 2000);
+          sessionStorage.setItem(
+            "notification",
+            JSON.stringify({
+              message: "Đăng nhập thành công! Chào mừng bạn trở lại.",
+              type: notificationTypes.SUCCESS,
+            }),
+          );
+          window.location.href = "/shipper";
         }
       } else {
         showNotification(
