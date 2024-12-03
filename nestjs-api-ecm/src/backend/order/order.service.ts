@@ -137,7 +137,13 @@ export class OrderService extends BaseService<OrderEntity> {
     ) {
         const { orderStatus, paymentStatus, includedStatuses, excludedStatuses } = filters;
 
-        const query = this.orderRepo.createQueryBuilder('order');
+        const query = this.orderRepo.createQueryBuilder('order')
+            .leftJoinAndSelect('order.user', 'user')
+            .leftJoinAndSelect('order.employee', 'employee')
+            .leftJoinAndSelect('order.orderProducts', 'orderProduct')
+            .leftJoinAndSelect('orderProduct.product', 'product')
+            .leftJoinAndSelect('order.location', 'location');
+
         if (orderStatus) {
             query.andWhere('order.orderStatus = :orderStatus', { orderStatus });
         }
@@ -150,37 +156,116 @@ export class OrderService extends BaseService<OrderEntity> {
         if (excludedStatuses.length > 0) {
             query.andWhere('order.orderStatus NOT IN (:...excludedStatuses)', { excludedStatuses });
         }
+
         query.skip((page - 1) * limit).take(limit);
-        const [orders, total] = await query.getManyAndCount();
+
+        const [orders, total] = await query
+            .select([
+                'order.id', 'order.createdAt', 'order.updatedAt', 'order.total_price', 'order.orderStatus', 'order.paymentStatus', 'order.payment_method', 'order.employee_id', 'order.user_id', 'order.location_id',
+                'user.id AS userId', 'user.firstName', 'user.lastName', 'user.email',
+                'employee.id', 'employee.firstName', 'employee.lastName',
+                'orderProduct.order_id', 'orderProduct.quantity', 'orderProduct.priceout', 'orderProduct.product_id',
+                'product.id', 'product.name', 'product.priceout', 'product.stockQuantity',
+                'location.id', 'location.address', 'location.phone'
+            ])
+            .getManyAndCount();
+
+
+        const ordersWithProducts = orders.map((order) => {
+            return {
+                order: order ? {
+                    id: order.id,
+                    createdAt: order.createdAt,
+                    total_price: order.total_price,
+                    orderStatus: order.orderStatus,
+                    payment_method: order.payment_method,
+                    paymentStatus: order.paymentStatus,
+                    products: order.orderProducts?.map(orderProduct => ({
+                        productId: orderProduct.product.id,
+                        productName: orderProduct.product.name,
+                        priceout: orderProduct.product.priceout,
+                        stockQuantity: orderProduct.product.stockQuantity,
+                    })) || [],
+                    user: order.user ? {
+                        id: order.user.id,
+                        firstName: order.user.firstName,
+                        lastName: order.user.lastName,
+                    } : null,
+                    employee: order.employee ? {
+                        id: order.employee.id,
+                        firstName: order.employee.firstName,
+                        lastName: order.employee.lastName,
+                    } : null,
+                    location: order.location ? {
+                        id: order.location.id,
+                        address: order.location.address,
+                        phone: order.location.phone,
+                        defaultLocation: order.location.default_location,
+                    } : null
+                } : null
+            };
+        });
+
         const order_ids = orders.map(order => order.id);
         const unique_order_ids = [...new Set(order_ids)];
-        if(excludedStatuses.length > 0){
+
+        if (excludedStatuses.length > 0) {
             const productInStock = await this.getQuantityProductInStock(unique_order_ids);
-            return { orders, productInStock, total };
+            const orderStatusCounts = await this.getOrderStatusCount(unique_order_ids, excludedStatuses, true);
+            const orderStatusSummary = orderStatusCounts.reduce((acc, item) => {
+                acc[item.orderStatus] = item.count;
+                return acc;
+            }, {});
+            return { orders: ordersWithProducts, productInStock, total, orderStatusSummary };
         }
-        return { orders, total };
+
+        const orderStatusCounts = await this.getOrderStatusCount(unique_order_ids, includedStatuses, false);
+        const orderStatusSummary = orderStatusCounts.reduce((acc, item) => {
+            acc[item.orderStatus] = item.count;
+            return acc;
+        }, {});
+        return { orders: ordersWithProducts, total, orderStatusSummary };
     }
+
 
     async getQuantityProductInStock(order_ids: string[]) {
         if (!order_ids || order_ids.length === 0) {
             return [];
         }
-
         const productQuantity = await this.orderRepo
             .createQueryBuilder('order')
             .leftJoin('order.orderProducts', 'orderProduct')
             .leftJoin('orderProduct.product', 'product')
             .where('order.id IN (:...order_ids)', { order_ids })
+            .andWhere('product.id IS NOT NULL')
             .select([
                 'DISTINCT product.id AS id',
                 'product.name AS name',
                 'product.stockQuantity AS stockQuantity',
             ])
             .getRawMany();
-
         return productQuantity;
-
     }
+
+    async getOrderStatusCount(order_ids: string[], statuses: OrderStatus[], isExclusion: boolean = false) {
+        const query = this.orderRepo
+            .createQueryBuilder('order')
+            .where('order.id IN (:...order_ids)', { order_ids });
+
+        if (isExclusion) {
+            query.andWhere('order.orderStatus NOT IN (:...statuses)', { statuses });
+        } else {
+            query.andWhere('order.orderStatus IN (:...statuses)', { statuses });
+        }
+
+        const orderStatusCounts = await query
+            .select('order.orderStatus, COUNT(order.id) AS count')
+            .groupBy('order.orderStatus')
+            .getRawMany();
+
+        return orderStatusCounts;
+    }
+
 
     async getDetail(order_id: string) {
         const order = await this.orderRepo.findOne({
