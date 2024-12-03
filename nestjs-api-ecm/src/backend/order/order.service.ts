@@ -125,32 +125,61 @@ export class OrderService extends BaseService<OrderEntity> {
         };
     }
 
-    async getOrderManagement(page: number = 1, limit: number = 10, filters: any) {
-        if (page < 1) {
-            throw new Error('PAGE NUMBER MUST BE GREATER THAN 0!');
-        }
-        if (limit < 1) {
-            throw new Error('LIMIT MUST BE GREATER THAN 0!');
-        }
-        const condition: any = {};
+    async getOrderManagement(
+        page: number,
+        limit: number,
+        filters: {
+            orderStatus: string;
+            paymentStatus: string;
+            includedStatuses: OrderStatus[];
+            excludedStatuses: OrderStatus[];
+        },
+    ) {
+        const { orderStatus, paymentStatus, includedStatuses, excludedStatuses } = filters;
 
-        if (filters.orderStatus && Object.values(OrderStatus).includes(filters.orderStatus)) {
-            condition.orderStatus = filters.orderStatus;
+        const query = this.orderRepo.createQueryBuilder('order');
+        if (orderStatus) {
+            query.andWhere('order.orderStatus = :orderStatus', { orderStatus });
         }
-        if (filters.paymentStatus && Object.values(PaymentStatus).includes(filters.paymentStatus)) {
-            condition.paymentStatus = filters.paymentStatus;
+        if (paymentStatus) {
+            query.andWhere('order.paymentStatus = :paymentStatus', { paymentStatus });
+        }
+        if (includedStatuses.length > 0) {
+            query.andWhere('order.orderStatus IN (:...includedStatuses)', { includedStatuses });
+        }
+        if (excludedStatuses.length > 0) {
+            query.andWhere('order.orderStatus NOT IN (:...excludedStatuses)', { excludedStatuses });
+        }
+        query.skip((page - 1) * limit).take(limit);
+        const [orders, total] = await query.getManyAndCount();
+        const order_ids = orders.map(order => order.id);
+        const unique_order_ids = [...new Set(order_ids)];
+        if(excludedStatuses.length > 0){
+            const productInStock = await this.getQuantityProductInStock(unique_order_ids);
+            return { orders, productInStock, total };
+        }
+        return { orders, total };
+    }
+
+    async getQuantityProductInStock(order_ids: string[]) {
+        if (!order_ids || order_ids.length === 0) {
+            return [];
         }
 
-        const [orders, totalOrders] = await this.orderRepo.findAndCount({
-            where: condition,
-            skip: (page - 1) * limit,
-            take: limit,
-        });
+        const productQuantity = await this.orderRepo
+            .createQueryBuilder('order')
+            .leftJoin('order.orderProducts', 'orderProduct')
+            .leftJoin('orderProduct.product', 'product')
+            .where('order.id IN (:...order_ids)', { order_ids })
+            .select([
+                'DISTINCT product.id AS id',
+                'product.name AS name',
+                'product.stockQuantity AS stockQuantity',
+            ])
+            .getRawMany();
 
-        return {
-            orders: orders,
-            total: totalOrders,
-        };
+        return productQuantity;
+
     }
 
     async getDetail(order_id: string) {

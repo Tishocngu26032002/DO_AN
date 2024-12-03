@@ -16,10 +16,8 @@ export class OrderEntity extends BaseEntity {
   employee_id: string;
   @Column({ type: 'varchar', length: 36 })
   user_id: string;
-
   @Column({ type: 'varchar', length: 36 })
   location_id: string;
-
   @Column({ type: 'varchar' })
   paymentStatus: PaymentStatus;
 
