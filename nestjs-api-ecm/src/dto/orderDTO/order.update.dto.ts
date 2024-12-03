@@ -4,11 +4,12 @@ import {
   IsNotEmpty,
   IsInt,
   ValidateNested,
-  IsPhoneNumber, IsEnum,
+  IsPhoneNumber,
+  IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import {ApplyStatus, OrderStatus, PaymentMethod} from "src/share/Enum/Enum";
+import { ApplyStatus, OrderStatus, PaymentMethod } from 'src/share/Enum/Enum';
 
 class ProductDto {
   @IsString()
@@ -40,12 +41,12 @@ export class UpdateOrderDTO {
 
   @IsEnum(PaymentMethod)
   @IsNotEmpty()
-  @ApiProperty({enum: PaymentMethod})
+  @ApiProperty({ enum: PaymentMethod })
   paymentMethod: PaymentMethod;
 
   @IsInt()
   @IsNotEmpty()
-  @ApiProperty({enum: OrderStatus})
+  @ApiProperty({ enum: OrderStatus })
   orderStatus: OrderStatus;
 
   @IsString()

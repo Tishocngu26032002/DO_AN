@@ -5,8 +5,8 @@ import { PiShoppingCart } from "react-icons/pi";
 import { fetchProductDetail } from '../../services/product-service.js';
 import Footer from "../Footer/footer.jsx";
 import { PiMinusBold, PiPlusBold } from "react-icons/pi";
-import { authLocal, userIdLocal } from '../../util/auth-local.js';  // Import the auth methods
-import { createCart } from '../../services/cart-service.js'; // Assuming you have a cart service to handle API calls
+import { authLocal, userIdLocal, getToken } from '../../util/auth-local.js';  // Import the auth methods
+import { getCarts, createCart, updateCart } from '../../services/cart-service.js'; // Assuming you have a cart service to handle API calls
 
 // Tách Image component
 const Image = ({ mainImage, setMainImage, productImages }) => (
@@ -32,6 +32,7 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [mainImage, setMainImage] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [carts, setCarts] = useState([]);
 
   const handleIncrease = () => {
     setQuantity((prev) => prev + 1);
@@ -58,27 +59,60 @@ const ProductDetail = () => {
     fetchProduct();
   }, [productId]);
 
-  const handleAddToCart = async () => {
-    let token = authLocal.getToken();
-    token = token.replace(/^"|"$/g, "");
-
-    let userId = userIdLocal.getUserId();
-    userId = userId.replace(/^"|"$/g, "");
-    if (token && userId) {
-      const cartData = {
-        quantity: quantity,
-        product_id: productId,  // The productId you're displaying
-        user_id: userId,
-      };
-      
+  useEffect(() => {
+    const getCartsOnPage = async () => {
       try {
-        await createCart(cartData, token);  // Call createCart API function
-        alert("Product added to cart!");
+        let token = getToken();
+        if (token) {
+          let userId = userIdLocal.getUserId();
+          userId = userId.replace(/^"|"$/g, "");
+
+          if (userId) {
+            const cartsData = await getCarts(userId, token);  // Lấy giỏ hàng từ API
+            setCarts(cartsData.data.data.cart); // Cập nhật giỏ hàng
+          }
+        }
       } catch (error) {
-        console.error("Error adding product to cart:", error);
+        console.log("Error fetching carts:", error);
       }
-    } else {
-      alert("User is not logged in.");
+    };
+
+    getCartsOnPage();
+  }, []);
+
+  const handleAddToCart = async () => {
+    try {
+      let token = getToken();
+      if (token) {
+        let userId = userIdLocal.getUserId();
+        userId = userId.replace(/^"|"$/g, "");
+
+        if (userId) {
+          const cartIndex = carts.findIndex((cart) => cart.product_id === productId);
+
+          const cartData = {
+            quantity: quantity,
+            product_id: productId,
+            user_id: userId,
+          };
+
+          if (cartIndex !== -1) {
+            await updateCart({ ...carts[cartIndex], quantity: carts[cartIndex].quantity + quantity }, token);
+          } else {
+            await createCart(cartData, token);
+          }
+
+          const cartsData = await getCarts(userId, token);
+          setCarts(cartsData.data.data.cart);
+          alert("Product added to cart!");
+        } else {
+          alert("User ID is missing. Please log in.");
+        }
+      } else {
+        alert("Token is missing. Please log in.");
+      }
+    } catch (error) {
+      console.error("Error adding product to cart:", error);
     }
   };
 

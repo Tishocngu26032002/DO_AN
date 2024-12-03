@@ -27,7 +27,6 @@ import OrderDetails from "./components/OrderDetails/order-details";
 import NotificationsPage from "./components/Notification/notification.jsx";
 import ImportProduct from "./components/Admin/Import/import.jsx";
 import "react-toastify/dist/ReactToastify.css";
-
 import { CartProvider } from "./Context/CartContext.jsx";
 
 const queryClient = new QueryClient();
@@ -58,27 +57,40 @@ root.render(
             <Route path="/order-history" element={<OrderHistory />} />
             <Route path="/order-success" element={<OrderSuccess />} />
             <Route path="/order-details" element={<OrderDetails />} />
-            <Route path="/manage-category" element={<ManageCategory />} />
-            <Route path="/manage-order" element={<ManageOrder />} />
-            <Route path="/import-product" element={<ImportProduct />} />
-            <Route
-              path="/manage-product/:currentPage/:productsPerPage"
-              element={<ManageProduct />}
-            />
-            <Route
-              path="/manage-user/:currentPage/:usersPerPage"
-              element={<ManageUser />}
-            />
-
-            <Route path="/dashboard" element={<Report />} />
             <Route path="/checkout" element={<Checkout />} />
 
             <Route
-              path="/manage-supplier/:page/:limit"
-              element={<ManageSupplier />}
+              path="*"
+              element={
+                <NotificationProvider>
+                  <Routes>
+                    <Route
+                      path="/manage-category"
+                      element={<ManageCategory />}
+                    />
+                    <Route path="/manage-order" element={<ManageOrder />} />
+                    <Route path="/import-product" element={<ImportProduct />} />
+                    <Route
+                      path="/manage-product/:currentPage/:productsPerPage"
+                      element={<ManageProduct />}
+                    />
+                    <Route
+                      path="/manage-user/:currentPage/:usersPerPage"
+                      element={<ManageUser />}
+                    />
+                    <Route path="/dashboard" element={<Report />} />
+                    <Route
+                      path="/manage-supplier/:page/:limit"
+                      element={<ManageSupplier />}
+                    />
+                    <Route
+                      path="/test-notification"
+                      element={<NotificationsPage />}
+                    />
+                  </Routes>
+                </NotificationProvider>
+              }
             />
-
-            <Route path="/test-notification" element={<NotificationsPage />} />
           </Routes>
         </QueryClientProvider>
       </BrowserRouter>

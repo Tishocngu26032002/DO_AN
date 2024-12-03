@@ -1,84 +1,35 @@
-import React, { useState } from 'react';
+import React, {  useEffect, useState } from 'react';
+import {useLocation, useParams, useNavigate } from 'react-router-dom';
 import AdminHeader from "../AdminHeader/admin-header.jsx";
-import { FaSave, FaTrash, FaEye,FaSearch, FaFilter, FaSort } from 'react-icons/fa';
-import { FiEdit } from 'react-icons/fi';
+import { FaSave, FaTrash, FaEye,FaSearch, FaFilter, FaSort, FaEdit} from 'react-icons/fa';
 import { MdOutlineInbox, MdOutlineCancel } from "react-icons/md";
-// import { AiOutlineSearch } from 'react-icons/ai'; // Icon tìm kiếm
-// import { BiDownArrow } from 'react-icons/bi'; // Icon dropdown
+import { getOrdersAdmin, updateOrder } from '../../../services/order-service.js';
+import { showNotification, notificationTypes, NotificationList } from '../../Notification/NotificationService.jsx';
+import NotificationHandler from '../../Notification/notification-handle.jsx';
 
-const initialOrders = [
-  {
-    userid: 1,
-    name: 'Nguyễn Văn A',
-    productName: 'Product 1',
-    quantity: 2,
-    priceOut: 200000,
-    address: '123 ABC Street, District 1',
-    orderDate: '2024-10-20',
-    orderId: 'ORD001',
-    status: 'In Delivery',
-    updatedDate: '2024-10-21',
-    deliveryPerson: 'Trần Văn B',
-    paymentStatus: 'Pending',
-  },
-  {
-    userid: 2,
-    name: 'Trần Thị C',
-    productName: 'Product 2',
-    quantity: 1,
-    priceOut: 150000,
-    address: '456 XYZ Street, District 2',
-    orderDate: '2024-10-21',
-    orderId: 'ORD002',
-    status: 'Delivered',
-    updatedDate: '2024-10-22',
-    deliveryPerson: 'Nguyễn Văn D',
-    paymentStatus: 'Paid',
-  },
-  {
-    userid: 4,
-    name: 'Trần Thịff C',
-    productName: 'Product2 2',
-    quantity: 1,
-    priceOut: 150000,
-    address: '456 XYZ Street, District 2',
-    orderDate: '2024-10-21',
-    orderId: 'ORD0022',
-    status: 'Pending',
-    updatedDate: '2024-10-22',
-    deliveryPerson: 'Nguyễn Văn D',
-    paymentStatus: 'Cash on Delivery',
-  },
-  {
-    userid: 4,
-    name: 'Trần Thịff C',
-    productName: 'Product2 2',
-    quantity: 1,
-    priceOut: 150000,
-    address: '456 XYZ Street, District 2',
-    orderDate: '2024-10-21',
-    orderId: 'ORD0012',
-    status: 'Confirmed',
-    updatedDate: '2024-10-22',
-    deliveryPerson: 'Nguyễn Văn D',
-    paymentStatus: 'Paid',
-  },
-  // Thêm các đơn hàng khác nếu cần
-];
+
 
 const ManageOrder = () => {
-  const [orders, setOrders] = useState(initialOrders);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const [orders, setOrders] = useState([]);
   const [showViewPopup, setShowViewPopup] = useState(false);
   const [showUpdatePopup, setShowUpdatePopup] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
-  
-  // State cho tìm kiếm và lọc
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
-  const [selectedPaymentStatus, setSelectedPaymentStatus] = useState('');
-  const [selectedDeliveryPerson, setSelectedDeliveryPerson] = useState('');
+  const { currentPage: paramCurrentPage, ordersPerPage: paramOrdersPerPage } = useParams();
+  const [notifications, setNotifications] = useState([]);
+  const [filterOrderStatus, setFilterOrderStatus] = useState(queryParams.get('orderStatus') || '');
+  const [filterPaymentStatus, setFilterPaymentStatus] = useState(queryParams.get('paymentStatus') || '');
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [showConfirmPopupMulti, setShowConfirmPopupMulti] = useState(false);
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+  const ordersPerPage = parseInt(paramOrdersPerPage) || 8; // Số lượng người dùng trên mỗi trang
+  const currentPage = parseInt(paramCurrentPage) || 1;
+  const [totalPages, setTotalPages] = useState(1);
+  const [showModal, setShowModal] = useState(false);
+  
   const sortedOrders = React.useMemo(() => {
     let sortableOrders = [...orders];
     if (sortConfig !== null) {
@@ -103,58 +54,112 @@ const ManageOrder = () => {
     setSortConfig({ key, direction });
   };
 
-  const handleCancelOrder = (orderId) => {
-    const updatedOrders = orders.map(order =>
-      order.orderId === orderId ? { ...order, status: 'Canceled' } : order
-    );
-    setOrders(updatedOrders);
-  };
+  useEffect(() => {
+    const queryParams = new URLSearchParams();
+    // if (searchTerm) queryParams.set('search', searchTerm);
+    if (filterOrderStatus) queryParams.set('orderStatus', filterOrderStatus);
+  if (filterPaymentStatus) queryParams.set('paymentStatus', filterPaymentStatus);
+    window.history.replaceState(null, '', `/manage-order/${currentPage}/${ordersPerPage}?${queryParams.toString()}`);
+  }, [ filterOrderStatus, filterPaymentStatus, currentPage, ordersPerPage]);
 
-  const handleUpdateOrder = (order) => {
-    setCurrentOrder(order);
-    setShowUpdatePopup(true);
-  };
+  useEffect(() => {
+    const fetchOrders = async () => {
+      console.log(filterPaymentStatus);
+      if ( filterOrderStatus || filterPaymentStatus) {
+        const searchData = {
+          orderStatus: filterOrderStatus === "" ? undefined : filterOrderStatus,
+          paymentStatus: filterPaymentStatus === "" ? undefined : filterPaymentStatus,
+        };
+        console.log('search' ,searchData);
+        try {
+          const result = await getOrdersAdmin(currentPage, ordersPerPage, searchData);
 
-  const handleSaveUpdate = (newStatus, newPaymentStatus) => {
-    const updatedOrders = orders.map(order => 
-      order.userid === currentOrder.userid ? { 
-        ...order, 
-        status: newStatus, 
-        paymentStatus: newPaymentStatus,
-        updatedDate: new Date().toISOString().split('T')[0], // Update the date
-      } : order
-    );
-    setOrders(updatedOrders);
-    setShowUpdatePopup(false);
-    setCurrentOrder(null);
-  };
-
+          if (Array.isArray(result.data.orders)) {
+            setOrders(result.data.orders);
+            const totalPages = Math.ceil(parseInt(result.data.total) / parseInt(ordersPerPage));
+            setTotalPages(totalPages);
+          } else {
+            console.error("Data returned from API is not an array:", result.data.orders);
+            sessionStorage.setItem('notification', JSON.stringify({
+              message: 'Lỗi trong quá trình xử lý!',
+              type: notificationTypes.SUCCESS
+            }));
+            
+          }
+        } catch (error) {
+          console.error('Error fetching search orders:', error);
+        }
+      } else {
+        const fetchedOrders = [];
+        const searchData = {
+          orderStatus: filterOrderStatus === "" ? undefined : filterOrderStatus,
+          paymentStatus: filterPaymentStatus === "" ? undefined : filterPaymentStatus,
+        };
+        let page = 1;
+        let totalOrders = 0;
+        do {
+          const result = await getOrdersAdmin(page, ordersPerPage, searchData);
+          if (result.success) {
+            fetchedOrders.push(...result.data.orders);
+            totalOrders = result.data.total;
+            page++;
+          } else {
+            console.error('Failed to fetch orders:', result.message);
+            sessionStorage.setItem('notification', JSON.stringify({
+              message: 'Lỗi trong quá trình xử lý!',
+              type: notificationTypes.SUCCESS
+            }));
+            break;
+          }
+        } while (fetchedOrders.length < totalOrders);
+        setTotalPages(Math.ceil(totalOrders / ordersPerPage));
+        setOrders(fetchedOrders.slice((currentPage - 1) * ordersPerPage, currentPage * ordersPerPage));
+      }
+    };
+  
+    fetchOrders();
+  }, [ filterPaymentStatus, filterOrderStatus, currentPage, ordersPerPage]);
+  
   const handleViewOrder = (order) => {
-    setCurrentOrder(order);
+    setCurrentOrder({
+      ...order,
+    });
     setShowViewPopup(true);
   };
+
+  const handlePageChange = (page) => {
+    const queryParams = new URLSearchParams();
+    if (filterOrderStatus) queryParams.set('orderStatus', filterOrderStatus); 
+    if (filterPaymentStatus) queryParams.set('paymentStatus',filterPaymentStatus);
+  
+    navigate(`/manage-order/${page}/${ordersPerPage}?${queryParams.toString()}`);
+  };
+
+  const handleOrderStatusChange = (event) => {
+    setFilterOrderStatus(event.target.value.trim());
+  };
+  
+  
+  const handlePaymentStatusChange = (event) => {
+    const newPaymentStatus = event.target.value.trim();
+    setFilterPaymentStatus(newPaymentStatus);
+  };
+
   const handleSelectOrder = (id) => {
     if (selectedOrders.includes(id)) {
-      setSelectedOrders(selectedOrders.filter(orId => orId !== orderId));
+      setSelectedOrders(selectedOrders.filter(orderId => orderId !== id));
     } else {
       setSelectedOrders([...selectedOrders, id]);
     }
   };
-  const handleDeleteSelectedOrders = () => {
-    setOrders(orders.filter(order => !selectedOrders.includes(order.orderId)));
-    setSelectedOrders([]); // Reset selected users
+
+  const openUpdateModal = (order) => {
+    setCurrentOrder({
+      ...order,
+    });
+    setShowModal(true);
   };
-  // Hàm để lọc đơn hàng
-  const filteredOrders =  sortedOrders.filter(order => {
-    const matchesSearch = order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          order.productName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = selectedStatus ? order.status === selectedStatus : true;
-    const matchesPaymentStatus = selectedPaymentStatus ? order.paymentStatus === selectedPaymentStatus : true;
-    const matchesDeliveryPerson = selectedDeliveryPerson ? order.deliveryPerson === selectedDeliveryPerson : true;
-
-    return matchesSearch && matchesStatus && matchesPaymentStatus && matchesDeliveryPerson;
-  });
-
+  
   return (
     <div className="bg-gray-100 min-h-screen">
       <AdminHeader />
@@ -165,22 +170,22 @@ const ManageOrder = () => {
         <div className="flex items-center flex-col md:flex-row  mt-4 mb-3 px-6 py-3 bg-white rounded-lg">
           <div className="flex items-center space-x-2 w-1/5 ">
             <div className='pr-4 mt-1 tablet:absolute tablet:mt-[148px] tablet:left-10 '>
-              <input 
-                      type="checkbox" 
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedOrders(orders.map(order => order.orderId));
-                        } else {
-                          setSelectedOrders([]);
-                        }
-                      }}
-                    
-                    />
+            <input 
+                    type="checkbox" 
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedOrders(sortedOrders.map(order => order.id));
+                      } else {
+                        setSelectedOrders([]);
+                      }
+                    }}
+                   
+                  />
               </div>
             <div className=' tablet:mt-36 tablet:left-16 tablet:absolute'>
             {selectedOrders.length > 0 && (
               <FaTrash 
-                onClick={handleDeleteSelectedOrders} 
+                // onClick={handleDeleteSelectedOrders} 
                 className='text-gray-400 hover:text-red-500  ' 
               />
             )}
@@ -191,8 +196,6 @@ const ManageOrder = () => {
               <input 
                 type="text" 
                 placeholder="Search ...." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
                 className="border rounded-lg px-4 py-2 w-full"
               />
               <FaSearch className="absolute top-3 right-4 text-gray-400" />
@@ -201,43 +204,30 @@ const ManageOrder = () => {
           <div className="flex items-center space-x-2 w-2/5 tablet:w-full justify-end">
             <div className=" relative w-1/4">
               <select 
-                value={selectedStatus} 
-                onChange={(e) => setSelectedStatus(e.target.value)} 
+                value={filterOrderStatus} 
+                onChange={handleOrderStatusChange} 
                 className="border rounded-lg px-3 py-2 w-full appearance-none pr-8"
               >
-                <option value="">All Status</option>
-                <option value="Pending">Pending</option>
-                <option value="Confirmed">Confirmed</option>
-                <option value="In Delivery">In Delivery</option>
-                <option value="Delivered">Delivered</option>
-                <option value="Canceled">Canceled</option>
+                <option value="">Tất cả</option>
+                <option value="Đang kiểm hàng">Đang kiểm hàng</option>
+                <option value="Đang vận chuyển">Đang vận chuyển</option>
+                <option value="Đã giao hàng">Đã giao hàng</option>
+                <option value="Hủy đơn hàng">Hủy đơn hàng</option>
+            
               </select>
               <FaFilter className="absolute top-3 right-2 text-gray-400" />
             </div>
 
             <div className="relative w-1/4">
               <select 
-                value={selectedPaymentStatus} 
-                onChange={(e) => setSelectedPaymentStatus(e.target.value)} 
+                value={filterPaymentStatus} 
+                onChange={handlePaymentStatusChange} 
                 className="border rounded-lg px-3 py-2 w-full appearance-none pr-8"
               >
-                <option value="">All Payment</option>
-                <option value="Pending">Pending</option>
-                <option value="Paid">Paid</option>
-                <option value="Cash on Delivery">Cash on Delivery</option>
-              </select>
-              <FaFilter className="absolute top-3 right-2 text-gray-400" />
-            </div>
-
-            <div className="relative w-1/4  ">
-              <select 
-                value={selectedDeliveryPerson} 
-                onChange={(e) => setSelectedDeliveryPerson(e.target.value)} 
-                className="border rounded-lg px-3 py-2 w-full appearance-none pr-8"
-              >
-                <option value="">All Shipper</option>
-                <option value="Trần Văn B">Trần Văn B</option>
-                <option value="Nguyễn Văn D">Nguyễn Văn D</option>
+                <option value="">Tất cả</option>
+                <option value="Đã thanh toán">Đã thanh toán</option>
+                <option value="Chưa thanh toán">Chưa thanh toán</option>
+                <option value="Nợ">Nợ</option>
               </select>
               <FaFilter className="absolute top-3 right-2 text-gray-400" />
             </div>
@@ -253,51 +243,51 @@ const ManageOrder = () => {
                   <MdOutlineInbox />
                 </th>
                 <th className="py-3 pr-6 text-left">STT </th> 
-                <th className="py-3 px-6 text-left">Order ID <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('orderId')}/></th>
-                <th className="py-3 px-6 text-left hidden sm:table-cell">User ID <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('userid')}/></th>
-                <th className="py-3 px-6 text-left hidden sm:table-cell">Name <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('name')}/></th>
-                <th className="py-3 px-6 text-left hidden md:table-cell">Product Name <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('productName')}/></th>
-                <th className="py-3 px-6 text-left hidden lg:table-cell">Status <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('status')}/></th>
-                <th className="py-3 px-6 text-left hidden lg:table-cell">Payment Status <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('paymentStatus')}/></th>
+                <th className="py-3 px-6 text-left">Ngày đặt hàng <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('createdAt')}/></th>
+                <th className="py-3 px-6 text-left hidden sm:table-cell">Ngày cập nhật <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('updatedAt')}/></th>
+                <th className="py-3 px-6 text-left hidden sm:table-cell">Tổng tiền <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('total_price')}/></th>
+                <th className="py-3 px-6 text-left hidden md:table-cell">Phương thức thanh toán <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('payment_method')}/></th>
+                <th className="py-3 px-6 text-left hidden lg:table-cell">Tình trạng đơn hàng <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('orderStatus')}/></th>
+                <th className="py-3 px-6 text-left hidden lg:table-cell">Tình trạng thanh toán <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('paymentStatus')}/></th>
                 <th className="py-3 px-6 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.map((order, index) => (
+              {sortedOrders.map((order, index) => (
                 <tr key={index} className="border-b hover:bg-indigo-50">
                 <td className="py-4 px-6">
                     <input 
                       type="checkbox" 
-                      checked={selectedOrders.includes(order.orderId)} 
-                      onChange={() => handleSelectOrder(order.orderId)} 
+                      checked={selectedOrders.includes(order.id)} 
+                      onChange={() => handleSelectOrder(order.id)} 
                     />
                   </td>
                   <td className="py-3 pr-6">{index+1}</td>
-                  <td className="py-3 px-6">{order.orderId}</td>
-                  <td className="py-3 px-6 hidden sm:table-cell">{order.userid}</td>
-                  <td className="py-3 px-6 hidden sm:table-cell">{order.name}</td>
-                  <td className="py-3 px-6 hidden md:table-cell">{order.productName}</td>
+                  <td className="py-3 px-6">{order.createdAt}</td>
+                  <td className="py-3 px-6 hidden sm:table-cell">{order.updatedAt}</td>
+                  <td className="py-3 px-6 hidden sm:table-cell">{order.total_price}</td>
+                  <td className="py-3 px-6 hidden md:table-cell">{order.payment_method}</td>
                   <td className="py-3 pl-1 pr-10 hidden lg:table-cell"><p
                   className={`text-center rounded-md ${
-                    order.status === 'Pending'
+                    order.orderStatus == 'Đang kiểm hàng'
                       ? 'bg-[#F29339] text-white'
-                      : order.status === 'Confirmed'
-                      ? 'bg-[#286daa] text-white'
-                      : order.status === 'In Delivery'
+                      : order.orderStatus == 'Đang vận chuyển'
+                      ? 'bg-[#4175a2] text-white'
+                      : order.orderStatus == 'Hủy đơn hàng'
                       ? 'bg-[#ad402a] text-white'
-                      : order.status === 'Delivered'
+                      : order.orderStatus == 'Đã giao'
                       ? 'bg-[#006532] text-white'
                       : 'bg-gray-300 text-black'
                   }`}
                 >
-                  {order.status}</p></td>
+                  {order.orderStatus}</p></td>
                   <td className="py-3 px-6  hidden lg:table-cell"><p
                   className={`text-center  rounded-md  ${
-                    order.paymentStatus === 'Pending'
+                    order.paymentStatus === 'Chưa thanh toán'
                       ? 'bg-[#F29339] text-white xl:w-40'
-                      : order.paymentStatus === 'Cash on Delivery'
-                      ? 'bg-[#3cc9dc] text-white  xl:w-40'
-                      : order.paymentStatus === 'Paid'
+                      : order.paymentStatus === 'Nợ'
+                      ? 'bg-[#447177] text-white  xl:w-40'
+                      : order.paymentStatus === 'Đã thanh toán'
                       ? 'bg-[#006532] text-white  xl:w-40'
                       : 'bg-gray-300 text-black'
                   }`}
@@ -310,18 +300,15 @@ const ManageOrder = () => {
                       >
                         <FaEye size={18} />
                       </button>
-                      <button 
+                      {/* <button 
                         onClick={() => handleCancelOrder(order.orderId)} 
                         className="text-red-600 hover:text-red-700"
                       >
                         <MdOutlineCancel size={18} />
-                      </button>
-                      <button 
-                        onClick={() => handleUpdateOrder(order)} 
-                        className="text-green-600 hover:text-green-700"
-                      >
-                        <FiEdit size={18} />
-                      </button>
+                      </button> */}
+                      <button onClick={() => openUpdateModal(order)} className="text-[#006532] hover:text-[#005a2f]">
+                      <FaEdit />
+                    </button>
                     </div>
                   </td>
                 </tr>
@@ -334,17 +321,17 @@ const ManageOrder = () => {
         {showViewPopup && currentOrder && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70">
             <div className="bg-white p-6 rounded-lg shadow-lg w-96 border border-gray-200">
-              <h2 className="text-2xl font-semibold mb-4 text-[#006532]">Order: {currentOrder.orderId}</h2>
-              <p className="text-black"><strong className="text-[#006532]">Name:</strong> {currentOrder.name}</p>
-              <p className="text-black"><strong className="text-[#006532]">Product Name:</strong> {currentOrder.productName}</p>
-              <p className="text-black"><strong className="text-[#006532]">Quantity:</strong> {currentOrder.quantity}</p>
-              <p className="text-black"><strong className="text-[#006532]">Price:</strong> {currentOrder.priceOut}</p>
-              <p className="text-black"><strong className="text-[#006532]">Address:</strong> {currentOrder.address}</p>
-              <p className="text-black"><strong className="text-[#006532]">Order Date:</strong> {currentOrder.orderDate}</p>
-              <p className="text-black"><strong className="text-[#006532]">Status:</strong> {currentOrder.status}</p>
-              <p className="text-black"><strong className="text-[#006532]">Updated Date:</strong> {currentOrder.updatedDate}</p>
-              <p className="text-black"><strong className="text-[#006532]">Delivery Person:</strong> {currentOrder.deliveryPerson}</p>
-              <p className="text-black"><strong className="text-[#006532]">Payment Status:</strong> {currentOrder.paymentStatus}</p>
+              <h2 className="text-2xl font-semibold mb-4 text-[#006532]">Đơn: {currentOrder.id}</h2>
+              <p className="text-black"><strong className="text-[#006532]">Khách hàng:</strong> {currentOrder.user_id}</p>
+              <p className="text-black"><strong className="text-[#006532]">Nhân viên:</strong> {currentOrder.employee_id}</p>
+              <p className="text-black"><strong className="text-[#006532]">Địa chỉ:</strong> {currentOrder.location_id}</p>
+              <p className="text-black"><strong className="text-[#006532]">Tổng tiền:</strong> {currentOrder.total_price}</p>
+              <p className="text-black"><strong className="text-[#006532]">Tình trạng đơn hàng:</strong> {currentOrder.orderStatus}</p>
+              <p className="text-black"><strong className="text-[#006532]">Phương thức thanh toán:</strong> {currentOrder.payment_method}</p>
+              <p className="text-black"><strong className="text-[#006532]">Tình trạng thanh toán:</strong> {currentOrder.paymentStatus}</p>
+              <p className="text-black"><strong className="text-[#006532]">Thời gian cập nhật:</strong> {currentOrder.updatedAt}</p>
+              <p className="text-black"><strong className="text-[#006532]">Thời gian đặt hàng:</strong> {currentOrder.createdAt}</p>
+             
               <button 
                 onClick={() => setShowViewPopup(false)} 
                 className="mt-4 bg-[#006532] text-white py-2 px-4 rounded hover:bg-green-700"
@@ -360,9 +347,9 @@ const ManageOrder = () => {
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70">
             <div className="bg-white p-6 rounded-lg shadow-lg w-96 border border-gray-200">
               <h2 className="text-2xl font-semibold mb-4 text-[#006532]">Update Order</h2>
-              <p className="text-black"><strong>Order ID:</strong> {currentOrder.orderId}</p>
-              <p className="text-black"><strong>Name:</strong> {currentOrder.name}</p>
-              <p className="text-black"><strong>Status:</strong></p>
+              <p className="text-black"><strong>Order ID:</strong> {currentOrder.id}</p>
+              {/* <p className="text-black"><strong>Name:</strong> {currentOrder.name}</p> */}
+              {/* <p className="text-black"><strong>Status:</strong></p>
               <select 
                 defaultValue={currentOrder.status} 
                 onChange={(e) => setCurrentOrder({ ...currentOrder, status: e.target.value })}
@@ -382,15 +369,15 @@ const ManageOrder = () => {
                 <option value="Pending" >Pending</option>
                 <option value="Paid">Paid</option>
                 <option value="Cash on Delivery">Cash on Delivery</option>
-              </select>
+              </select> */}
 
-              <button 
+              {/* <button 
                 onClick={() => handleSaveUpdate(currentOrder.status, currentOrder.paymentStatus)} 
                 className="mt-4 bg-[#006532] text-white py-2 px-4 rounded hover:bg-green-700"
               >
                 <FaSave className="inline mr-1" />
                 Save
-              </button>
+              </button> */}
               <button 
                 onClick={() => setShowUpdatePopup(false)} 
                 className="mt-4 ml-2 bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700"
@@ -400,6 +387,19 @@ const ManageOrder = () => {
             </div>
           </div>
         )}
+        <div className="flex justify-center mt-4">
+        {/* Hiển thị các nút phân trang */}
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index + 1}
+            onClick={() => handlePageChange(index + 1)}
+            className={`mx-1 px-3 py-1 rounded ${index + 1 === currentPage ? 'bg-[#006532] text-white' : 'bg-gray-200 text-gray-800 hover:bg-blue-200'}`}
+            disabled={index + 1 === currentPage} // Vô hiệu hóa nút hiện tại
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
       </div>
     </div>
   );
