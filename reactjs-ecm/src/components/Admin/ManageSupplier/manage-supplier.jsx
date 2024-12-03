@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import  { useEffect, useState } from "react";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import AdminHeader from "../AdminHeader/admin-header.jsx";
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaFilter } from "react-icons/fa";
-import { createSupplier,deleteSuppliers,deleteSupplier, getSupplier,updateSupplier,} from "../../../services/supplier-service.js";
+import { FaPlus, FaEdit, FaTrash, FaSearch } from "react-icons/fa";
+import { createSupplier,deleteSuppliers,deleteSupplier, getSupplier,updateSupplier,getSearchSuppliers} from "../../../services/supplier-service.js";
 import { uploadImage } from "../../../services/image-service.js";
 import { ClipLoader } from 'react-spinners';
 import { showNotification, notificationTypes, NotificationList } from '../../Notification/NotificationService.jsx';
@@ -27,42 +27,100 @@ const Modal = ({ children, showModal, setShowModal }) =>
 const ManageSupplier = () => {
   const { page: paramPage, limit: paramLimit } = useParams(); 
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+
   const [suppliers, setSuppliers] = useState([]);
   const [newSupplier, setNewSupplier] = useState({
     name: "",
-    image: "",
+    url_image: "",
     phone: "",
     address: "",
 
   });
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(queryParams.get('search') || '');
   const [selectedSuppliers, setSelectedSuppliers] = useState([]);
   const [page, setPage] = useState(Number(paramPage) || 1);
   const [limit, setLimit] = useState(Number(paramLimit) || 4);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
-
-  const fetchSuppliers = async () => {
-    const response = await getSupplier(page, limit);
-    if (response.success) {
-      setSuppliers(response.data.data); 
-      setTotalPages(Math.ceil(response.data.total / limit));
-    }
-  };
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+const [supplierToDelete, setSupplierToDelete] = useState(null);
+const [showConfirmDeleteMultiple, setShowConfirmDeleteMultiple] = useState(false);
 
   useEffect(() => {
+    const queryParams = new URLSearchParams();
+    if (searchTerm) queryParams.set('search', searchTerm);
+    window.history.replaceState(null, '', `/manage-supplier/${page}/${limit}?${queryParams.toString()}`);
+  }, [searchTerm, page, limit]);
+
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      try {
+        if (searchTerm) {
+          const searchData = {
+            name: searchTerm,
+            phone: '',
+          };
+          console.log(searchData);
+          
+          const result = await getSearchSuppliers(page, limit, searchData);
+          if (Array.isArray(result.data.data)) {
+            setSuppliers(result.data.data);
+            const totalPages = Math.ceil(parseInt(result.data.total) / parseInt(result.data.limit));
+            setTotalPages(totalPages);
+          } else {
+            console.error("Data returned from API is not an array:", result.data.data);
+            sessionStorage.setItem('notification', JSON.stringify({
+              message: 'Lỗi trong quá trình xử lý. Vui lòng thử lại',
+              type: notificationTypes.ERROR
+            }));
+          }
+        } else {
+          const fetchedSupplier = [];
+          let newpage = 1;
+          let totalUsers = 0;
+          do {
+            const result = await getSupplier(newpage, limit);
+            console.log(result.data);
+            
+            if (result.success) {
+              fetchedSupplier.push(...result.data.data);
+              totalUsers = result.data.total;
+              newpage++;
+            } else {
+              console.error('Failed to fetch users:', result.message);
+              break;
+            }
+          } while (fetchedSupplier.length < totalUsers);
+      
+          setSuppliers(fetchedSupplier.slice((page - 1) * limit, page * limit));
+          setTotalPages(Math.ceil(totalUsers / limit));
+        }
+      } catch (error) {
+        console.error('Error fetching suppliers:', error);
+        sessionStorage.setItem('notification', JSON.stringify({
+          message: 'Lỗi trong quá trình xử lý',
+          type: notificationTypes.ERROR
+        }));
+      }
+    };
+    
     fetchSuppliers();
-  }, [page, limit, showModal]);
+  }, [searchTerm, page, limit]);
 
-  useEffect(() => {
-    navigate(`/manage-supplier/${page}/${limit}`); 
-  }, [page, limit]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
+  };
+
+  const handleSearchChange = (event) => {
+    const newSearchTerm = event.target.value;
+    setSearchTerm(newSearchTerm);
+  
   };
 
   const handleInputChange = (e) => {
@@ -90,6 +148,10 @@ const ManageSupplier = () => {
         }
       } catch (error) {
         console.error("Error uploading image:", error);
+        sessionStorage.setItem('notification', JSON.stringify({
+          message: 'Lỗi trong quá trình thêm ảnh. Vui lòng thử lại',
+          type: notificationTypes.ERROR
+        }));
       }finally {
         setLoading(false); 
       }
@@ -105,7 +167,7 @@ const ManageSupplier = () => {
         setShowModal(false);
         setNewSupplier({
           name: "",
-          image: "",
+          url_image: "",
           phone: "",
           address: "",
         }); 
@@ -127,9 +189,10 @@ const ManageSupplier = () => {
   };
   
   const handleAddSupplier = () => {
-    if (!newSupplier.image) {
+    if (!newSupplier.url_image) {
       console.error("Image is required for adding supplier.");
       showNotification('Chưa có ảnh!', notificationTypes.WARNING, setNotifications);
+      window.location.reload();
       return; 
     }
     addSupplier(newSupplier);
@@ -168,7 +231,7 @@ const ManageSupplier = () => {
   
   const handleUpdateSupplier = () => {
     if (editingSupplier) {
-      if (!newSupplier.image) {
+      if (!newSupplier.url_image) {
         console.error("Image is required for updating supplier.");
         return; // Nếu không có ảnh, không thực hiện cập nhật
       }
@@ -179,7 +242,7 @@ const ManageSupplier = () => {
 
       setNewSupplier({
         name: "",
-        image: "",
+        url_image: "",
         phone: "",
         address: "",
         id: "", 
@@ -211,18 +274,24 @@ const ManageSupplier = () => {
   };
 
   const handleDeleteSupplier = async (id) => {
-    await deleteOneSupplier(id);
-    window.location.reload();
+    setShowConfirmDelete(true);
+    setSupplierToDelete(id);
   };
   
+  const confirmDeleteSupplier = async () => {
+    if (supplierToDelete !== null) {
+      await deleteOneSupplier(supplierToDelete);
+      setSupplierToDelete(null);
+      setShowConfirmDelete(false);
+      window.location.reload();
+    }
+  };
 
   const handleEditSupplier = (supplier) => {
     setEditingSupplier(supplier);
     setNewSupplier(supplier);
     setShowModal(true);
   };
-
-
   
   const handleSelectSupplier = (id) => {
     if (selectedSuppliers.includes(id)) {
@@ -260,18 +329,17 @@ const ManageSupplier = () => {
   };
 
   const handleDeleteSelectedSuppliers = () => {
-    deleteSelectedSuppliers();
+    setShowConfirmDeleteMultiple(true);
   };
-
+  
+  const confirmDeleteSelectedSuppliers = async () => {
+    await deleteSelectedSuppliers();
+    setShowConfirmDeleteMultiple(false);
+  };
   // Hàm lọc danh sách suppliers
-  const filteredSuppliers = suppliers.filter((supplier) => {
-    if (!supplier.name) return false;
-
-    const matchesSearch = supplier.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  });
+  const filteredSuppliers = suppliers.filter((supplier) =>
+    supplier.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   
 
@@ -307,7 +375,7 @@ const ManageSupplier = () => {
             />
             <input
               type="file"
-              name="image"
+              name="url_image"
               onChange={handleFileChange}
               className="rounded border p-2"
             />
@@ -370,7 +438,7 @@ const ManageSupplier = () => {
                 type="text"
                 placeholder="Search by name"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
                 className="w-full rounded-lg border border-[#00653287] px-4 py-2"
               />
               <FaSearch className="absolute right-4 top-3 text-gray-400" />
@@ -392,7 +460,7 @@ const ManageSupplier = () => {
                 <p className="mb-2 text-gray-600">
                   <strong>Avatar:</strong>{" "}
                   <img
-                    src={supplier.image}
+                    src={supplier.url_image}
                     alt={supplier.name}
                     className="h-16 w-16 rounded"
                   />
@@ -428,19 +496,60 @@ const ManageSupplier = () => {
             ))}
           </div>
         </div>
+        {showConfirmDelete && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-600">Xác nhận xóa</h2>
+            <p>Bạn có chắc chắn muốn xóa nhà cung cấp này không?</p>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => setShowConfirmDelete(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={confirmDeleteSupplier}
+                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+              >
+                Xóa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
+      {/* Pop-up xác nhận xóa nhiều nhà cung cấp */}
+      {showConfirmDeleteMultiple && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-600">Xác nhận xóa</h2>
+            <p>Bạn có chắc chắn muốn xóa những nhà cung cấp đã chọn không?</p>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => setShowConfirmDeleteMultiple(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={confirmDeleteSelectedSuppliers}
+                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+              >
+                Xóa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
         {/* Nút phân trang */}
         <div className="mt-4 flex justify-center">
         {Array.from({ length: totalPages }, (_, index) => (
           <button
             key={index + 1}
             onClick={() => handlePageChange(index + 1)}
-            className={`mx-1 rounded px-3 py-1 ${
-              index + 1 === page
-                ? "bg-[#006532] text-white"
-                : "bg-gray-200 text-gray-800 hover:bg-blue-200"
-            }`}
-            disabled={index + 1 === page}
+            className={`mx-1 px-3 py-1 rounded ${index + 1 === page ? 'bg-[#006532] text-white' : 'bg-gray-200 text-gray-800 hover:bg-blue-200'}`}
+            disabled={index + 1 === page} // Vô hiệu hóa nút hiện tại
           >
             {index + 1}
           </button>
@@ -451,7 +560,7 @@ const ManageSupplier = () => {
           onClick={() => {
             setNewSupplier({
               name: "",
-              image: "",
+              url_image: "",
               phone: "",
               address: "",
         

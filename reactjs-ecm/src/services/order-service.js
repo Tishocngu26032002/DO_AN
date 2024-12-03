@@ -59,3 +59,39 @@ export const createOrder = async (orderData) => {
     throw error;
   }
 };
+
+export async function getOrdersAdmin(page, limit, searchData) {
+  try {
+    const token = getToken();
+    
+    // Chuyển searchData thành query string
+    const queryParams = new URLSearchParams(searchData).toString();
+
+    const res = await axios.get(`${BASE_URL}/order/manage-order/${page}/${limit}?${queryParams}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: "*/*",
+      },
+    });
+    
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    throw error;
+  }
+}
+
+export const updateOrder = async ( adminId , orderData) => {
+  try {
+    const token = getToken(); // Lấy token
+    const res = await axios.patch(`${BASE_URL}/order/${adminId}`, orderData, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Truyền token ở đây
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw error;
+  }
+};

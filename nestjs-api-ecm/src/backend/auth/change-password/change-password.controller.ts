@@ -15,7 +15,7 @@ export class ChangePasswordController {
   constructor(private readonly changePasswordService: ChangePasswordService) {}
 
   @Post(':user_id')
-  @Roles('user, admin')
+  @Roles('user', 'admin')
   async changePass(
     @Param('user_id') user_id: string,
     @Body() changePassDTO: changePassDTO,

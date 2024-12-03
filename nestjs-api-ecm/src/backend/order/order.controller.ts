@@ -49,13 +49,12 @@ export class OrderController {
     }
   }
 
-
   @ApiQuery({
     name: 'orderStatus',
     enum: OrderStatus,
     required: false,
     description:
-        'Trạng thái đơn hàng (All, Checking, InTransit, Delivered, Canceled)',
+      'Trạng thái đơn hàng (All, Checking, InTransit, Delivered, Canceled)',
   })
   @ApiQuery({
     name: 'paymentStatus',
@@ -99,8 +98,6 @@ export class OrderController {
       return responseHandler.error(errorMessage);
     }
   }
-
-
 
   @Post(':user_id')
   @Roles('user')

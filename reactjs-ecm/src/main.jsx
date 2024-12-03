@@ -72,7 +72,7 @@ root.render(
                             <NotificationProvider>
                                 <Routes>
                                     <Route path="/manage-category" element={<ManageCategory/>}/>
-                                    <Route path="/manage-order" element={<ManageOrder/>}/>
+                                    <Route path="/manage-order/:currentPage/:ordersPerPage" element={<ManageOrder/>}/>
                                     <Route path="/import-product" element={<ImportProduct/>}/>
                                     <Route
                                         path="/manage-product/:currentPage/:productsPerPage"
