@@ -6,6 +6,7 @@ import { IoMenu, IoClose } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
 import img from "../../../public/images/Crops organic farm.png";
 import { getUser } from "../../services/user-service";
+import { logoutUser } from "../../services/auth-api";
 import {
   NotificationList,
   notificationTypes,
@@ -14,7 +15,7 @@ import {
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState(null); // Thêm state để lưu trữ thông tin người dùng
+  const [user, setUser] = useState(null); 
 
   const [notifications, setNotifications] = useState([]);
 
@@ -23,11 +24,10 @@ function Header() {
   };
 
   useEffect(() => {
-    // Giả sử hàm getUser là một hàm bất đồng bộ để lấy thông tin người dùng
     const fetchUser = async () => {
       try {
-        const response = await getUser(); // Gọi hàm getUser để lấy thông tin người dùng
-        setUser(response.data); // Lưu thông tin người dùng vào state
+        const response = await getUser(); 
+        setUser(response.data); 
       } catch (error) {
         console.error("Failed to fetch user", error);
       }
@@ -95,7 +95,7 @@ function Header() {
 
             <li className="px-4">
               <NavLink
-                to="/about"
+                to="/#"
                 className={({ isActive }) =>
                   isActive
                     ? "border-b-2 border-b-[#006532] text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out"
@@ -107,7 +107,7 @@ function Header() {
             </li>
             <li className="px-4">
               <NavLink
-                to="/contact"
+                to="/#"
                 className={({ isActive }) =>
                   isActive
                     ? "border-b-2 border-b-[#006532] text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out"
@@ -121,7 +121,7 @@ function Header() {
             {user && ( // Kiểm tra nếu lastName tồn tại thì hiển thị
               <li className="pl-4">
                 <NavLink
-                  to="/contact"
+                  to="/home-page"
                   className={({ isActive }) =>
                     isActive
                       ? "border-b-2 border-b-[#006532] text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out"
@@ -133,7 +133,7 @@ function Header() {
               </li>
             )}
             <li id="lg-bag" className="md:mb-3 md:h-5 md:px-4">
-              <Link to="/login">
+            <Link to={user ? "/home-page" : "/login"}>
                 <FaRegUser
                   aria-hidden="true"
                   className="h-[23px] w-[23px] text-[#006532] transition duration-300 hover:text-[#80c9a4]"

@@ -63,8 +63,6 @@ export const createOrder = async (orderData) => {
 export async function getOrdersAdmin(page, limit, searchData) {
   try {
     const token = getToken();
-    
-    // Chuyển searchData thành query string
     const queryParams = new URLSearchParams(searchData).toString();
 
     const res = await axios.get(`${BASE_URL}/order/manage-order/${page}/${limit}?${queryParams}`, {
