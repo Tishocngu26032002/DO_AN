@@ -46,10 +46,7 @@ root.render(
             element={
               <CartProvider>
                 <Routes>
-                  <Route
-                    path="/"
-                    element={<Navigate to="/home-page" replace />}
-                  />
+                  <Route path="*" element={<Navigate to="/home-page" replace />} />
                   <Route path="/register" element={<RegisterForm />} />
                   <Route path="/otp" element={<OTPPage />} />
                   <Route path="/login" element={<LoginForm />} />
@@ -57,10 +54,7 @@ root.render(
                   <Route path="/ship-history" element={<ShipHistory />} />
                   <Route path="/home-page" element={<Home />} />
                   <Route path="/products" element={<ShopGrid />} />
-                  <Route
-                    path="/product-detail/:productId"
-                    element={<ProductDetail />}
-                  />
+                  <Route path="/product-detail/:productId" element={<ProductDetail />} />
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/order-history" element={<OrderHistory />} />
                   <Route path="/order-success" element={<OrderSuccess />} />
@@ -71,30 +65,18 @@ root.render(
             }
           />
           <Route
-            path="*"
+            path="/admin/*"
             element={
               <NotificationProvider>
                 <Routes>
                   <Route path="/manage-category" element={<ManageCategory />} />
                   <Route path="/manage-order" element={<ManageOrder />} />
                   <Route path="/import-product" element={<ImportProduct />} />
-                  <Route
-                    path="/manage-product/:currentPage/:productsPerPage"
-                    element={<ManageProduct />}
-                  />
-                  <Route
-                    path="/manage-user/:currentPage/:usersPerPage"
-                    element={<ManageUser />}
-                  />
+                  <Route path="/manage-product/:currentPage/:productsPerPage" element={<ManageProduct />} />
+                  <Route path="/manage-user/:currentPage/:usersPerPage" element={<ManageUser />} />
                   <Route path="/dashboard" element={<Report />} />
-                  <Route
-                    path="/manage-supplier/:page/:limit"
-                    element={<ManageSupplier />}
-                  />
-                  <Route
-                    path="/test-notification"
-                    element={<NotificationsPage />}
-                  />
+                  <Route path="/manage-supplier/:page/:limit" element={<ManageSupplier />} />
+                  <Route path="/test-notification" element={<NotificationsPage />} />
                 </Routes>
               </NotificationProvider>
             }

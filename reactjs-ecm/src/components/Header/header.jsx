@@ -158,7 +158,7 @@ function Header() {
                     aria-hidden="true"
                     className="h-[23px] w-[23px] text-[#006532] transition duration-300 hover:text-[#80c9a4]"
                   />
-                  {user && totalQuantity > 0 && (
+                  {user && (
                     <span className="absolute -top-[10px] right-[5px] flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
                       {totalQuantity}
                     </span>

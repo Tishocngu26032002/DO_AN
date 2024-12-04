@@ -66,7 +66,7 @@ function LoginForm() {
               type: notificationTypes.SUCCESS,
             }),
           );
-          window.location.href = "/dashboard";
+          window.location.href = "/admin/dashboard";
         } else if (role === "user") {
           sessionStorage.setItem(
             "notification",

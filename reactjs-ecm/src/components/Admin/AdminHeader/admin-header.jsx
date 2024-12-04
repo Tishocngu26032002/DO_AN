@@ -226,7 +226,7 @@ function HeaderAdmin() {
         <ul className="flex flex-col items-start font-semibold text-[#006532]">
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
             <NavLink
-              to="/dashboard"
+              to="/admin/dashboard"
               className={({ isActive }) =>
                 isActive
                   ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
@@ -238,7 +238,7 @@ function HeaderAdmin() {
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
             <NavLink
-              to="/manage-user/1/8"
+              to="/admin/manage-user/1/8"
               className={({ isActive }) =>
                 isActive
                   ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
@@ -250,7 +250,7 @@ function HeaderAdmin() {
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
             <NavLink
-              to="/manage-category"
+              to="/admin/manage-category"
               className={({ isActive }) =>
                 isActive
                   ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
@@ -262,7 +262,7 @@ function HeaderAdmin() {
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
             <NavLink
-              to="/manage-product/1/10"
+              to="/admin/manage-product/1/10"
               className={({ isActive }) =>
                 isActive
                   ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
@@ -274,7 +274,7 @@ function HeaderAdmin() {
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
             <NavLink
-              to="/import-product"
+              to="/admin/import-product"
               className={({ isActive }) =>
                 isActive
                   ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
@@ -286,7 +286,7 @@ function HeaderAdmin() {
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
             <NavLink
-              to="/manage-order"
+              to="/admin/manage-order"
               className={({ isActive }) =>
                 isActive
                   ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
@@ -298,7 +298,7 @@ function HeaderAdmin() {
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
             <NavLink
-              to="/manage-supplier/1/4"
+              to="/admin/manage-supplier/1/4"
               className={({ isActive }) =>
                 isActive
                   ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
