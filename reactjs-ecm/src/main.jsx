@@ -28,6 +28,7 @@ import NotificationsPage from "./components/Notification/notification.jsx";
 import ImportProduct from "./components/Admin/Import/import.jsx";
 import "react-toastify/dist/ReactToastify.css";
 import { CartProvider } from "./Context/CartContext.jsx";
+import { NotificationProvider } from "./components/Notification/NotificationProvider.jsx";
 
 const queryClient = new QueryClient();
 
@@ -37,63 +38,69 @@ const root = ReactDOM.createRoot(rootElement);
 
 root.render(
   <React.StrictMode>
-    <CartProvider>
-      <BrowserRouter>
-        <QueryClientProvider client={queryClient}>
-          <Routes>
-            <Route path="/" element={<Navigate to="/home-page" replace />} />
-            <Route path="/register" element={<RegisterForm />} />
-            <Route path="/otp" element={<OTPPage />} />
-            <Route path="/login" element={<LoginForm />} />
-            <Route path="/ship-order" element={<ShipOrder />} />
-            <Route path="/ship-history" element={<ShipHistory />} />
-            <Route path="/home-page" element={<Home />} />
-            <Route path="/products" element={<ShopGrid />} />
-            <Route
-              path="/product-detail/:productId"
-              element={<ProductDetail />}
-            />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/order-history" element={<OrderHistory />} />
-            <Route path="/order-success" element={<OrderSuccess />} />
-            <Route path="/order-details" element={<OrderDetails />} />
-            <Route path="/checkout" element={<Checkout />} />
-
-            <Route
-              path="*"
-              element={
-                <NotificationProvider>
-                  <Routes>
-                    <Route
-                      path="/manage-category"
-                      element={<ManageCategory />}
-                    />
-                    <Route path="/manage-order" element={<ManageOrder />} />
-                    <Route path="/import-product" element={<ImportProduct />} />
-                    <Route
-                      path="/manage-product/:currentPage/:productsPerPage"
-                      element={<ManageProduct />}
-                    />
-                    <Route
-                      path="/manage-user/:currentPage/:usersPerPage"
-                      element={<ManageUser />}
-                    />
-                    <Route path="/dashboard" element={<Report />} />
-                    <Route
-                      path="/manage-supplier/:page/:limit"
-                      element={<ManageSupplier />}
-                    />
-                    <Route
-                      path="/test-notification"
-                      element={<NotificationsPage />}
-                    />
-                  </Routes>
-                </NotificationProvider>
-              }
-            />
-          </Routes>
-        </QueryClientProvider>
-      </BrowserRouter>
-    </CartProvider>
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <Routes>
+          <Route
+            path="*"
+            element={
+              <CartProvider>
+                <Routes>
+                  <Route
+                    path="/"
+                    element={<Navigate to="/home-page" replace />}
+                  />
+                  <Route path="/register" element={<RegisterForm />} />
+                  <Route path="/otp" element={<OTPPage />} />
+                  <Route path="/login" element={<LoginForm />} />
+                  <Route path="/ship-order" element={<ShipOrder />} />
+                  <Route path="/ship-history" element={<ShipHistory />} />
+                  <Route path="/home-page" element={<Home />} />
+                  <Route path="/products" element={<ShopGrid />} />
+                  <Route
+                    path="/product-detail/:productId"
+                    element={<ProductDetail />}
+                  />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/order-history" element={<OrderHistory />} />
+                  <Route path="/order-success" element={<OrderSuccess />} />
+                  <Route path="/order-details" element={<OrderDetails />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                </Routes>
+              </CartProvider>
+            }
+          />
+          <Route
+            path="*"
+            element={
+              <NotificationProvider>
+                <Routes>
+                  <Route path="/manage-category" element={<ManageCategory />} />
+                  <Route path="/manage-order" element={<ManageOrder />} />
+                  <Route path="/import-product" element={<ImportProduct />} />
+                  <Route
+                    path="/manage-product/:currentPage/:productsPerPage"
+                    element={<ManageProduct />}
+                  />
+                  <Route
+                    path="/manage-user/:currentPage/:usersPerPage"
+                    element={<ManageUser />}
+                  />
+                  <Route path="/dashboard" element={<Report />} />
+                  <Route
+                    path="/manage-supplier/:page/:limit"
+                    element={<ManageSupplier />}
+                  />
+                  <Route
+                    path="/test-notification"
+                    element={<NotificationsPage />}
+                  />
+                </Routes>
+              </NotificationProvider>
+            }
+          />
+        </Routes>
+      </QueryClientProvider>
+    </BrowserRouter>
   </React.StrictMode>,
 );
