@@ -205,7 +205,7 @@ export class OrderService extends BaseService<OrderEntity> {
                 acc[item.orderStatus] = item.count;
                 return acc;
             }, {});
-            return { orders: ordersWithProducts, productInStock, total, orderStatusSummary };
+            return { orders: ordersWithProducts, productInStock, orderStatusSummary, total };
         }
 
         const orderStatusCounts = await this.getOrderStatusCount(unique_order_ids, includedStatuses, false);
@@ -213,7 +213,7 @@ export class OrderService extends BaseService<OrderEntity> {
             acc[item.orderStatus] = item.count;
             return acc;
         }, {});
-        return { orders: ordersWithProducts, total, orderStatusSummary };
+        return { orders: ordersWithProducts, orderStatusSummary, total };
     }
 
 
