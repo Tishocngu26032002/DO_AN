@@ -5,9 +5,13 @@ import Footer from "../Footer/footer";
 import { Link, useNavigate } from "react-router-dom";
 import { getProducts } from "../../services/home-service";
 import Header from "../Header/header";
+import { NotificationList } from "../Notification/NotificationService";
+import NotificationHandler from "../Notification/notification-handle";
 
 function HomePage() {
   const [products, setProducts] = useState([]);
+
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     fetchProducts();
@@ -25,6 +29,12 @@ function HomePage() {
   return (
     <div className="body w-full">
       <Header />
+      {/* Hiển thị Notification nếu có */}
+      <NotificationHandler setNotifications={setNotifications} />
+
+      {/* Danh sách thông báo */}
+      <NotificationList notifications={notifications} />
+
       <section className="hero mobile:bg-custom h-[90vh] w-full bg-[url('/images/hero4.jpg')] bg-cover bg-[top_25%_right_0] tablet:h-[70vh] tablet:bg-[top_30%_right_30%] tablet:px-[80px] mobile:px-[20px] mobile:py-[0px]">
         <div className="flex h-full w-full flex-col items-start justify-center bg-[rgba(8,28,14,0.38)] px-[80px]">
           <h4 className="pb-[15px] text-[20px] text-white">Trade-in-offer</h4>

@@ -3,10 +3,12 @@ import { getToken, getUserId } from "../util/auth-local";
 
 const BASE_URL = "http://localhost:6006";
 
+const token = getToken();
+
+const userId = getUserId();
+
 export async function getAddresses() {
   try {
-    const token = getToken();
-    const userId = getUserId();
     const res = await axios.get(`${BASE_URL}/location-user/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -19,16 +21,14 @@ export async function getAddresses() {
   }
 }
 
-export const createNewAddress = async (newName, newAddress, newPhone) => {
+export const createNewAddress = async (data) => {
   try {
-    const token = getToken();
-    const userId = getUserId();
     const res = await axios.post(
       `${BASE_URL}/location-user`,
       {
-        name: newName,
-        address: newAddress,
-        phone: newPhone,
+        name: data.name,
+        address: data.address,
+        phone: data.phone,
         default_location: true,
         user_id: userId,
       },
@@ -47,7 +47,6 @@ export const createNewAddress = async (newName, newAddress, newPhone) => {
 
 export const createOrder = async (orderData) => {
   try {
-    const token = getToken();
     const res = await axios.post(`${BASE_URL}/order`, orderData, {
       headers: {
         Authorization: `Bearer ${token}`,

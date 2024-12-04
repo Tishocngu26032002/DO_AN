@@ -1,9 +1,17 @@
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { REGEX } from "../../constants/regex";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { Link, useNavigate } from "react-router-dom";
+import { apiClient } from "../../services/custom-auth-api";
+
 import React, { useState, useEffect } from "react";
 import Header from "../Header/header";
 import Footer from "../Footer/footer";
 import { PiShoppingCart } from "react-icons/pi";
 import { getUserId } from "../../util/auth-local";
-import { useLocation } from "react-router-dom";
+
 import {
   createNewAddress,
   createOrder,
@@ -19,8 +27,52 @@ import {
   notificationTypes,
   showNotification,
 } from "../Notification/NotificationService";
+import { useCart } from "../../Context/CartContext";
+
+const schema = z.object({
+  name: z.string().min(2, "Ít nhất 2 ký tự").max(20, "Nhiều nhất 20 ký tự"),
+  address: z.string().min(2, "Địa chỉ min = 2").max(50, "Địa chỉ max = 50"),
+  phone: z.string().regex(REGEX.phoneNumber, "Số điện thoại không hợp lệ"),
+});
 
 const Checkout = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isDirty },
+  } = useForm({
+    defaultValues: {
+      name: "",
+      address: "",
+      phone: "",
+    },
+    mode: "onBlur",
+    resolver: zodResolver(schema),
+  });
+
+  const { mutate } = useMutation({
+    mutationFn: async (data) => {
+      // call api thêm địa chỉ mới
+      const response = await createNewAddress(data);
+      return response.data; // Tải lại trang để lấy danh sách địa chỉ mới
+    },
+    onSuccess: (response) => {
+      if (response && response.success === true) {
+        setShowModal(false);
+        alert("Địa chỉ và số điện thoại đã được thêm!");
+        window.location.reload();
+      }
+    },
+    onError: (error) => {
+      console.error("Error:", error);
+    },
+  });
+
+  const onSubmit = (data) => {
+    mutate(data);
+  };
+
+  const { selectedCartItems } = useCart();
   const [nameUser, setNameUser] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
@@ -29,14 +81,11 @@ const Checkout = () => {
   );
   const [addresses, setAddresses] = useState([]); // Để lưu danh sách địa chỉ
   const [showModal, setShowModal] = useState(false); // Hiển thị popup
-  const [newName, setNewName] = useState("");
-  const [newAddress, setNewAddress] = useState("");
-  const [newPhone, setNewPhone] = useState("");
 
-  const location = useLocation();
-
-  const [carts, setCarts] = useState([]);
-  const [totalCost, setTotalCost] = useState(0);
+  const totalCost = selectedCartItems.reduce(
+    (sum, cart) => sum + cart.product.priceout * cart.quantity,
+    0,
+  );
 
   const [selectedLocationId, setSelectedLocationId] = useState("");
 
@@ -60,7 +109,6 @@ const Checkout = () => {
         setAddress(defaultLocation?.address || "");
         setPhone(defaultLocation?.phone || "");
         setSelectedLocationId(defaultLocation?.id || "");
-        console.log("key", defaultLocation.id);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -69,37 +117,13 @@ const Checkout = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (location.state) {
-      setCarts(location.state.carts);
-      setTotalCost(location.state.totalCost);
-    }
-  }, [location]);
-
   // Hàm xử lý chọn địa chỉ
   const handleAddressChange = (selectedAddress) => {
-    console.log("key2", selectedAddress.id);
     setNameUser(selectedAddress.name);
     setAddress(selectedAddress.address);
     setPhone(selectedAddress.phone);
     setSelectedLocationId(selectedAddress.id); // Cập nhật ID địa chỉ được chọn
     setShowModal(false); // Đóng popup sau khi chọn địa chỉ
-  };
-
-  // Hàm xử lý thêm địa chỉ mới
-  const handleAddNewAddress = async () => {
-    if (newName && newAddress && newPhone) {
-      try {
-        await createNewAddress(newName, newAddress, newPhone);
-        setShowModal(false);
-        alert("Địa chỉ và số điện thoại đã được thêm!");
-        window.location.reload(); // Tải lại trang để lấy danh sách địa chỉ mới
-      } catch (error) {
-        console.error("Error adding new address:", error);
-      }
-    } else {
-      alert("Vui lòng điền đủ thông tin tên địa chỉ và số điện thoại!");
-    }
   };
 
   // Hàm xử lý đặt hàng
@@ -116,7 +140,7 @@ const Checkout = () => {
       location_id: selectedLocationId,
       orderStatus: OrderStatus.Checking,
       paymentStatus: PaymentStatus.Unpaid,
-      products: carts.map((cart) => ({
+      products: selectedCartItems.map((cart) => ({
         product_id: cart.product.id,
         quantity: cart.quantity,
         priceout: cart.product.priceout,
@@ -124,10 +148,8 @@ const Checkout = () => {
     };
 
     try {
-      console.log("Dữ liệu gửi đến API createOrder:", orderData);
       const response = await createOrder(orderData);
 
-      console.log("Response Order:", response.data);
       if (response.data.data.total_price > 0) {
         showNotification(
           "Thanh toán thành công! Cảm ơn bạn đã mua sắm.",
@@ -176,7 +198,7 @@ const Checkout = () => {
               Đặt hàng của bạn
             </h3>
             <div className="grid grid-cols-1 gap-4">
-              {carts.map((cart) => (
+              {selectedCartItems.map((cart) => (
                 <div
                   key={cart.id}
                   className="shadow-lg flex items-center space-x-4 rounded-lg border border-gray-200 bg-white p-4"
@@ -343,35 +365,42 @@ const Checkout = () => {
             ))}
 
             {/* Thêm địa chỉ mới với số điện thoại */}
-            <div className="mt-4">
-              <input
-                type="text"
-                placeholder="Thêm tên mới"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                className="w-full rounded-md border border-gray-300 p-2"
-              />
-              <input
-                type="text"
-                placeholder="Thêm địa chỉ mới"
-                value={newAddress}
-                onChange={(e) => setNewAddress(e.target.value)}
-                className="mt-2 w-full rounded-md border border-gray-300 p-2"
-              />
-              <input
-                type="text"
-                placeholder="Thêm số điện thoại"
-                value={newPhone}
-                onChange={(e) => setNewPhone(e.target.value)}
-                className="mt-2 w-full rounded-md border border-gray-300 p-2"
-              />
-              <button
-                onClick={handleAddNewAddress}
-                className="mt-2 w-full rounded-md bg-green-600 px-4 py-2 text-white"
-              >
-                Thêm địa chỉ
-              </button>
-            </div>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="mt-4">
+                <input
+                  type="text"
+                  placeholder="Thêm tên mới"
+                  {...register("name")}
+                  className="w-full rounded-md border border-gray-300 p-2"
+                />
+                {errors.name && (
+                  <span className="text-red-500">{errors.name.message}</span>
+                )}
+                <input
+                  type="text"
+                  placeholder="Thêm địa chỉ mới"
+                  {...register("address")}
+                  className="mt-2 w-full rounded-md border border-gray-300 p-2"
+                />
+                {errors.address && (
+                  <span className="text-red-500">{errors.address.message}</span>
+                )}
+                <input
+                  type="text"
+                  placeholder="Thêm số điện thoại"
+                  {...register("phone")}
+                  className="mt-2 w-full rounded-md border border-gray-300 p-2"
+                />
+                {errors.phone && (
+                  <span className="text-red-500">{errors.phone.message}</span>
+                )}
+                <input
+                  type="submit"
+                  value="Thêm địa chỉ"
+                  className="mt-2 w-full rounded-md bg-green-600 px-4 py-2 text-white"
+                ></input>
+              </div>
+            </form>
 
             <div className="mt-4 flex justify-center">
               <button

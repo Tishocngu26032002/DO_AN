@@ -3,6 +3,8 @@ import { getToken } from "../util/auth-local";
 
 const BASE_URL = "http://localhost:6006";
 
+const token = getToken();
+
 export async function getCategory(page, limit) {
   try {
     const res = await axios.get(`${BASE_URL}/category/${page}/${limit}`);
@@ -27,7 +29,6 @@ export async function getQueryCategory(page, limit, name, status) {
 
 export async function deleteCategory(categoryId) {
   try {
-    const token = getToken();
     const res = await axios.delete(`${BASE_URL}/category/${categoryId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -41,7 +42,6 @@ export async function deleteCategory(categoryId) {
 }
 
 export async function deleteCategories(categoryId) {
-  const token = getToken();
   await axios.delete(`${BASE_URL}/category/${categoryId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -51,7 +51,6 @@ export async function deleteCategories(categoryId) {
 
 export const updateCategory = async (categoryData) => {
   try {
-    const token = getToken();
     const res = await axios.patch(`${BASE_URL}/category`, categoryData, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -65,7 +64,6 @@ export const updateCategory = async (categoryData) => {
 
 export const createCategory = async (categoryData) => {
   try {
-    const token = getToken();
     const res = await axios.post(`${BASE_URL}/category`, categoryData, {
       headers: {
         Authorization: `Bearer ${token}`,

@@ -59,7 +59,7 @@ const ManageOrder = () => {
     // if (searchTerm) queryParams.set('search', searchTerm);
     if (filterOrderStatus) queryParams.set('orderStatus', filterOrderStatus);
   if (filterPaymentStatus) queryParams.set('paymentStatus', filterPaymentStatus);
-    window.history.replaceState(null, '', `/manage-order/${currentPage}/${ordersPerPage}?${queryParams.toString()}`);
+    window.history.replaceState(null, '', `/admin/manage-order/${currentPage}/${ordersPerPage}?${queryParams.toString()}`);
   }, [ filterOrderStatus, filterPaymentStatus, currentPage, ordersPerPage]);
 
   useEffect(() => {
