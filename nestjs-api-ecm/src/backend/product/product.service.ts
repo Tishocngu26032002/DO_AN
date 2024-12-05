@@ -55,11 +55,6 @@ export class ProductService extends BaseService<ProductEntity>{
         };
     }
 
-    async getLatestProduct() {
-        const latestProduct = await this.importProductRepo.getLatestProduct();
-        return latestProduct;
-    }
-
     async searchProducts(page: number, limit: number, filters: any): Promise<{ products: ProductEntity[]; total: number }> {
         const whereConditions: any = {};
         if (filters.name) {
