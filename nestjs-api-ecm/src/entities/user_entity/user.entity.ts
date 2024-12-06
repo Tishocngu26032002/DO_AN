@@ -24,7 +24,7 @@ export class User extends BaseEntity {
   @Column({ default: false })
   isActive: boolean;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   url_image: string;
 
   @Column({ type: 'text', nullable: true })

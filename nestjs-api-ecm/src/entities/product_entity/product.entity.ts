@@ -23,7 +23,7 @@ export class ProductEntity extends BaseEntity {
   @Column({ type: 'int' })
   weight: number;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   url_images: string;
 
   @Column({ type: 'varchar', length: 36 })
