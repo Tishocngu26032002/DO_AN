@@ -8,18 +8,15 @@ const token = getToken();
 const userId = getUserId();
 
 export async function getCarts() {
-  return await axios.get(
-    `${BASE_URL}/cart/all-product-in-cart?user_id=${userId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  return await axios.get(`${BASE_URL}/cart/all-product-in-cart/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
-  );
+  });
 }
 
 export const createCart = async (data) => {
-  return await axios.post(`${BASE_URL}/cart/add-to-cart`, data, {
+  return await axios.post(`${BASE_URL}/cart/add-to-cart/${userId}`, data, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -27,7 +24,7 @@ export const createCart = async (data) => {
 };
 
 export const updateCart = async (data) => {
-  return await axios.patch(`${BASE_URL}/cart`, data, {
+  return await axios.patch(`${BASE_URL}/cart/${userId}`, data, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -35,7 +32,7 @@ export const updateCart = async (data) => {
 };
 
 export async function deleteCart(cartId) {
-  return await axios.delete(`${BASE_URL}/cart/${cartId}`, {
+  return await axios.delete(`${BASE_URL}/cart/${userId}/${cartId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

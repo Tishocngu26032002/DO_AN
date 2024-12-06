@@ -118,7 +118,6 @@ const ShopGrid = () => {
       } else {
         // Nếu sản phẩm chưa tồn tại
         await createCart({
-          ...product,
           product_id: product.id,
           quantity: 1,
           user_id: userId,

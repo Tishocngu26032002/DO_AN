@@ -47,7 +47,7 @@ export const createNewAddress = async (data) => {
 
 export const createOrder = async (orderData) => {
   try {
-    const res = await axios.post(`${BASE_URL}/order`, orderData, {
+    const res = await axios.post(`${BASE_URL}/order/${userId}`, orderData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -62,17 +62,20 @@ export const createOrder = async (orderData) => {
 export async function getOrdersAdmin(page, limit, searchData) {
   try {
     const token = getToken();
-    
+
     // Chuyển searchData thành query string
     const queryParams = new URLSearchParams(searchData).toString();
 
-    const res = await axios.get(`${BASE_URL}/order/manage-order/${page}/${limit}?${queryParams}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        accept: "*/*",
+    const res = await axios.get(
+      `${BASE_URL}/order/manage-order/${page}/${limit}?${queryParams}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          accept: "*/*",
+        },
       },
-    });
-    
+    );
+
     return res.data;
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -80,7 +83,7 @@ export async function getOrdersAdmin(page, limit, searchData) {
   }
 }
 
-export const updateOrder = async ( adminId , orderData) => {
+export const updateOrder = async (adminId, orderData) => {
   try {
     const token = getToken(); // Lấy token
     const res = await axios.patch(`${BASE_URL}/order/${adminId}`, orderData, {
