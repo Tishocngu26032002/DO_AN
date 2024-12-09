@@ -7,6 +7,7 @@ import {BaseService} from "src/base/baseService/base.service";
 import {ExpirationStatus} from "src/share/Enum/Enum";
 import {ProductUpdateDTO} from "src/dto/productDTO/product.update.dto";
 import {ProductCreateDTO} from "src/dto/productDTO/product.create.dto";
+import {ImportRepository} from "src/repository/ImportRepository";
 import {ImportProductRepository} from "src/repository/ImportProductRepository";
 import {Import_productEntity} from "src/entities/import_entity/import_product.entity";
 

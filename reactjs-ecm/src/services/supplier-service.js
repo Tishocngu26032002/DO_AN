@@ -90,3 +90,20 @@ export async function updateSupplier(supplierId, supplierData) {
       throw error;
     }
   }
+
+  export async function getSearchSuppliers(page, limit, searchData) {
+    try {
+      const token = getToken();
+      const res = await axios.post(`${BASE_URL}/supplier/search/${page}/${limit}`, searchData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          accept: "*/*",
+          'Content-Type': 'application/json'
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.error("Error searching users:", error);
+      throw error;
+    }
+  }

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {OrderEntity} from "src/entities/order_entity/oder.entity";
-import {InjectRepository} from "@nestjs/typeorm";
 import {NotificationStatus, NotificationType} from "src/share/Enum/Enum";
 import * as admin from 'firebase-admin';
 import * as dotenv from 'dotenv';

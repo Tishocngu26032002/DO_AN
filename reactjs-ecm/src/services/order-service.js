@@ -3,6 +3,25 @@ import { getToken, getUserId } from "../util/auth-local";
 
 const BASE_URL = "http://localhost:6006";
 
+export const getUserOrders = async (userId, page = 1, limit = 10) => {
+  try {
+    const token = getToken();
+    const res = await axios.post(
+      `${BASE_URL}/order/all-user-order/${userId}`, { page, limit }, // body nếu không cần thêm dữ liệu
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log(res.data);
+    return res.data.data.list;
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
+    throw error;
+  }
+};
+
 export async function getAddresses() {
   try {
     const token = getToken();
@@ -109,3 +128,23 @@ export const updateOrder = async (updateData) => {
     throw error;
   }
 };
+export async function getOrdersAdmin(page, limit, searchData) {
+  try {
+    const token = getToken();
+    
+    // Chuyển searchData thành query string
+    const queryParams = new URLSearchParams(searchData).toString();
+
+    const res = await axios.get(`${BASE_URL}/order/manage-order/${page}/${limit}?${queryParams}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: "*/*",
+      },
+    });
+    
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    throw error;
+  }
+}
