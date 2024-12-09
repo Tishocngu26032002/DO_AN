@@ -25,7 +25,7 @@ import { UpdateCartDto } from 'src/dto/cart_product/update-cart.dto';
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
-  @Get(':page/:limit')
+  @Get('list/:page/:limit')
   @Roles('admin')
   async getListCart(
     @Param('page') page: number,
@@ -42,7 +42,10 @@ export class CartController {
 
   @Post('add-to-cart/:user_id')
   @Roles('user')
-  async addToCart(@Body() createCartDto: CreateCartDto) {
+  async addToCart(
+    @Param('user_id') user_id: string,
+    @Body() createCartDto: CreateCartDto,
+  ) {
     try {
       const addToCart = await this.cartService.create(createCartDto);
       return responseHandler.ok(addToCart);
@@ -52,7 +55,7 @@ export class CartController {
     }
   }
 
-  @Get('all-product-in-cart/:user_id')
+  @Get('all-product/:user_id')
   @Roles('user')
   async getAllProductInCart(@Param('user_id') user_id: string) {
     try {

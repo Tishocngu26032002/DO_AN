@@ -125,33 +125,136 @@ export class OrderService extends BaseService<OrderEntity> {
         };
     }
 
-    async getOrderManagement(page: number = 1, limit: number = 10, filters: any) {
-        if (page < 1) {
-            throw new Error('PAGE NUMBER MUST BE GREATER THAN 0!');
-        }
-        if (limit < 1) {
-            throw new Error('LIMIT MUST BE GREATER THAN 0!');
-        }
-        const condition: any = {};
+    async getOrderManagement(
+        page: number,
+        limit: number,
+        filters: {
+            orderStatus: string;
+            paymentStatus: string;
+            includedStatuses: OrderStatus[];
+            excludedStatuses: OrderStatus[];
+        },
+    ) {
+        const { orderStatus, paymentStatus, includedStatuses, excludedStatuses } = filters;
 
-        if (filters.orderStatus && Object.values(OrderStatus).includes(filters.orderStatus)) {
-            condition.orderStatus = filters.orderStatus;
+        const query = this.orderRepo.createQueryBuilder('order')
+            .leftJoinAndSelect('order.user', 'user')
+            .leftJoinAndSelect('order.employee', 'employee')
+            .leftJoinAndSelect('order.orderProducts', 'orderProduct')
+            .leftJoinAndSelect('orderProduct.product', 'product')
+            .leftJoinAndSelect('order.location', 'location');
+
+        if (orderStatus) {
+            query.andWhere('order.orderStatus = :orderStatus', { orderStatus });
         }
-        if (filters.paymentStatus && Object.values(PaymentStatus).includes(filters.paymentStatus)) {
-            condition.paymentStatus = filters.paymentStatus;
+        if (paymentStatus) {
+            query.andWhere('order.paymentStatus = :paymentStatus', { paymentStatus });
+        }
+        if (includedStatuses.length > 0) {
+            query.andWhere('order.orderStatus IN (:...includedStatuses)', { includedStatuses });
+        }
+        if (excludedStatuses.length > 0) {
+            query.andWhere('order.orderStatus NOT IN (:...excludedStatuses)', { excludedStatuses });
         }
 
-        const [orders, totalOrders] = await this.orderRepo.findAndCount({
-            where: condition,
-            skip: (page - 1) * limit,
-            take: limit,
+        query.skip((page - 1) * limit).take(limit);
+        const [orders, total] = await query.getManyAndCount();
+        const ordersWithProducts = orders.map((order) => {
+            return {
+                order: order ? {
+                    id: order.id,
+                    createdAt: order.createdAt,
+                    total_price: order.total_price,
+                    orderStatus: order.orderStatus,
+                    payment_method: order.payment_method,
+                    paymentStatus: order.paymentStatus,
+                    products: order.orderProducts?.map(orderProduct => ({
+                        productId: orderProduct.product.id,
+                        productName: orderProduct.product.name,
+                        priceout: orderProduct.priceout,
+                        quantityBuy: orderProduct.quantity,
+                        quantityInStock: orderProduct.product.stockQuantity,
+                    })) || [],
+                    user: order.user ? {
+                        id: order.user.id,
+                        firstName: order.user.firstName,
+                        lastName: order.user.lastName,
+                    } : null,
+                    employee: order.employee ? {
+                        id: order.employee.id,
+                        firstName: order.employee.firstName,
+                        lastName: order.employee.lastName,
+                    } : null,
+                    location: order.location ? {
+                        id: order.location.id,
+                        address: order.location.address,
+                        phone: order.location.phone,
+                        defaultLocation: order.location.default_location,
+                    } : null
+                } : null
+            };
         });
 
-        return {
-            orders: orders,
-            total: totalOrders,
-        };
+        const order_ids = orders.map(order => order.id);
+        const unique_order_ids = [...new Set(order_ids)];
+
+        if (excludedStatuses.length > 0) {
+            const productInStock = await this.getQuantityProductInStock(unique_order_ids);
+            const orderStatusCounts = await this.getOrderStatusCount(unique_order_ids, excludedStatuses, true);
+            const orderStatusSummary = orderStatusCounts.reduce((acc, item) => {
+                acc[item.orderStatus] = item.count;
+                return acc;
+            }, {});
+            return { orders: ordersWithProducts, productInStock, total, orderStatusSummary };
+        }
+
+        const orderStatusCounts = await this.getOrderStatusCount(unique_order_ids, includedStatuses, false);
+        const orderStatusSummary = orderStatusCounts.reduce((acc, item) => {
+            acc[item.orderStatus] = item.count;
+            return acc;
+        }, {});
+        return { orders: ordersWithProducts, total, orderStatusSummary };
     }
+
+
+    async getQuantityProductInStock(order_ids: string[]) {
+        if (!order_ids || order_ids.length === 0) {
+            return [];
+        }
+        const productQuantity = await this.orderRepo
+            .createQueryBuilder('order')
+            .leftJoin('order.orderProducts', 'orderProduct')
+            .leftJoin('orderProduct.product', 'product')
+            .where('order.id IN (:...order_ids)', { order_ids })
+            .andWhere('product.id IS NOT NULL')
+            .select([
+                'DISTINCT product.id AS id',
+                'product.name AS name',
+                'product.stockQuantity AS stockQuantity',
+            ])
+            .getRawMany();
+        return productQuantity;
+    }
+
+    async getOrderStatusCount(order_ids: string[], statuses: OrderStatus[], isExclusion: boolean = false) {
+        const query = this.orderRepo
+            .createQueryBuilder('order')
+            .where('order.id IN (:...order_ids)', { order_ids });
+
+        if (isExclusion) {
+            query.andWhere('order.orderStatus NOT IN (:...statuses)', { statuses });
+        } else {
+            query.andWhere('order.orderStatus IN (:...statuses)', { statuses });
+        }
+
+        const orderStatusCounts = await query
+            .select('order.orderStatus, COUNT(order.id) AS count')
+            .groupBy('order.orderStatus')
+            .getRawMany();
+
+        return orderStatusCounts;
+    }
+
 
     async getDetail(order_id: string) {
         const order = await this.orderRepo.findOne({

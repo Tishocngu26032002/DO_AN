@@ -5,6 +5,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/guards/JwtAuth.guard';
 import { RolesGuard } from 'src/guards/Roles.guard';
 import { Roles } from 'src/decorator/Role.decorator';
+import { logoutDTO } from 'src/dto/userDTO/user.logout.dto';
 
 @Controller('logout')
 @ApiTags('Logout')
@@ -15,9 +16,12 @@ export class LogoutController {
 
   @Post(':user_id')
   @Roles('user', 'admin')
-  async logout(@Param('user_id') user_id: string, @Body() token: string) {
+  async logout(
+    @Param('user_id') user_id: string,
+    @Body() logoutDTO: logoutDTO,
+  ) {
     try {
-      const check = await this.logoutService.logout(user_id, token);
+      const check = await this.logoutService.logout(user_id, logoutDTO);
       return responseHandler.ok(check);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
