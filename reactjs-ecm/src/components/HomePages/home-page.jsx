@@ -3,28 +3,281 @@ import { FaStar } from "react-icons/fa";
 import { PiShoppingCartBold } from "react-icons/pi";
 import Footer from "../Footer/footer";
 import { Link, useNavigate } from "react-router-dom";
-import { getProducts } from "../../services/home-service";
+// import { getProducts } from "../../services/home-service";
 import Header from "../Header/header";
-import { NotificationList } from "../Notification/NotificationService";
 import NotificationHandler from "../Notification/notification-handle";
 
+import { PER_PAGE } from "../../constants/per-page";
+import { createCart, getCarts, updateCart } from "../../services/cart-service";
+import {
+  getFeatureProducts,
+  getLatestProducts,
+  getProducts,
+  getQueryProducts,
+} from "../../services/product-service";
+import { PiShoppingCart } from "react-icons/pi";
+import { getCategory } from "../../services/category-service";
+import { getUserId } from "../../util/auth-local";
+import img from "../../../public/images/banner/image-4.jpg";
+import {
+  NotificationList,
+  notificationTypes,
+  showNotification,
+} from "../Notification/NotificationService";
+import { useCart } from "../../Context/CartContext";
+
 function HomePage() {
-  const [products, setProducts] = useState([]);
+  const [featureProducts, setFeatureProducts] = useState([]);
+
+  const [latestProducts, setLatestProducts] = useState([]);
 
   const [notifications, setNotifications] = useState([]);
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  const navigate = useNavigate();
 
-  async function fetchProducts(query = "") {
+  // const [params, setParams] = useState({
+  //   limit: 4,
+  //   page: 1,
+  //   total: 0,
+  //   name: "",
+  //   category_id: "",
+  // });
+
+  const {
+    carts,
+    setCarts,
+    totalQuantity,
+    setTotalCost,
+    setTotalQuantity,
+    fetchCarts,
+  } = useCart();
+
+  const handleAddToCartFeature = async (productId) => {
+    const product = featureProducts.find(
+      (prod) => prod.productId === productId,
+    );
+    const cartIndex = carts.findIndex(
+      (cart) => cart.product_id === product.productId,
+    );
+
+    let userId = getUserId();
+
     try {
-      const data = await getProducts(query);
-      setProducts(data);
+      if (cartIndex !== -1) {
+        // Nếu sản phẩm đã tồn tại trong giỏ hàng
+        await updateCart({
+          ...carts[cartIndex],
+          quantity: carts[cartIndex].quantity + 1,
+        });
+      } else {
+        // Nếu sản phẩm chưa tồn tại
+        await createCart({
+          product_id: product.productId,
+          quantity: 1,
+          user_id: userId,
+        });
+        setTotalQuantity((prev) => prev + 1); // Cập nhật ngay lập tức
+      }
+
+      showNotification(
+        "Sản phẩm đã được thêm vào giỏ hàng!",
+        notificationTypes.SUCCESS,
+        setNotifications,
+      );
+
+      let userIdd = getUserId();
+      if (userIdd) {
+        const response = await getCarts();
+        const cartData = response.data.data.cart;
+        setCarts(cartData);
+
+        const cost = cartData.reduce(
+          (total, item) => total + item.quantity * item.product.priceout,
+          0,
+        );
+        setTotalCost(cost);
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Error adding to cart:", error);
+      showNotification(
+        "Thêm sản phẩm vào giỏ hàng thất bại!",
+        notificationTypes.ERROR,
+        setNotifications,
+      );
     }
-  }
+  };
+
+  const handleAddToCartLatest = async (productId) => {
+    const product = latestProducts.find((prod) => prod.productId === productId);
+    const cartIndex = carts.findIndex(
+      (cart) => cart.product_id === product.productId,
+    );
+
+    let userId = getUserId();
+
+    try {
+      if (cartIndex !== -1) {
+        // Nếu sản phẩm đã tồn tại trong giỏ hàng
+        await updateCart({
+          ...carts[cartIndex],
+          quantity: carts[cartIndex].quantity + 1,
+        });
+      } else {
+        // Nếu sản phẩm chưa tồn tại
+        await createCart({
+          product_id: product.productId,
+          quantity: 1,
+          user_id: userId,
+        });
+        setTotalQuantity((prev) => prev + 1); // Cập nhật ngay lập tức
+      }
+
+      showNotification(
+        "Sản phẩm đã được thêm vào giỏ hàng!",
+        notificationTypes.SUCCESS,
+        setNotifications,
+      );
+
+      let userIdd = getUserId();
+      if (userIdd) {
+        const response = await getCarts();
+        const cartData = response.data.data.cart;
+        setCarts(cartData);
+
+        const cost = cartData.reduce(
+          (total, item) => total + item.quantity * item.product.priceout,
+          0,
+        );
+        setTotalCost(cost);
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      showNotification(
+        "Thêm sản phẩm vào giỏ hàng thất bại!",
+        notificationTypes.ERROR,
+        setNotifications,
+      );
+    }
+  };
+
+  const renderFeatureProducts = () => {
+    if (featureProducts.length === 0) return;
+
+    return featureProducts.map((product) => (
+      <div
+        key={product.productId}
+        onClick={() => navigate(`/product-detail/${product.productId}`)}
+        className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
+      >
+        <img
+          src={product.productImage}
+          alt={product.productName}
+          className="w-full rounded-xl"
+        />
+        <div className="des pt-3 text-start">
+          <span className="text-[13px] text-[#1a1a1a]">
+            {product.categoryName}
+          </span>
+          <h5 className="pt-2 text-[15px] font-semibold text-[#006532]">
+            {product.productName}
+          </h5>
+          {/* <h5 className="pt-2 text-[13px] text-[#1a1a1a]">
+            Bao: {product.weight}kg
+          </h5> */}
+          <h4 className="flex pt-2 text-[16px] font-semibold text-[#006532]">
+            <p className="mr-1 mt-[2px] text-sm font-normal underline">đ</p>
+            {new Intl.NumberFormat("vi-VN").format(product.priceout)}
+          </h4>
+        </div>
+        <a
+          href="#"
+          className="cart absolute bottom-5 right-2 -mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] font-medium leading-10 text-[#006532]"
+        >
+          <Link to="">
+            <PiShoppingCart
+              data-id={product.productId}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                handleAddToCartFeature(product.productId);
+              }}
+            />
+          </Link>
+        </a>
+      </div>
+    ));
+  };
+
+  const renderLatestProducts = () => {
+    if (latestProducts.length === 0) return;
+
+    return latestProducts.map((product) => (
+      <div
+        key={product.productId}
+        onClick={() => navigate(`/product-detail/${product.productId}`)}
+        className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
+      >
+        <img
+          src={product.productImage}
+          alt={product.productName}
+          className="w-full rounded-xl"
+        />
+        <div className="des pt-3 text-start">
+          <span className="text-[13px] text-[#1a1a1a]">
+            {product.categoryName}
+          </span>
+          <h5 className="pt-2 text-[15px] font-semibold text-[#006532]">
+            {product.productName}
+          </h5>
+          {/* <h5 className="pt-2 text-[13px] text-[#1a1a1a]">
+            Bao: {product.weight}kg
+          </h5> */}
+          <h4 className="flex pt-2 text-[16px] font-semibold text-[#006532]">
+            <p className="mr-1 mt-[2px] text-sm font-normal underline">đ</p>
+            {new Intl.NumberFormat("vi-VN").format(product.priceout)}
+          </h4>
+        </div>
+        <a
+          href="#"
+          className="cart absolute bottom-5 right-2 -mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] font-medium leading-10 text-[#006532]"
+        >
+          <Link to="">
+            <PiShoppingCart
+              data-id={product.productId}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                handleAddToCartLatest(product.productId);
+              }}
+            />
+          </Link>
+        </a>
+      </div>
+    ));
+  };
+
+  const getFeatureProductsOnPage = async () => {
+    try {
+      const response = await getFeatureProducts();
+      setFeatureProducts(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getLatestProductsOnPage = async () => {
+    try {
+      const response = await getLatestProducts();
+      setLatestProducts(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getFeatureProductsOnPage();
+    getLatestProductsOnPage();
+  }, []);
 
   return (
     <div className="body w-full">
@@ -96,266 +349,21 @@ function HomePage() {
         </div>
       </section>
 
-      {/* <section className="product1 section-p1 px-[80px] py-[40px] text-center">
+      <section
+        id="product1"
+        className="section-p1 px-[80px] py-[40px] text-center"
+      >
         <h2 className="text-[46px] leading-[54px] text-[#222] mobile:text-[32px]">
           Featured Products
         </h2>
         <p className="my-[15px] mb-[20px] text-[16px] text-[#465b52]">
           Seasonal Products
         </p>
-        <div className="pro-container flex flex-wrap justify-between pt-[20px] tablet:justify-center">
-          <div className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)] tablet:m-[15px]">
-            <img
-              className="w-full rounded-[20px]"
-              src="images/products/f1.jpg"
-              alt=""
-            />
-            <div className="des py-[10px] text-start">
-              <span className="text-[12px] text-[#606063]">adidas</span>
-              <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                Cartoon Astronaut T-Shirts
-              </h5>
-              <div className="star flex">
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-              </div>
-              <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                $78
-              </h4>
-            </div>
-            <a href="#">
-              <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"></PiShoppingCartBold>
-            </a>
-          </div>
-          <div className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]">
-            <img
-              className="w-full rounded-[20px]"
-              src="images/products/f2.jpg"
-              alt=""
-            />
-            <div className="des py-[10px] text-start">
-              <span className="text-[12px] text-[#606063]">adidas</span>
-              <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                Cartoon Astronaut T-Shirts
-              </h5>
-              <div className="star flex">
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-              </div>
-              <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                $78
-              </h4>
-            </div>
-            <a href="#">
-              <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"></PiShoppingCartBold>
-            </a>
-          </div>
-          <div className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]">
-            <img
-              className="w-full rounded-[20px]"
-              src="images/products/f3.jpg"
-              alt=""
-            />
-            <div className="des py-[10px] text-start">
-              <span className="text-[12px] text-[#606063]">adidas</span>
-              <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                Cartoon Astronaut T-Shirts
-              </h5>
-              <div className="star flex">
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-              </div>
-              <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                $78
-              </h4>
-            </div>
-            <a href="#">
-              <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"></PiShoppingCartBold>
-            </a>
-          </div>
-          <div className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]">
-            <img
-              className="w-full rounded-[20px]"
-              src="images/products/f4.jpg"
-              alt=""
-            />
-            <div className="des py-[10px] text-start">
-              <span className="text-[12px] text-[#606063]">adidas</span>
-              <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                Cartoon Astronaut T-Shirts
-              </h5>
-              <div className="star flex">
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-              </div>
-              <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                $78
-              </h4>
-            </div>
-            <a href="#">
-              <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"></PiShoppingCartBold>
-            </a>
-          </div>
-          <div className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]">
-            <img
-              className="w-full rounded-[20px]"
-              src="images/products/f5.jpg"
-              alt=""
-            />
-            <div className="des py-[10px] text-start">
-              <span className="text-[12px] text-[#606063]">adidas</span>
-              <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                Cartoon Astronaut T-Shirts
-              </h5>
-              <div className="star flex">
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-              </div>
-              <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                $78
-              </h4>
-            </div>
-            <a href="#">
-              <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"></PiShoppingCartBold>
-            </a>
-          </div>
-          <div className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]">
-            <img
-              className="w-full rounded-[20px]"
-              src="images/products/f6.jpg"
-              alt=""
-            />
-            <div className="des py-[10px] text-start">
-              <span className="text-[12px] text-[#606063]">adidas</span>
-              <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                Cartoon Astronaut T-Shirts
-              </h5>
-              <div className="star flex">
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-              </div>
-              <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                $78
-              </h4>
-            </div>
-            <a href="#">
-              <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"></PiShoppingCartBold>
-            </a>
-          </div>
-          <div className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]">
-            <img
-              className="w-full rounded-[20px]"
-              src="images/products/f7.jpg"
-              alt=""
-            />
-            <div className="des py-[10px] text-start">
-              <span className="text-[12px] text-[#606063]">adidas</span>
-              <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                Cartoon Astronaut T-Shirts
-              </h5>
-              <div className="star flex">
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-              </div>
-              <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                $78
-              </h4>
-            </div>
-            <a href="#">
-              <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"></PiShoppingCartBold>
-            </a>
-          </div>
-          <div className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]">
-            <img
-              className="w-full rounded-[20px]"
-              src="images/products/f8.jpg"
-              alt=""
-            />
-            <div className="des py-[10px] text-start">
-              <span className="text-[12px] text-[#606063]">adidas</span>
-              <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                Cartoon Astronaut T-Shirts
-              </h5>
-              <div className="star flex">
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-              </div>
-              <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                $78
-              </h4>
-            </div>
-            <a href="#">
-              <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"></PiShoppingCartBold>
-            </a>
-          </div>
-        </div>
-      </section> */}
-      <section className="product1 section-p1 px-[80px] py-[40px] text-center">
-        <h2 className="text-[46px] leading-[54px] text-[#222] mobile:text-[32px]">
-          Featured Products
-        </h2>
-        <p className="my-[15px] mb-[20px] text-[16px] text-[#465b52]">
-          Seasonal Products
-        </p>
-        <div className="pro-container flex flex-wrap justify-between pt-[20px] tablet:justify-center">
-          {products.slice(0, 8).map((product) => (
-            <div
-              key={product.id}
-              className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
-            >
-              <img
-                className="w-full rounded-[20px]"
-                src={product.images}
-                alt={product.name}
-              />
-              <div className="des py-[10px] text-start">
-                <span className="text-[12px] text-[#606063]">
-                  {product.category.name}
-                </span>
-                <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                  {product.title}
-                </h5>
-                <div className="star flex">
-                  {[...Array(5)].map((_, index) => (
-                    <FaStar
-                      key={index}
-                      className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"
-                    />
-                  ))}
-                </div>
-                <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                  ${product.price}
-                </h4>
-              </div>
-              <Link to="">
-                <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]" />
-              </Link>
-            </div>
-          ))}
+        <div
+          className="pro-container flex flex-wrap justify-between pt-[20px] tablet:justify-center"
+          id="product-render"
+        >
+          {renderFeatureProducts()}
         </div>
       </section>
 
@@ -370,222 +378,21 @@ function HomePage() {
         </button>
       </section>
 
-      <section className="product1 section-p1 px-[80px] py-[40px] text-center">
+      <section
+        id="product2"
+        className="section-p1 px-[80px] py-[40px] text-center"
+      >
         <h2 className="text-[46px] leading-[54px] text-[#222] mobile:text-[32px]">
           Latest Products
         </h2>
         <p className="my-[15px] mb-[20px] text-[16px] text-[#465b52]">
           New Products
         </p>
-        <div className="pro-container flex flex-wrap justify-between pt-[20px] tablet:justify-center">
-          <div className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)] tablet:m-[15px]">
-            <img
-              className="w-full rounded-[20px]"
-              src="images/products/n1.jpg"
-              alt=""
-            />
-            <div className="des py-[10px] text-start">
-              <span className="text-[12px] text-[#606063]">adidas</span>
-              <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                Cartoon Astronaut T-Shirts
-              </h5>
-              <div className="star flex">
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-              </div>
-              <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                $78
-              </h4>
-            </div>
-            <a href="#">
-              <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"></PiShoppingCartBold>
-            </a>
-          </div>
-          <div className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]">
-            <img
-              className="w-full rounded-[20px]"
-              src="images/products/n2.jpg"
-              alt=""
-            />
-            <div className="des py-[10px] text-start">
-              <span className="text-[12px] text-[#606063]">adidas</span>
-              <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                Cartoon Astronaut T-Shirts
-              </h5>
-              <div className="star flex">
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-              </div>
-              <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                $78
-              </h4>
-            </div>
-            <a href="#">
-              <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"></PiShoppingCartBold>
-            </a>
-          </div>
-          <div className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]">
-            <img
-              className="w-full rounded-[20px]"
-              src="images/products/n3.jpg"
-              alt=""
-            />
-            <div className="des py-[10px] text-start">
-              <span className="text-[12px] text-[#606063]">adidas</span>
-              <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                Cartoon Astronaut T-Shirts
-              </h5>
-              <div className="star flex">
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-              </div>
-              <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                $78
-              </h4>
-            </div>
-            <a href="#">
-              <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"></PiShoppingCartBold>
-            </a>
-          </div>
-          <div className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]">
-            <img
-              className="w-full rounded-[20px]"
-              src="images/products/n4.jpg"
-              alt=""
-            />
-            <div className="des py-[10px] text-start">
-              <span className="text-[12px] text-[#606063]">adidas</span>
-              <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                Cartoon Astronaut T-Shirts
-              </h5>
-              <div className="star flex">
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-              </div>
-              <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                $78
-              </h4>
-            </div>
-            <a href="#">
-              <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"></PiShoppingCartBold>
-            </a>
-          </div>
-          <div className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]">
-            <img
-              className="w-full rounded-[20px]"
-              src="images/products/n5.jpg"
-              alt=""
-            />
-            <div className="des py-[10px] text-start">
-              <span className="text-[12px] text-[#606063]">adidas</span>
-              <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                Cartoon Astronaut T-Shirts
-              </h5>
-              <div className="star flex">
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-              </div>
-              <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                $78
-              </h4>
-            </div>
-            <a href="#">
-              <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"></PiShoppingCartBold>
-            </a>
-          </div>
-          <div className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]">
-            <img
-              className="w-full rounded-[20px]"
-              src="images/products/n6.jpg"
-              alt=""
-            />
-            <div className="des py-[10px] text-start">
-              <span className="text-[12px] text-[#606063]">adidas</span>
-              <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                Cartoon Astronaut T-Shirts
-              </h5>
-              <div className="star flex">
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-              </div>
-              <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                $78
-              </h4>
-            </div>
-            <a href="#">
-              <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"></PiShoppingCartBold>
-            </a>
-          </div>
-          <div className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]">
-            <img
-              className="w-full rounded-[20px]"
-              src="images/products/n7.jpg"
-              alt=""
-            />
-            <div className="des py-[10px] text-start">
-              <span className="text-[12px] text-[#606063]">adidas</span>
-              <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                Cartoon Astronaut T-Shirts
-              </h5>
-              <div className="star flex">
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-              </div>
-              <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                $78
-              </h4>
-            </div>
-            <a href="#">
-              <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"></PiShoppingCartBold>
-            </a>
-          </div>
-          <div className="pro relative my-[15px] w-[23%] min-w-[250px] cursor-pointer rounded-[25px] border border-[#cce7d0] px-[12px] py-[10px] shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 ease-in-out hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]">
-            <img
-              className="w-full rounded-[20px]"
-              src="images/products/n8.jpg"
-              alt=""
-            />
-            <div className="des py-[10px] text-start">
-              <span className="text-[12px] text-[#606063]">adidas</span>
-              <h5 className="pt-[7px] text-[14px] text-[#1a1a1a]">
-                Cartoon Astronaut T-Shirts
-              </h5>
-              <div className="star flex">
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-                <FaStar className="fas fa-star h-[20px] w-[20px] text-[12px] text-[rgb(243,181,25)]"></FaStar>
-              </div>
-              <h4 className="pt-[7px] text-[15px] font-bold text-[#088178]">
-                $78
-              </h4>
-            </div>
-            <a href="#">
-              <PiShoppingCartBold className="fas fa-shopping-cart cart absolute bottom-[20px] right-[10px] h-[40px] w-[40px] rounded-[50px] border border-[#cce7d0] bg-[#e8f6ea] p-[5px] font-medium leading-[40px] text-[#088178]"></PiShoppingCartBold>
-            </a>
-          </div>
+        <div
+          className="pro-container flex flex-wrap justify-between pt-[20px] tablet:justify-center"
+          id="product-render"
+        >
+          {renderLatestProducts()}
         </div>
       </section>
 

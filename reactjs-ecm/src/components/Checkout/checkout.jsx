@@ -145,6 +145,7 @@ const Checkout = () => {
         quantity: cart.quantity,
         priceout: cart.product.priceout,
       })),
+      cart_id: [null],
     };
 
     try {

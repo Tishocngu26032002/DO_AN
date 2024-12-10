@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { format } from 'date-fns';
+import axios from "axios";
+import { format } from "date-fns";
 import { getToken } from "../util/auth-local";
 
 const BASE_URL = "http://localhost:6006";
@@ -7,6 +7,24 @@ const BASE_URL = "http://localhost:6006";
 export async function getProducts(page, limit) {
   try {
     const response = await axios.get(`${BASE_URL}/product/${page}/${limit}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getFeatureProducts() {
+  try {
+    const response = await axios.get(`${BASE_URL}/dashboard/feature-product`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getLatestProducts() {
+  try {
+    const response = await axios.get(`${BASE_URL}/dashboard/latest-product`);
     return response.data;
   } catch (error) {
     throw error;
@@ -43,11 +61,17 @@ export const fetchProductDetail = async (productId) => {
 // Hàm lấy danh sách sản phẩm
 export const fetchProducts = async (currentPage, productsPerPage) => {
   try {
-    const token = getToken(); 
+    const token = getToken();
     console.log(token);
-    const response = await axios.get(`${BASE_URL}/product/${currentPage}/${productsPerPage}`);
+    const response = await axios.get(
+      `${BASE_URL}/product/${currentPage}/${productsPerPage}`,
+    );
     console.log(response.data);
-    if (response.status === 200 && response.data.success && Array.isArray(response.data.data.products)) {
+    if (
+      response.status === 200 &&
+      response.data.success &&
+      Array.isArray(response.data.data.products)
+    ) {
       const totalProducts = response.data.data.total;
       console.log("Total Products:", totalProducts);
       return {
@@ -61,7 +85,7 @@ export const fetchProducts = async (currentPage, productsPerPage) => {
           description: product.description,
           stockQuantity: product.stockQuantity,
           weight: product.weight,
-          expire_date: format(new Date(product.expire_date), 'yyyy-MM-dd'),
+          expire_date: format(new Date(product.expire_date), "yyyy-MM-dd"),
         })),
         totalProducts,
       };
@@ -79,19 +103,26 @@ export const fetchProducts = async (currentPage, productsPerPage) => {
 export const searchProducts = async (page, limit, filters = {}) => {
   try {
     const params = new URLSearchParams();
-    
+
     if (filters.name) {
-      params.append('name', filters.name.trim());
+      params.append("name", filters.name.trim());
     }
     if (filters.category_id) {
-      params.append('category', filters.category_id.trim());
+      params.append("category", filters.category_id.trim());
     }
 
-    const response = await axios.get(`${BASE_URL}/product/search/${page}/${limit}`, {
-      params,
-    });
+    const response = await axios.get(
+      `${BASE_URL}/product/search/${page}/${limit}`,
+      {
+        params,
+      },
+    );
 
-    if (response.status === 200 && response.data.success && Array.isArray(response.data.data.products)) {
+    if (
+      response.status === 200 &&
+      response.data.success &&
+      Array.isArray(response.data.data.products)
+    ) {
       return {
         products: response.data.data.products.map((product) => ({
           id: product.id,
@@ -103,7 +134,7 @@ export const searchProducts = async (page, limit, filters = {}) => {
           description: product.description,
           stockQuantity: product.stockQuantity,
           weight: product.weight,
-          expire_date: format(new Date(product.expire_date), 'yyyy-MM-dd'),
+          expire_date: format(new Date(product.expire_date), "yyyy-MM-dd"),
         })),
         totalProducts: response.data.data.totalProducts || 0,
       };
@@ -123,8 +154,8 @@ export const addProduct = async (formData) => {
     const token = getToken();
     const response = await axios.post(`${BASE_URL}/product`, formData, {
       headers: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
     if (response.status === 201 && response.data) {
       return response.data;
@@ -144,8 +175,8 @@ export const editProduct = async (id, formData) => {
     const token = getToken();
     const response = await axios.patch(`${BASE_URL}/product`, formData, {
       headers: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
     if (response.status === 200 && response.data) {
       return response.data;

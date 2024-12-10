@@ -8,7 +8,7 @@ const token = getToken();
 const userId = getUserId();
 
 export async function getCarts() {
-  return await axios.get(`${BASE_URL}/cart/all-product-in-cart/${userId}`, {
+  return await axios.get(`${BASE_URL}/cart/all-product/${userId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
