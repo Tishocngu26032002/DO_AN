@@ -79,7 +79,18 @@ export class CartService extends BaseService<Cart_productEntity> {
     return await super.update(cartUpdateDTO, id);
   }
 
-  async delete(id: string) {
-    return await super.delete(id);
+  async deleteProductsInCart(cart_ids: string[]) {
+    if (!cart_ids || cart_ids.length === 0) {
+      throw new Error('cart_ids cannot be empty');
+    }
+    try {
+      const result = await this.cartRepo.delete(cart_ids);
+      if (result.affected === 0) {
+        throw new Error('No records were deleted. Check cart_ids.');
+      }
+      return result;
+    } catch (error) {
+      throw new Error(`Failed to delete products in cart`);
+    }
   }
 }
