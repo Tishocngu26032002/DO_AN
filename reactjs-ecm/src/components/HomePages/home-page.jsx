@@ -163,7 +163,7 @@ function HomePage() {
   const renderFeatureProducts = () => {
     if (featureProducts.length === 0) return;
 
-    return featureProducts.map((product) => (
+    return featureProducts.slice(0, 4).map((product) => (
       <div
         key={product.productId}
         onClick={() => navigate(`/product-detail/${product.productId}`)}
@@ -211,7 +211,7 @@ function HomePage() {
   const renderLatestProducts = () => {
     if (latestProducts.length === 0) return;
 
-    return latestProducts.map((product) => (
+    return latestProducts.slice(0, 4).map((product) => (
       <div
         key={product.productId}
         onClick={() => navigate(`/product-detail/${product.productId}`)}
@@ -234,7 +234,7 @@ function HomePage() {
           </h5> */}
           <h4 className="flex pt-2 text-[16px] font-semibold text-[#006532]">
             <p className="mr-1 mt-[2px] text-sm font-normal underline">đ</p>
-            {new Intl.NumberFormat("vi-VN").format(product.priceout)}
+            {new Intl.NumberFormat("vi-VN").format(product.priceOut)}
           </h4>
         </div>
         <a
@@ -290,18 +290,20 @@ function HomePage() {
 
       <section className="hero mobile:bg-custom h-[90vh] w-full bg-[url('/images/hero4.jpg')] bg-cover bg-[top_25%_right_0] tablet:h-[70vh] tablet:bg-[top_30%_right_30%] tablet:px-[80px] mobile:px-[20px] mobile:py-[0px]">
         <div className="flex h-full w-full flex-col items-start justify-center bg-[rgba(8,28,14,0.38)] px-[80px]">
-          <h4 className="pb-[15px] text-[20px] text-white">Trade-in-offer</h4>
+          <h4 className="pb-[15px] text-[20px] text-white">
+            Khuyến mãi đổi hàng
+          </h4>
           <h2 className="text-[46px] leading-[54px] text-white mobile:text-[32px]">
-            Super value deals
+            SIÊU ƯU ĐÃI
           </h2>
           <h1 className="text-[50px] leading-[64px] text-white mobile:text-[38px]">
-            On all products
+            CHO TẤT CẢ SẢN PHẨM
           </h1>
           <p className="my-[15px] mb-[20px] text-[16px] text-white">
-            Save more with coupons & up to 70% off!
+            Giảm giá lên đến 70%
           </p>
           <button className="cursor-pointer border-0 bg-transparent bg-[url('/images/button.png')] bg-no-repeat px-[80px] py-[14px] pl-[65px] pr-[80px] text-[15px] font-bold text-white">
-            Shop Now
+            Mua ngay!!!
           </button>
         </div>
       </section>
@@ -314,7 +316,7 @@ function HomePage() {
             className="mb-[10px] w-full"
           />
           <h6 className="inline-block rounded-[4px] bg-[#cdebbc] px-[8px] pb-[6px] pt-[9px] text-[12px] font-bold leading-[1] text-[#088178]">
-            DUCK
+            Vịt
           </h6>
         </div>
         <div className="fe-box my-[15px] w-[180px] rounded-[4px] border border-[#cce7d0] px-[15px] py-[25px] text-center shadow-[20px_20px_34px_rgba(0,0,0,0.03)] hover:shadow-[10px_10px_54px_rgba(70,62,221,0.1)] tablet:m-[15px]">
@@ -324,7 +326,7 @@ function HomePage() {
             className="mb-[10px] w-full"
           />
           <h6 className="inline-block rounded-[4px] bg-[#cdebbc] px-[8px] pb-[6px] pt-[9px] text-[12px] font-bold leading-[1] text-[#088178]">
-            PIG
+            Lợn
           </h6>
         </div>
         <div className="fe-box my-[15px] w-[180px] rounded-[4px] border border-[#cce7d0] px-[15px] py-[25px] text-center shadow-[20px_20px_34px_rgba(0,0,0,0.03)] hover:shadow-[10px_10px_54px_rgba(70,62,221,0.1)] tablet:m-[15px]">
@@ -334,7 +336,7 @@ function HomePage() {
             className="mb-[10px] w-full"
           />
           <h6 className="inline-block rounded-[4px] bg-[#cdebbc] px-[8px] pb-[6px] pt-[9px] text-[12px] font-bold leading-[1] text-[#088178]">
-            FISH
+            Cá
           </h6>
         </div>
         <div className="fe-box my-[15px] w-[180px] rounded-[4px] border border-[#cce7d0] px-[15px] py-[25px] text-center shadow-[20px_20px_34px_rgba(0,0,0,0.03)] hover:shadow-[10px_10px_54px_rgba(70,62,221,0.1)] tablet:m-[15px]">
@@ -344,7 +346,7 @@ function HomePage() {
             className="mb-[10px] w-full bg-[#fff]"
           />
           <h6 className="inline-block rounded-[4px] bg-[#cdebbc] px-[8px] pb-[6px] pt-[9px] text-[12px] font-bold leading-[1] text-[#088178]">
-            CHICKEN
+            Gà
           </h6>
         </div>
       </section>
@@ -354,10 +356,10 @@ function HomePage() {
         className="section-p1 px-[80px] py-[40px] text-center"
       >
         <h2 className="text-[46px] leading-[54px] text-[#222] mobile:text-[32px]">
-          Featured Products
+          Sản phẩm nổi bật
         </h2>
         <p className="my-[15px] mb-[20px] text-[16px] text-[#465b52]">
-          Seasonal Products
+          Featured products
         </p>
         <div
           className="pro-container flex flex-wrap justify-between pt-[20px] tablet:justify-center"
@@ -368,13 +370,13 @@ function HomePage() {
       </section>
 
       <section className="banner section-m1 my-[40px] flex h-[40vh] w-full flex-col items-center justify-center bg-[url('images/banner/banner-home.png')] bg-cover bg-center text-center tablet:h-[20vh]">
-        <h4 className="text-[16px] text-white">Repair Services</h4>
         <h2 className="py-[10px] text-[30px] leading-[54px] text-white mobile:text-[32px]">
-          Up to <span className="text-[rgb(255,240,107)]">70% Off</span> - DPS
-          Protein tăng trọng
+          Khuyến mãi lên tới{" "}
+          <span className="text-[rgb(255,240,107)]">70%</span> - Mua càng nhiều,
+          giá càng hời
         </h2>
         <button className="normal cursor-pointer rounded-[4px] border-0 bg-white px-[30px] py-[15px] text-[14px] font-semibold text-[#000] outline-none transition duration-200 ease-in-out hover:bg-[rgb(255,240,107)] hover:text-white">
-          Explore More
+          Khám phá thêm
         </button>
       </section>
 
@@ -383,7 +385,7 @@ function HomePage() {
         className="section-p1 px-[80px] py-[40px] text-center"
       >
         <h2 className="text-[46px] leading-[54px] text-[#222] mobile:text-[32px]">
-          Latest Products
+          Sản phẩm mới nhất
         </h2>
         <p className="my-[15px] mb-[20px] text-[16px] text-[#465b52]">
           New Products
@@ -399,15 +401,15 @@ function HomePage() {
       <section className="sm-banner section-p1 flex w-full flex-wrap justify-between px-[80px] py-[40px]">
         <div className="banner-box h-[50vh] w-full min-w-[300px] bg-[url('images/banner/banner-pig.jpeg')] bg-cover bg-center text-center tablet:h-[30vh] tablet:w-full mobile:mb-[20px] mobile:h-[40vh]">
           <div className="flex h-full w-full flex-col items-start justify-center bg-[rgba(8,28,14,0.45)] p-[30px]">
-            <h4 className="text-[20px] font-light text-white">crazy deals</h4>
+            <h4 className="text-[20px] font-light text-white">Deals cực hời</h4>
             <h2 className="text-[28px] font-extrabold leading-[54px] text-white mobile:text-[32px]">
-              buy 1 get 1 free
+              Mua 1 tặng 1
             </h2>
             <span className="pb-[15px] text-[14px] font-medium text-white">
-              Bã đậu nành is on sale
+              Bã đậu nành đang được bán
             </span>
             <button className="white cursor-pointer border border-white bg-transparent px-[18px] py-[11px] text-[13px] font-semibold text-white outline-none transition duration-200 ease-in-out hover:bg-[rgb(255,240,107)]">
-              Learn more
+              Xem thêm
             </button>
           </div>
         </div>

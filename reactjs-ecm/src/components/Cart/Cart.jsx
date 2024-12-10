@@ -20,14 +20,15 @@ const Cart = () => {
     carts,
     setCarts,
     setTotalQuantity,
-    totalCost,
-    setTotalCost,
+
     deleteCartItem,
     updateSelectedCartItems,
     isLoading,
   } = useCart();
 
   const [selectedItems, setSelectedItems] = useState([]);
+
+  const [totalCost, setTotalCost] = useState(0);
 
   const [notifications, setNotifications] = useState([]);
 
@@ -115,12 +116,20 @@ const Cart = () => {
   };
 
   const handleNavigate = () => {
-    const selectedCarts = carts.filter((cart) =>
-      selectedItems.includes(cart.id),
-    );
-    updateSelectedCartItems(selectedCarts); // Cập nhật Context
+    if (selectedItems.length === 0) {
+      showNotification(
+        "Vui lòng chọn ít nhất một sản phẩm để thanh toán!",
+        notificationTypes.WARNING,
+        setNotifications,
+      );
+    } else {
+      const selectedCarts = carts.filter((cart) =>
+        selectedItems.includes(cart.id),
+      );
+      updateSelectedCartItems(selectedCarts); // Cập nhật Context
 
-    navigate("/checkout"); // Điều hướng sang trang Checkout
+      navigate("/checkout"); // Điều hướng sang trang Checkout
+    }
   };
 
   const handleSelectCartItem = (cartId) => {
@@ -144,16 +153,24 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    const getDataCarts = async () => {
-      let userIdd = getUserId();
-      if (userIdd) {
-        const response = await getCarts();
-        const cartData = response.data.data.cart;
-        setCarts(cartData);
-      }
-    };
-    getDataCarts();
-  }, []);
+    // const getDataCarts = async () => {
+    //   let userIdd = getUserId();
+    //   if (userIdd) {
+    //     const response = await getCarts();
+    //     const cartData = response.data.data.cart;
+    //     setCarts(cartData);
+    //   }
+    // };
+    // Tính tổng tiền của các sản phẩm được chọn
+    const cost = carts
+      .filter((cart) => selectedItems.includes(cart.id)) // Lọc sản phẩm được chọn
+      .reduce(
+        (total, item) => total + item.quantity * item.product.priceout,
+        0,
+      );
+    setTotalCost(cost);
+    // getDataCarts();
+  }, [selectedItems, carts]);
 
   if (isLoading) {
     return <div>Loading...</div>; // Khi đang tải, chỉ hiển thị loading

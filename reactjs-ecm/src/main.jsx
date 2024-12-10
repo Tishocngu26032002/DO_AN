@@ -26,6 +26,8 @@ import ShipHistory from "./components/Shipping/ship-history.jsx";
 import OrderDetails from "./components/OrderDetails/order-details";
 import NotificationsPage from "./components/Notification/notification.jsx";
 import ImportProduct from "./components/Admin/Import/import.jsx";
+import UserProfile from "./components/ProfileUser/profile-user.jsx";
+import ChangePassword from "./components/ProfileUser/change-password.jsx";
 import "react-toastify/dist/ReactToastify.css";
 import { CartProvider } from "./Context/CartContext.jsx";
 import { NotificationProvider } from "./components/Notification/NotificationProvider.jsx";
@@ -46,7 +48,10 @@ root.render(
             element={
               <CartProvider>
                 <Routes>
-                  <Route path="*" element={<Navigate to="/home-page" replace />} />
+                  <Route
+                    path="*"
+                    element={<Navigate to="/home-page" replace />}
+                  />
                   <Route path="/register" element={<RegisterForm />} />
                   <Route path="/otp" element={<OTPPage />} />
                   <Route path="/login" element={<LoginForm />} />
@@ -54,12 +59,22 @@ root.render(
                   <Route path="/ship-history" element={<ShipHistory />} />
                   <Route path="/home-page" element={<Home />} />
                   <Route path="/products" element={<ShopGrid />} />
-                  <Route path="/product-detail/:productId" element={<ProductDetail />} />
+                  <Route
+                    path="/product-detail/:productId"
+                    element={<ProductDetail />}
+                  />
                   <Route path="/cart" element={<Cart />} />
-                  <Route path="/order-history" element={<OrderHistory />} />
                   <Route path="/order-success" element={<OrderSuccess />} />
                   <Route path="/order-details" element={<OrderDetails />} />
                   <Route path="/checkout" element={<Checkout />} />
+                  <Route
+                    path="/change-password/:userId"
+                    element={<ChangePassword />}
+                  />
+                  <Route
+                    path="/order-history/:userId"
+                    element={<OrderHistory />}
+                  />
                 </Routes>
               </CartProvider>
             }
@@ -72,11 +87,23 @@ root.render(
                   <Route path="/manage-category" element={<ManageCategory />} />
                   <Route path="/manage-order" element={<ManageOrder />} />
                   <Route path="/import-product" element={<ImportProduct />} />
-                  <Route path="/manage-product/:currentPage/:productsPerPage" element={<ManageProduct />} />
-                  <Route path="/manage-user/:currentPage/:usersPerPage" element={<ManageUser />} />
+                  <Route
+                    path="/manage-product/:currentPage/:productsPerPage"
+                    element={<ManageProduct />}
+                  />
+                  <Route
+                    path="/manage-user/:currentPage/:usersPerPage"
+                    element={<ManageUser />}
+                  />
                   <Route path="/dashboard" element={<Report />} />
-                  <Route path="/manage-supplier/:page/:limit" element={<ManageSupplier />} />
-                  <Route path="/test-notification" element={<NotificationsPage />} />
+                  <Route
+                    path="/manage-supplier/:page/:limit"
+                    element={<ManageSupplier />}
+                  />
+                  <Route
+                    path="/test-notification"
+                    element={<NotificationsPage />}
+                  />
                 </Routes>
               </NotificationProvider>
             }
