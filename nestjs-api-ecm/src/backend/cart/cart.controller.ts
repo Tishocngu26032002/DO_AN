@@ -88,9 +88,11 @@ export class CartController {
 
   @Delete(':user_id')
   @Roles('user')
-  async delete(@Body() updateCartDto: DeleteCartDto) {
+  async delete(
+      @Param('user_id') user_id: string,
+      @Body() updateCartDto: DeleteCartDto) {
     try {
-      const check = await this.cartService.deleteProductsInCart(updateCartDto.cart_ids);
+      const check = await this.cartService.deleteProductsInCart(user_id, updateCartDto.cart_ids);
       return responseHandler.ok(check);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
