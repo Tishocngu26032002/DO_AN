@@ -64,10 +64,4 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @ApiProperty({ type: ProductDto, isArray: true })
   products: ProductDto[];
-
-  @IsArray()
-  @IsString({ each: true })
-  @IsNotEmpty({ each: true })
-  @ApiProperty({ type: [String], description: 'Danh sách ID giỏ hàng', isArray: true })
-  cart_id: string[];
 }
