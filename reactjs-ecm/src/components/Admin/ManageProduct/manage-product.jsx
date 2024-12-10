@@ -134,33 +134,28 @@ const ManageProduct = () => {
     setForm({ ...form, url_images: e.target.files[0] });
   };
 
-  const handleSearch = async () => {
-    try {
-      const filters = {
-        ...(searchQuery.name && { name: searchQuery.name }),
-        ...(searchQuery.category && { category: searchQuery.category }),
-      };
-  
-      const { products: searchedProducts, totalProducts } = await searchProducts(
-        currentPage,
-        productsPerPage,
-        filters
-      );
-  
-      setProducts(searchedProducts || []);
-      setFilteredProducts(searchedProducts || []);
-      setTotalProducts(totalProducts);
-      setSearchMode(true);
-    } catch (error) {
-      console.error("Error searching products:", error);
-    }
-  };
-  
-  const handleResetSearch = () => {
-    setSearchQuery({ name: "", category: "" });
-    setSearchMode(false);
-    fetchProducts(); // Gọi lại API để hiển thị tất cả sản phẩm
-  };
+  useEffect(() => {
+    const filters = {
+      ...(searchQuery.name && { name: searchQuery.name }),
+      ...(searchQuery.category && { category: searchQuery.category }),
+    };
+
+    const fetchFilteredProducts = async () => {
+      try {
+        const { products: searchedProducts, totalProducts } = await searchProducts(
+          currentPage,
+          productsPerPage,
+          filters
+        );
+        setFilteredProducts(searchedProducts || []);
+        setTotalProducts(totalProducts);
+      } catch (error) {
+        console.error("Error searching products:", error);
+      }
+    };
+
+    fetchFilteredProducts();
+  }, [searchQuery.name, searchQuery.category, currentPage]);
 
   const handleDelete = async (id) => {
     try {
@@ -232,20 +227,6 @@ const ManageProduct = () => {
               ))}
               </select>
             </div>
-          </div>
-          <div className="mt-4 flex gap-4">
-            <button
-              onClick={handleSearch}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-            >
-              Tìm kiếm
-            </button>
-            <button
-              onClick={handleResetSearch}
-              className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
-            >
-              Đặt lại
-            </button>
           </div>
         </div>
         {/* Product List */}
@@ -387,33 +368,6 @@ const ManageProduct = () => {
             </div>
           </div>
         )}
-        {/* <div className="flex justify-center items-center mt-4">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-300 rounded-l disabled:bg-gray-200"
-          >
-            Trước
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`px-3 py-1 mx-1 rounded ${
-                currentPage === page ? "bg-blue-500 text-white" : "bg-gray-200"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-gray-300 rounded-r disabled:bg-gray-200"
-          >
-            Tiếp
-          </button>
-        </div> */}
         <div className="mt-4 flex justify-center">
           {Array.from({ length: totalPages }, (_, index) => (
             <button

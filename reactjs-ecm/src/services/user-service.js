@@ -19,6 +19,21 @@ export async function getUserById(userId) {
   }
 }
 
+export const editInfoUser = async (userId, userData) => {
+  try {
+    const token = getToken();
+    const res = await axios.patch(`${BASE_URL}/users/${userId}`, userData, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Truyền token ở đây
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw error;
+  }
+};
+
 export async function getUsers(page, limit) {
   try {
     const token = getToken();
@@ -100,6 +115,22 @@ export async function getUser() {
     throw error;
   }
 }
+
+export const changePassword = async (userId, data) => {
+  try {
+    const token = getToken();
+    const res = await axios.post(`${BASE_URL}/change-password/${userId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(res.data);
+    return res.data;
+  } catch (error) {
+    console.error("Error changing password:", error);
+    throw error;
+  }
+};
 
 export async function getSearchUsers(page, limit, searchData) {
   try {
