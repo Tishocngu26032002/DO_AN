@@ -88,7 +88,7 @@ export class CartController {
 
   @Delete(':user_id')
   @Roles('user')
-  async delete(@Param('user_id') user_id: string, @Body() updateCartDto: DeleteCartDto) {
+  async delete(@Body() updateCartDto: DeleteCartDto) {
     try {
       const check = await this.cartService.deleteProductsInCart(updateCartDto.cart_ids);
       return responseHandler.ok(check);
