@@ -38,3 +38,21 @@ export async function deleteCart(cartId) {
     },
   });
 }
+
+export async function deleteCartItems(cartIds) {
+  try {
+    const response = await axios.delete(`${BASE_URL}/cart/${userId}`, {
+      data: { cart_ids: cartIds }, //  với DELETE, payload phải nằm trong 'data'
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error deleting cart items:",
+      error.response?.data || error.message,
+    );
+    throw error;
+  }
+}

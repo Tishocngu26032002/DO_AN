@@ -89,6 +89,12 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  const clearSelectedCartItems = () => {
+    setSelectedCartItems((prevItems) =>
+      prevItems.filter((item) => !selectedCartItems.includes(item)),
+    );
+  };
+
   useEffect(() => {
     fetchCarts();
   }, []);
@@ -100,6 +106,7 @@ export const CartProvider = ({ children }) => {
         totalCost,
         totalQuantity,
         selectedCartItems,
+        clearSelectedCartItems,
         setCarts,
         setTotalQuantity,
         setTotalCost,

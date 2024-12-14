@@ -28,6 +28,7 @@ import {
   showNotification,
 } from "../Notification/NotificationService";
 import { useCart } from "../../Context/CartContext";
+import { deleteCartItems, getCarts } from "../../services/cart-service";
 
 const schema = z.object({
   name: z.string().min(2, "Ít nhất 2 ký tự").max(20, "Nhiều nhất 20 ký tự"),
@@ -72,7 +73,16 @@ const Checkout = () => {
     mutate(data);
   };
 
-  const { selectedCartItems } = useCart();
+  const navigate = useNavigate();
+
+  const {
+    carts,
+    setCarts,
+    selectedCartItems,
+    clearSelectedCartItems,
+    totalQuantity,
+    setTotalQuantity,
+  } = useCart();
   const [nameUser, setNameUser] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
@@ -151,11 +161,29 @@ const Checkout = () => {
       const response = await createOrder(orderData);
 
       if (response.data.data.total_price > 0) {
-        showNotification(
-          "Thanh toán thành công! Cảm ơn bạn đã mua sắm.",
-          notificationTypes.SUCCESS,
-          setNotifications,
-        );
+        // Lấy danh sách cart_ids từ sản phẩm đã chọn
+        const cartIds = selectedCartItems.map((cart) => cart.id);
+
+        // Gọi API để xóa sản phẩm trong giỏ hàng
+        await deleteCartItems(cartIds);
+
+        const res = await getCarts();
+        const cartData = res.data.data.cart;
+
+        setCarts(cartData);
+        // clearSelectedCartItems();
+
+        setTotalQuantity(res.data.data.total);
+
+        // const orderResponse = {
+        //   orderId: response.orderId,
+        //   status: response.status,
+        //   // các thuộc tính khác nếu cần
+        // };
+
+        navigate("/order-success", {
+          state: { orderResponse: response.data.data },
+        });
       } else {
         showNotification(
           "Lỗi thanh toán! Vui lòng thử lại.",
@@ -163,9 +191,6 @@ const Checkout = () => {
           setNotifications,
         );
       }
-
-      // Xử lý sau khi đặt hàng thành công, ví dụ: xóa giỏ hàng hoặc điều hướng
-      // setCarts([]);
     } catch (error) {
       console.error("Lỗi khi đặt hàng:", error);
     }

@@ -20,23 +20,17 @@ import { BarChart, Bar } from "recharts";
 import { PieChart, Pie, Cell } from "recharts";
 import {
   getDashboardData,
+  getDataLineChart,
   getSalesByCategory,
   getSalesBySupplier,
   getTopCustomers,
   getTopProducts,
 } from "../../../services/report-service.js";
 
-// Dữ liệu giả lập
-const revenueData = [
-  { name: "Week 1", revenue: 4000, budget: 3000, profit: 1000 },
-  { name: "Week 2", revenue: 4500, budget: 3500, profit: 1200 },
-  { name: "Week 3", revenue: 5000, budget: 4000, profit: 1500 },
-  { name: "Week 4", revenue: 6000, budget: 5000, profit: 2000 },
-];
-
 const Report = () => {
   const [timeFilter, setTimeFilter] = useState("Tuần");
   const [dashboardData, setDashboardData] = useState(null);
+  const [dataLineChart, setDataLineChart] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [topCustomers, setTopCustomers] = useState([]);
   const [salesByCategory, setSalesByCategory] = useState([]);
@@ -54,6 +48,21 @@ const Report = () => {
       }
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
+    }
+  };
+
+  // Fetch dữ liệu Doanh thu Ngân Sách Lãi
+  const fetchDataLineChart = async (filter) => {
+    try {
+      const response = await getDataLineChart(filter);
+
+      if (response.success) {
+        setDataLineChart(response.data);
+      } else {
+        console.error("Failed to fetch LineChart data:", response.message);
+      }
+    } catch (error) {
+      console.error("Error fetching LineChart data:", error);
     }
   };
 
@@ -76,8 +85,8 @@ const Report = () => {
     try {
       const response = await getTopCustomers(filter);
 
-      if (response.success) {
-        setTopCustomers(response.data);
+      if (response) {
+        setTopCustomers(response);
       } else {
         console.error("Failed to fetch top customers data:", response.message);
       }
@@ -122,6 +131,7 @@ const Report = () => {
 
   useEffect(() => {
     fetchDashboardData(timeFilter);
+    fetchDataLineChart(timeFilter);
     fetchTopProducts(timeFilter);
     fetchTopCustomers(timeFilter);
     fetchSalesByCategory(timeFilter);
@@ -224,29 +234,29 @@ const Report = () => {
             Doanh thu, Ngân sách, Lãi
           </h4>
           <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={revenueData}>
+            <LineChart data={dataLineChart}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis dataKey="time_period" />
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="revenue" stroke="#006532" />
-              <Line type="monotone" dataKey="budget" stroke="#82ca9d" />
+              <Line type="monotone" dataKey="total_revenue" stroke="#006532" />
+              <Line type="monotone" dataKey="total_cost" stroke="#82ca9d" />
               <Line type="monotone" dataKey="profit" stroke="#ff7300" />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Biểu đồ Bar: Top10 sản phẩm */}
+        {/* Biểu đồ Bar: Top5 sản phẩm */}
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
             <h4 className="mb-4 text-xl font-semibold text-[#006532]">
-              Top 10 sản phẩm có doanh thu cao nhất
+              Top 5 sản phẩm có doanh thu cao nhất
             </h4>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={topProducts}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
+                <XAxis dataKey="productName" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
@@ -256,16 +266,16 @@ const Report = () => {
           </div>
           <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
             <h4 className="mb-4 text-xl font-semibold text-[#006532]">
-              Top 10 khách hàng mua nhiều nhất
+              Top 5 khách hàng mua nhiều nhất
             </h4>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={topCustomers}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
+                <XAxis dataKey="userName" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="orders" fill="#82ca9d" />
+                <Bar dataKey="revenue" fill="#82ca9d" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -281,17 +291,17 @@ const Report = () => {
               <PieChart>
                 <Pie
                   data={salesByCategory}
-                  dataKey="value"
-                  nameKey="name"
+                  dataKey="revenue"
+                  nameKey="categoryName"
                   innerRadius={60}
                   outerRadius={80}
                   fill="#006532"
-                  label
+                  label={(entry) => `${entry.categoryName}: ${entry.revenue}`}
                 >
                   {salesByCategory.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={entry.value > 300 ? "#82ca9d" : "#ff7300"}
+                      fill={entry.revenue > 300 ? "#82ca9d" : "#ff7300"}
                     />
                   ))}
                 </Pie>
@@ -306,17 +316,17 @@ const Report = () => {
               <PieChart>
                 <Pie
                   data={salesBySupplier}
-                  dataKey="value"
-                  nameKey="name"
+                  dataKey="revenue"
+                  nameKey="supplierName"
                   innerRadius={60}
                   outerRadius={80}
                   fill="#006532"
-                  label
+                  label={(entry) => `${entry.supplierName}: ${entry.revenue}`}
                 >
                   {salesBySupplier.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={entry.value > 300 ? "#82ca9d" : "#ff7300"}
+                      fill={entry.revenue > 300 ? "#82ca9d" : "#ff7300"}
                     />
                   ))}
                 </Pie>

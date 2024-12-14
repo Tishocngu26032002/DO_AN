@@ -22,6 +22,23 @@ export async function getDashboardData(filter) {
   }
 }
 
+export async function getDataLineChart(filter) {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/summary-financial?timeFilter=${filter}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error getDashboardData:", error);
+    throw error;
+  }
+}
+
 export async function getTopProducts(filter) {
   try {
     const response = await axios.get(
