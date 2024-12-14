@@ -124,7 +124,6 @@ export const changePassword = async (userId, data) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log(res.data);
     return res.data;
   } catch (error) {
     console.error("Error changing password:", error);
