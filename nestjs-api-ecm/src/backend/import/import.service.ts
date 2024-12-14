@@ -32,7 +32,7 @@ export class ImportService {
       const import_products = createImportDto.products.map((item) => {
         return this.importProductRepo.create({
           quantity: item.quantity,
-          price_in: item.pricein,
+          price_in: item.price_in,
           product_id: item.product_id,
           import_id: importData.id,
         });

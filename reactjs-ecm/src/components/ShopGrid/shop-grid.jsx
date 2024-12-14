@@ -7,13 +7,14 @@ import Footer from "../Footer/footer";
 import { Link, useNavigate } from "react-router-dom";
 import { PiShoppingCart } from "react-icons/pi";
 import { getCategory } from "../../services/category-service";
-import { authLocal, userIdLocal } from "../../util/auth-local";
+import { getUserId } from "../../util/auth-local";
 import img from "../../../public/images/banner/image-4.jpg";
 import {
   NotificationList,
   notificationTypes,
   showNotification,
 } from "../Notification/NotificationService";
+import { useCart } from "../../Context/CartContext";
 const ShopGrid = () => {
   const navigate = useNavigate();
 
@@ -29,7 +30,14 @@ const ShopGrid = () => {
 
   const [products, setProducts] = useState([]);
 
-  const [carts, setCarts] = useState([]);
+  const {
+    carts,
+    setCarts,
+    totalQuantity,
+    setTotalCost,
+    setTotalQuantity,
+    fetchCarts,
+  } = useCart();
 
   const [notifications, setNotifications] = useState([]);
 
@@ -37,10 +45,6 @@ const ShopGrid = () => {
     getProductsOnPage();
     getCategoryOnPage();
   }, []);
-
-  useEffect(() => {
-    getCartsOnPage(); // Cập nhật giỏ hàng sau mỗi lần tải lại sản phẩm
-  }, [params.page]);
 
   useEffect(() => {
     getQueryProductsOnPage();
@@ -94,24 +98,6 @@ const ShopGrid = () => {
     }
   };
 
-  const getCartsOnPage = async () => {
-    try {
-      let token = authLocal.getToken();
-      token = token.replace(/^"|"$/g, "");
-
-      let userId = userIdLocal.getUserId();
-      userId = userId.replace(/^"|"$/g, "");
-
-      if (userId) {
-        const cartsData = await getCarts(userId, token);
-
-        setCarts(cartsData.data.data.cart);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const handlePageChange = (page) => {
     setParams((prev) => ({ ...prev, page: page }));
   };
@@ -120,38 +106,51 @@ const ShopGrid = () => {
     const product = products.find((prod) => prod.id === productId);
     const cartIndex = carts.findIndex((cart) => cart.product_id === product.id);
 
-    let token = authLocal.getToken();
-    token = token.replace(/^"|"$/g, "");
+    let userId = getUserId();
 
-    let userId = userIdLocal.getUserId();
-    userId = userId.replace(/^"|"$/g, "");
-
-    if (cartIndex !== -1) {
-      await updateCart(
-        {
+    try {
+      if (cartIndex !== -1) {
+        // Nếu sản phẩm đã tồn tại trong giỏ hàng
+        await updateCart({
           ...carts[cartIndex],
           quantity: carts[cartIndex].quantity + 1,
-        },
-        token,
-      );
-    } else {
-      await createCart(
-        {
-          ...product,
+        });
+      } else {
+        // Nếu sản phẩm chưa tồn tại
+        await createCart({
           product_id: product.id,
           quantity: 1,
           user_id: userId,
-        },
-        token,
+        });
+        setTotalQuantity((prev) => prev + 1); // Cập nhật ngay lập tức
+      }
+
+      showNotification(
+        "Sản phẩm đã được thêm vào giỏ hàng!",
+        notificationTypes.SUCCESS,
+        setNotifications,
+      );
+
+      let userIdd = getUserId();
+      if (userIdd) {
+        const response = await getCarts();
+        const cartData = response.data.data.cart;
+        setCarts(cartData);
+
+        const cost = cartData.reduce(
+          (total, item) => total + item.quantity * item.product.priceout,
+          0,
+        );
+        setTotalCost(cost);
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      showNotification(
+        "Thêm sản phẩm vào giỏ hàng thất bại!",
+        notificationTypes.ERROR,
+        setNotifications,
       );
     }
-    getCartsOnPage();
-
-    showNotification(
-      "Sản phẩm đã được thêm vào giỏ hàng!",
-      notificationTypes.SUCCESS,
-      setNotifications,
-    );
   };
 
   const handleSearch = (e) => {
