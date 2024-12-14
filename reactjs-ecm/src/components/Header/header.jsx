@@ -119,7 +119,7 @@ function Header() {
               </li>
               <li className="px-4">
                 <NavLink
-                  to="/contact"
+                  to="/user/${userId}"
                   className={({ isActive }) =>
                     isActive
                       ? "border-b-2 border-b-[#006532] text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out"
