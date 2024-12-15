@@ -93,8 +93,10 @@ const ManageOrder = () => {
   useEffect(() => {
     const queryParams = new URLSearchParams();
     if (filterOrderStatus) queryParams.set('orderStatus', filterOrderStatus);
+
     if (filterPaymentStatus) queryParams.set('paymentStatus', filterPaymentStatus);
-    window.history.replaceState(null, '', `/manage-order/${currentPage}/${ordersPerPage}?${queryParams.toString()}`);
+    window.history.replaceState(null, '', `/admin/manage-order/${currentPage}/${ordersPerPage}?${queryParams.toString()}`);
+
   }, [ filterOrderStatus, filterPaymentStatus, currentPage, ordersPerPage]);
 
   const fetchOrders = async () => {
@@ -153,20 +155,20 @@ const ManageOrder = () => {
     if (filterOrderStatus) queryParams.set('orderStatus', filterOrderStatus); 
     if (filterPaymentStatus) queryParams.set('paymentStatus',filterPaymentStatus);
 
-    navigate(`/manage-order/${page}/${ordersPerPage}?${queryParams.toString()}`);
+    navigate(`/admin/manage-order/${page}/${ordersPerPage}?${queryParams.toString()}`);
   };
 
 
   const handleOrderStatusChange = (event) => {
     setFilterOrderStatus(event.target.value.trim());
-    navigate(`/manage-order/1/${ordersPerPage}?${queryParams.toString()}`);
+    navigate(`/admin/manage-order/1/${ordersPerPage}?${queryParams.toString()}`);
   };
   
   
   const handlePaymentStatusChange = (event) => {
     const newPaymentStatus = event.target.value.trim();
     setFilterPaymentStatus(newPaymentStatus);
-    navigate(`/manage-order/1/${ordersPerPage}?${queryParams.toString()}`);
+    navigate(`/admin/manage-order/1/${ordersPerPage}?${queryParams.toString()}`);
   };
 
   const handleViewOrder = (order) => {

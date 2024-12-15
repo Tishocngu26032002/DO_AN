@@ -24,6 +24,7 @@ function Header() {
 
   const { totalQuantity, isLoading } = useCart();
 
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -40,6 +41,11 @@ function Header() {
 
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    setCartItemsQuantity(totalQuantity);
+  }, [totalQuantity]);
+
 
   useEffect(() => {
     setCartItemsQuantity(totalQuantity);
