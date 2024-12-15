@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { LineChart, AreaChart, RadarChart, Line, Area, Radar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PolarGrid, PolarAngleAxis } from 'recharts';
 import { BarChart, Bar } from 'recharts';
 import { PieChart, Pie, Cell } from 'recharts';
+import AdminHeader from '../AdminHeader/admin-header';
 
 // Dữ liệu giả lập
 const revenueData = [
@@ -44,10 +45,12 @@ function ProductionStatistics() {
   const [timePeriod, setTimePeriod] = useState('week'); // Trạng thái lựa chọn thời gian (Tuần, Tháng, Quý, Năm)
 
   return (
-    <div className="bg-gray-50 min-h-screen p-8">
+    
+    <div className="bg-gray-50 min-h-screen ">
+      <AdminHeader/>
       <div className="mb-8">
         {/* Chọn thời gian */}
-        <div className="flex space-x-4 mb-6">
+        <div className="flex space-x-4 mb-6 p-8">
           <button className="p-2 border rounded-lg text-white bg-[#006532] shadow-md hover:bg-[#004d26]">Tuần</button>
           <button className="p-2 border rounded-lg text-white bg-[#006532] shadow-md hover:bg-[#004d26]">Tháng</button>
           <button className="p-2 border rounded-lg text-white bg-[#006532] shadow-md hover:bg-[#004d26]">Quý</button>
@@ -56,7 +59,7 @@ function ProductionStatistics() {
       </div>
 
       {/* Các thẻ thông tin */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8 p-8">
         <div className="bg-white p-6 shadow-lg rounded-lg border border-gray-200">
           <h4 className="text-xl font-semibold text-[#006532]">Doanh thu</h4>
           <p className="text-3xl font-bold text-[#006532]">{revenueData[revenueData.length - 1].revenue} VND</p>
@@ -80,7 +83,7 @@ function ProductionStatistics() {
       </div>
 
       {/* Biểu đồ Line */}
-      <div className="mb-8">
+      <div className="mb-8 px-8">
         <h4 className="text-2xl font-semibold text-[#006532] mb-4">Doanh thu, Ngân sách, Lãi</h4>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={revenueData}>

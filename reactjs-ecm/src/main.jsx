@@ -18,7 +18,6 @@ import ManageCategory from "./components/Admin/ManageCategory/manage-category.js
 import ManageOrder from "./components/Admin/ManageOrder/manage-order.jsx";
 import ManageProduct from "./components/Admin/ManageProduct/manage-product.jsx";
 import ManageUser from "./components/Admin/ManageUser/manage-user.jsx";
-import Report from "./components/Admin/Report/report.jsx";
 import ProductionStatistics from "./components/Admin/Statistics/production-statistics.jsx";
 import ManageSupplier from "./components/Admin/ManageSupplier/manage-supplier.jsx";
 import Checkout from "./components/Checkout/checkout.jsx";
@@ -26,9 +25,9 @@ import ShipOrder from "./components/Shipping/ship-order.jsx";
 import ShipHistory from "./components/Shipping/ship-history.jsx";
 import OrderDetails from "./components/OrderDetails/order-details";
 import NotificationsPage from "./components/Notification/notification.jsx";
-import ImportProduct from "./components/Admin/Import/import.jsx";
+import ManageImport from "./components/Admin/Import/manage-import.jsx";
 import UserProfile from "./components/ProfileUser/profile-user.jsx";
-
+import ManageOrderComplete from "./components/Admin/ManageOrder/manage-order-complete.jsx";
 import "react-toastify/dist/ReactToastify.css";
 import {NotificationProvider} from "./components/Notification/NotificationProvider.jsx";
 
@@ -73,7 +72,8 @@ root.render(
                                 <Routes>
                                     <Route path="/manage-category" element={<ManageCategory/>}/>
                                     <Route path="/manage-order/:currentPage/:ordersPerPage" element={<ManageOrder/>}/>
-                                    <Route path="/import-product" element={<ImportProduct/>}/>
+                                    <Route path="/manage-order-complete/:currentPage/:ordersPerPage" element={<ManageOrderComplete/>}/>
+                                    <Route path="/manage-import/:currentPage/:usersPerPage" element={<ManageImport/>}/>
                                     <Route
                                         path="/manage-product/:currentPage/:productsPerPage"
                                         element={<ManageProduct/>}
@@ -82,26 +82,11 @@ root.render(
                                         path="/manage-user/:currentPage/:usersPerPage"
                                         element={<ManageUser/>}
                                     />
-                                    {/* <Route path="/report" element={<Report />} /> */}
-                                    <Route path="/dashboard" element={<Report/>}/>
-
-
-                                    <Route
-                                        path="/manage-supplier/:page/:limit"
-                                        element={<ManageSupplier/>}
-                                    />
-
-
-                                    <Route path="/test-notification" element={<NotificationsPage/>}/>
-
-                                    <Route path="/report" element={<Report/>}/>
-                                    <Route
-                                        path="/production-statistics"
-                                        element={<ProductionStatistics/>}
-                                    />
-
+                                    <Route path="/dashboard" element={<ProductionStatistics/>}/>
                                     <Route path="/manage-supplier/:page/:limit" element={<ManageSupplier/>}/>
-                                    <Route path="/test-notification" element={< NotificationsPage/>}/>
+                                    <Route path="/test-notification" element={<NotificationsPage/>}/>
+                                    <Route path="/production-statistics" element={<ProductionStatistics/>}/>
+                                    <Route path="/manage-supplier/:page/:limit" element={<ManageSupplier/>}/>
                                 </Routes>
                             </NotificationProvider>
                         }

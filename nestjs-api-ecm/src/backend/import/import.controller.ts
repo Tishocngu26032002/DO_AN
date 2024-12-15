@@ -9,13 +9,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ImportService } from './import.service';
-import { CreateImportDto } from 'src/dto/importDTO/import.create.dto';
 import { responseHandler } from 'src/Until/responseUtil';
 import { UpdateImpotyDTO } from 'src/dto/importDTO/import.update.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/guards/JwtAuth.guard';
 import { RolesGuard } from 'src/guards/Roles.guard';
 import { Roles } from 'src/decorator/Role.decorator';
+import { CreateImportDTO } from 'src/dto/importDTO/import.create.dto';
 
 @Controller('import')
 @ApiTags('import')
@@ -26,8 +26,9 @@ export class ImportController {
 
   @Post()
   @Roles('admin')
-  async create(@Body() createImportDto: CreateImportDto) {
+  async create(@Body() createImportDto: CreateImportDTO) {
     try {
+      console.log(createImportDto);
       const import_Product = await this.importService.create(createImportDto);
       return responseHandler.ok(import_Product);
     } catch (e) {
@@ -52,7 +53,7 @@ export class ImportController {
   @Roles('admin')
   async findOne(@Param('import_id') import_id: string) {
     try {
-      const resultDetail = this.importService.findOne(import_id);
+      const resultDetail = await this.importService.findOne(import_id);
       return responseHandler.ok(resultDetail);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);

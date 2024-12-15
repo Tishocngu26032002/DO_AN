@@ -35,21 +35,38 @@ function Header() {
 
     fetchUser();
   }, []);
+  
   const formattedLastName = user?.lastName
     ? user.lastName.substring(0, 4).toUpperCase()
     : "";
 
-  const handleLogoutUser = async () => {
-    localStorage.clear();
-    setUser(null); // Đặt lại user state sau khi đăng xuất
-
-    showNotification(
-      "Bạn đã đăng xuất thành công.",
-      notificationTypes.INFO,
-      setNotifications,
-    );
-  };
-
+    const handleLogoutUser = async () => {
+      try {
+        // Gọi hàm logoutUser với userId
+        await logoutUser();
+        
+        // Xóa token khỏi localStorage và đặt lại state user
+        localStorage.clear();
+        setUser(null); // Đặt lại user state sau khi đăng xuất
+    
+        // Hiển thị thông báo đăng xuất thành công
+        showNotification(
+          "Bạn đã đăng xuất thành công.",
+          notificationTypes.INFO,
+          setNotifications,
+        );
+      } catch (error) {
+        // Xử lý lỗi khi đăng xuất
+        console.error("Error logging out:", error);
+    
+        // Hiển thị thông báo lỗi
+        showNotification(
+          "Đăng xuất thất bại. Vui lòng thử lại.",
+          notificationTypes.ERROR,
+          setNotifications,
+        );
+      }
+    };
   return (
     <>
       {/* Hiển thị các thông báo */}

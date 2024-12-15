@@ -22,7 +22,7 @@ import {
   OrderStatus,
   PaymentStatus,
 } from 'src/share/Enum/Enum';
-import { log } from 'console';
+import {ParseBooleanPipe} from "src/share/ParseBooleanPipe";
 
 @Controller('order')
 @ApiTags('Order')
@@ -62,23 +62,35 @@ export class OrderController {
     required: false,
     description: 'Trạng thái thanh toán (All, Paid, Unpaid, Debt)',
   })
+  @ApiQuery({
+    name: 'includeExcluded',
+    type: Boolean,
+    required: false,
+    description:
+        'Lấy Delivered và Canceled nếu là true, ngược lại loại trừ chúng (default: false)',
+  })
   @Get('manage-order/:page/:limit')
   @Roles('admin')
   async getOrderManagement(
-    @Param('page') page: number,
-    @Param('limit') limit: number,
-    @Query('orderStatus') orderStatus?: OrderStatus,
-    @Query('paymentStatus') paymentStatus?: PaymentStatus,
+      @Param('page') page: number,
+      @Param('limit') limit: number,
+      @Query('orderStatus') orderStatus?: OrderStatus,
+      @Query('paymentStatus') paymentStatus?: PaymentStatus,
+      @Query('includeExcluded', ParseBooleanPipe) includeExcluded?: boolean,
   ) {
     try {
+      const excludedStatuses = [OrderStatus.Delivered, OrderStatus.Canceled];
       const filters = {
-        orderStatus: orderStatus !== undefined ? orderStatus : '',
-        paymentStatus: paymentStatus !== undefined ? paymentStatus : '',
+        orderStatus: orderStatus || '',
+        paymentStatus: paymentStatus || '',
+        includedStatuses: includeExcluded && !orderStatus ? excludedStatuses : [],
+        excludedStatuses: includeExcluded == false && !orderStatus ? excludedStatuses : [],
       };
+
       const allOrder = await this.order_Service.getOrderManagement(
-        page,
-        limit,
-        filters,
+          page,
+          limit,
+          filters,
       );
       return responseHandler.ok(allOrder);
     } catch (e) {

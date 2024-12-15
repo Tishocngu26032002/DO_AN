@@ -1,6 +1,6 @@
 import { apiClient } from "./custom-auth-api";
 import axios from 'axios';
-import { getToken } from '../util/auth-local'; 
+import { getToken, getUserId } from '../util/auth-local'; 
 
 export async function loginApi(params) {
   try {
@@ -13,8 +13,9 @@ export async function loginApi(params) {
 
 const BASE_URL = 'http://localhost:6006';
 
-export async function logoutUser(userId) {
+export async function logoutUser() {
   try {
+    const userId = getUserId();
     const token = getToken();
     const res = await axios.post(`${BASE_URL}/logout/${userId}`, {
       token: token,

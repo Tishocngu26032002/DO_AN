@@ -60,18 +60,16 @@ export const createOrder = async (orderData) => {
   }
 };
 
-export async function getOrdersAdmin(page, limit, searchData) {
+export async function getOrdersAdmin(page, limit, orderStatus,paymentStatus,includeExcluded) {
   try {
     const token = getToken();
-    const queryParams = new URLSearchParams(searchData).toString();
-
-    const res = await axios.get(`${BASE_URL}/order/manage-order/${page}/${limit}?${queryParams}`, {
+    const res = await axios.get(`${BASE_URL}/order/manage-order/${page}/${limit}?orderStatus=${orderStatus}&paymentStatus=${paymentStatus}&includeExcluded=${includeExcluded}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         accept: "*/*",
       },
     });
-    
+    // console.log('api', res.data);
     return res.data;
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -79,10 +77,11 @@ export async function getOrdersAdmin(page, limit, searchData) {
   }
 }
 
-export const updateOrder = async ( adminId , orderData) => {
+export const updateOrder = async ( orderData) => {
   try {
     const token = getToken(); // Lấy token
-    const res = await axios.patch(`${BASE_URL}/order/${adminId}`, orderData, {
+    const userId= getUserId();
+    const res = await axios.patch(`${BASE_URL}/order/${userId}`, orderData, {
       headers: {
         Authorization: `Bearer ${token}`, // Truyền token ở đây
       },

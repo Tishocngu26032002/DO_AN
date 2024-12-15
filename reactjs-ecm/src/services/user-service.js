@@ -117,3 +117,20 @@ export async function getSearchUsers(page, limit, searchData) {
     throw error;
   }
 }
+
+export async function getUserByAdmin(userId) {
+  try {
+    const token = getToken();
+    const adminId = getUserId();
+    const res = await axios.get(`${BASE_URL}/users/${adminId}/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    console.log(res.data);
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    throw error;
+  }
+}
