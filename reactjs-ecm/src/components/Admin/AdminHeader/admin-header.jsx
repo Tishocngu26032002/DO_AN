@@ -35,7 +35,6 @@ function HeaderAdmin() {
   const unreadCount = notifications.filter(
     ([key, notification]) => notification.isRead === false,
   ).length;
-
   const [isHovered, setIsHovered] = useState(false); // Trạng thái để kiểm tra hover
   
   const [isOrderManagementOpen, setIsOrderManagementOpen] = useState(false);

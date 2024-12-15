@@ -46,11 +46,6 @@ function Header() {
     setCartItemsQuantity(totalQuantity);
   }, [totalQuantity]);
 
-
-  useEffect(() => {
-    setCartItemsQuantity(totalQuantity);
-  }, [totalQuantity]);
-
   const formattedLastName = user?.lastName
     ? user.lastName.substring(0, 4).toUpperCase()
     : "";
