@@ -3,7 +3,7 @@ import {useLocation, useParams, useNavigate } from 'react-router-dom';
 import AdminHeader from "../AdminHeader/admin-header.jsx";
 import { FaSave, FaTrash, FaEye,FaSearch, FaFilter, FaSort, FaEdit} from 'react-icons/fa';
 import { MdOutlineInbox, MdOutlineCancel } from "react-icons/md";
-import { getOrdersAdmin, updateOrder } from '../../../services/order-service.js';
+import { getOrdersAdmin, updateOrderAdmin } from '../../../services/order-service.js';
 import { showNotification, notificationTypes, NotificationList } from '../../Notification/NotificationService.jsx';
 import NotificationHandler from '../../Notification/notification-handle.jsx';
 
@@ -213,7 +213,7 @@ const ManageOrder = () => {
     };
   
     try {
-      const result = await updateOrder(updatedData); // Cập nhật đơn hàng
+      const result = await updateOrderAdmin(updatedData); // Cập nhật đơn hàng
 
       setShowModal(false);
     } catch (error) {

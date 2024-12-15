@@ -8,7 +8,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
-class ProductDTO {
+class ProductImportDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
@@ -38,8 +38,8 @@ export class CreateImportDTO {
 
   @IsArray()
   @ValidateNested({ each: true }) // Áp dụng xác thực cho từng phần tử trong mảng
-  @Type(() => ProductDTO) // Chuyển đổi từng phần tử thành ProductDto
+  @Type(() => ProductImportDto) // Chuyển đổi từng phần tử thành ProductDto
   @IsNotEmpty()
-  @ApiProperty({ type: ProductDTO, isArray: true })
-  products: ProductDTO[];
+  @ApiProperty({ type: ProductImportDto, isArray: true })
+  products: ProductImportDto[];
 }

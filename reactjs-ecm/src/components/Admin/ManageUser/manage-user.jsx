@@ -51,7 +51,7 @@ const ManageUser = () => {
     if (searchTerm) queryParams.set('search', searchTerm);
     if (filterStatus) queryParams.set('status', filterStatus);
     if (filterRole) queryParams.set('role', filterRole);
-    window.history.replaceState(null, '', `/manage-user/${currentPage}/${usersPerPage}?${queryParams.toString()}`);
+    window.history.replaceState(null, '', `/admin/manage-user/${currentPage}/${usersPerPage}?${queryParams.toString()}`);
   }, [searchTerm, filterStatus, filterRole, currentPage, usersPerPage]);
 
   useEffect(() => {

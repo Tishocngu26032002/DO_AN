@@ -3,7 +3,7 @@ import {useLocation, useParams, useNavigate } from 'react-router-dom';
 import AdminHeader from "../AdminHeader/admin-header.jsx";
 import { FaSave, FaTrash, FaEye,FaSearch, FaFilter, FaSort, FaEdit} from 'react-icons/fa';
 import { MdOutlineInbox, MdOutlineCancel } from "react-icons/md";
-import { getOrdersAdmin, updateOrder } from '../../../services/order-service.js';
+import { getOrdersAdmin, updateOrderAdmin } from '../../../services/order-service.js';
 import { showNotification, notificationTypes, NotificationList } from '../../Notification/NotificationService.jsx';
 import NotificationHandler from '../../Notification/notification-handle.jsx';
 
@@ -64,7 +64,7 @@ const  ManageOrderComplete = () => {
     const queryParams = new URLSearchParams();
     if (filterOrderStatus) queryParams.set('orderStatus', filterOrderStatus);
     if (filterPaymentStatus) queryParams.set('paymentStatus', filterPaymentStatus);
-    window.history.replaceState(null, '', `/manage-order-complete/${currentPage}/${ordersPerPage}?${queryParams.toString()}`);
+    window.history.replaceState(null, '', `/admin/manage-order-complete/${currentPage}/${ordersPerPage}?${queryParams.toString()}`);
   }, [ filterOrderStatus, filterPaymentStatus, currentPage, ordersPerPage]);
 
 
@@ -103,20 +103,20 @@ useEffect(() => {
     if (filterOrderStatus) queryParams.set('orderStatus', filterOrderStatus); 
     if (filterPaymentStatus) queryParams.set('paymentStatus',filterPaymentStatus);
 
-    navigate(`/manage-order-complete/${page}/${ordersPerPage}?${queryParams.toString()}`);
+    navigate(`/admin/manage-order-complete/${page}/${ordersPerPage}?${queryParams.toString()}`);
   };
 
 
   const handleOrderStatusChange = (event) => {
     setFilterOrderStatus(event.target.value.trim());
-    navigate(`/manage-order-complete/1/${ordersPerPage}?${queryParams.toString()}`);
+    navigate(`/admin/manage-order-complete/1/${ordersPerPage}?${queryParams.toString()}`);
   };
   
   
   const handlePaymentStatusChange = (event) => {
     const newPaymentStatus = event.target.value.trim();
     setFilterPaymentStatus(newPaymentStatus);
-    navigate(`/manage-order-complete/1/${ordersPerPage}?${queryParams.toString()}`);
+    navigate(`/admin/manage-order-complete/1/${ordersPerPage}?${queryParams.toString()}`);
   };
 
   const handleViewOrder = (order) => {

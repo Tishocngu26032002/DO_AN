@@ -107,7 +107,7 @@ const ManageImport = () => {
 
   const handlePageChange = (page) => {
     const queryParams = new URLSearchParams();
-    navigate(`/manage-import/${page}/${importPrsPerPage}?${queryParams.toString()}`);
+    navigate(`/admin/manage-import/${page}/${importPrsPerPage}?${queryParams.toString()}`);
   };
 
   useEffect(() => {
@@ -575,4 +575,3 @@ const ManageImport = () => {
 };
 
 export default ManageImport;
-
