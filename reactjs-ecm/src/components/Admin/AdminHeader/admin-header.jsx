@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { IoMenu, IoClose, IoNotificationsOutline } from "react-icons/io5";
+import { RiArrowDropUpLine,RiArrowDropDownLine } from "react-icons/ri";
 import img from "../../../../public/images/Crops organic farm.png";
 import { NotificationContext } from "../../Notification/NotificationProvider.jsx";
 import { ref, update } from "firebase/database";
@@ -35,6 +36,12 @@ function HeaderAdmin() {
     ([key, notification]) => notification.isRead === false,
   ).length;
   const [isHovered, setIsHovered] = useState(false); // Trạng thái để kiểm tra hover
+  
+  const [isOrderManagementOpen, setIsOrderManagementOpen] = useState(false);
+
+  const toggleOrderManagement = () => {
+    setIsOrderManagementOpen(!isOrderManagementOpen);
+  };
 
   const handleSeeMore = () => {
     setIsExpanded(true);
@@ -74,6 +81,7 @@ function HeaderAdmin() {
     setAllRead(checkAllRead());
   }, [notifications]);
 
+  
   return (
     <div className="shadow-lg sticky top-0 z-50 flex bg-[#225a3e] px-12 py-3 shadow-custom-dark">
       {/* Logo */}
@@ -274,7 +282,7 @@ function HeaderAdmin() {
           </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
             <NavLink
-              to="/admin/import-product"
+              to="/admin/manage-import/1/4"
               className={({ isActive }) =>
                 isActive
                   ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
@@ -284,18 +292,43 @@ function HeaderAdmin() {
               Quản lý đơn nhập hàng
             </NavLink>
           </li>
-          <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
-            <NavLink
-              to="/admin/manage-order"
-              className={({ isActive }) =>
-                isActive
-                  ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
-                  : "text-[#006532] hover:text-white"
-              }
-            >
-              Quản lý đơn hàng
-            </NavLink>
-          </li>
+          <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white cursor-pointer">
+        <div
+          onClick={toggleOrderManagement}
+          className="flex items-center justify-between"
+        >
+          <span>Quản lý đơn hàng</span>
+          <span>{isOrderManagementOpen ? <RiArrowDropDownLine className="text-3xl"/> : <RiArrowDropUpLine  className="text-3xl"/>}</span>
+        </div>
+        {isOrderManagementOpen && (
+          <ul className="pl-9 mt-2 bg-[#80c9a4] -mx-6 border-t border-[#006532]">
+            <li className="w-full border-b border-[#407259]  py-3 transition-colors duration-300 hover:underline ">
+              <NavLink
+                to="/admin/manage-order/1/4?"
+                className={({ isActive }) =>
+                  isActive
+                    ? "border-l-4 border-[#006532] pl-2 text-[#006532] font-semibold"
+                    : "text-[#006532]"
+                }
+              >
+                Quản lý đơn đặt hàng
+              </NavLink>
+            </li>
+            <li className="w-full py-3 -mb-4 transition-colors duration-300 hover:underline hover:text-[#006532]">
+              <NavLink
+                to="/admin/manage-order-complete/1/2"
+                className={({ isActive }) =>
+                  isActive
+                    ? "border-l-4 border-[#006532] pl-2 text-[#006532] font-semibold"
+                    : "text-[#006532] "
+                }
+              >
+                Đơn hàng đã hoàn thành
+              </NavLink>
+            </li>
+          </ul>
+        )}
+      </li>
           <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
             <NavLink
               to="/admin/manage-supplier/1/4"

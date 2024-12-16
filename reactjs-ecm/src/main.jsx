@@ -25,8 +25,9 @@ import ShipOrder from "./components/Shipping/ship-order.jsx";
 import ShipHistory from "./components/Shipping/ship-history.jsx";
 import OrderDetails from "./components/OrderDetails/order-details";
 import NotificationsPage from "./components/Notification/notification.jsx";
-import ImportProduct from "./components/Admin/Import/import.jsx";
+import ManageImport from "./components/Admin/Import/manage-import.jsx";
 import UserProfile from "./components/ProfileUser/profile-user.jsx";
+import ManageOrderComplete from "./components/Admin/ManageOrder/manage-order-complete.jsx";
 import ChangePassword from "./components/ProfileUser/change-password.jsx";
 import "react-toastify/dist/ReactToastify.css";
 import { CartProvider } from "./Context/CartContext.jsx";
@@ -85,8 +86,9 @@ root.render(
               <NotificationProvider>
                 <Routes>
                   <Route path="/manage-category" element={<ManageCategory />} />
-                  <Route path="/manage-order" element={<ManageOrder />} />
-                  <Route path="/import-product" element={<ImportProduct />} />
+                  <Route path="/manage-order/:currentPage/:ordersPerPage" element={<ManageOrder />} />
+                  <Route path="/manage-order-complete/:currentPage/:ordersPerPage" element={<ManageOrderComplete/>}/>
+                  <Route path="/manage-import/:currentPage/:usersPerPage" element={<ManageImport/>}/>
                   <Route
                     path="/manage-product/:currentPage/:productsPerPage"
                     element={<ManageProduct />}

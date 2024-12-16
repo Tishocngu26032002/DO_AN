@@ -25,7 +25,7 @@ class ProductImportDto {
   price_in: number;
 }
 
-export class CreateImportDto {
+export class CreateImportDTO {
   @IsInt()
   @IsNotEmpty()
   @ApiProperty()
