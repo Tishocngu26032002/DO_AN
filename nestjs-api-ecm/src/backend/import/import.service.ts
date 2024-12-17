@@ -57,7 +57,7 @@ export class ImportService {
 
   async findAll(page: number, limit: number) {
     const [productImports, totalImport] = await this.importRepo.findAndCount({
-      relations: ['Import_productEntity'],
+      relations: ['importProducts'],
       skip: (page - 1) * limit,
       take: limit,
     });
@@ -70,7 +70,7 @@ export class ImportService {
   async findOne(importProd_id: string) {
     const importProd = await this.importRepo.findOne({
       where: { id: importProd_id },
-      relations: ['Import_productEntity'],
+      relations: ['importProducts'],
     });
 
     if (!importProd) {
@@ -82,7 +82,7 @@ export class ImportService {
   async update(updateImportDto: UpdateImpotyDTO) {
     const importProd = await this.importRepo.findOne({
       where: { id: updateImportDto.import_id },
-      relations: ['Import_productEntity'],
+      relations: ['importProducts'],
     });
 
     if (!importProd) {
