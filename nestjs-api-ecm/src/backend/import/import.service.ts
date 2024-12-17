@@ -1,9 +1,9 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ConsoleLogger, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ImportEntity } from 'src/entities/import_entity/import.entity';
 import { Import_productEntity } from 'src/entities/import_entity/import_product.entity';
-import { CreateImportDto } from 'src/dto/importDTO/import.create.dto';
+import { CreateImportDTO } from 'src/dto/importDTO/import.create.dto';
 import { UpdateImpotyDTO } from 'src/dto/importDTO/import.update.dto';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class ImportService {
     private readonly importProductRepo: Repository<Import_productEntity>,
     private readonly dataSource: DataSource,
   ) {}
-  async create(createImportDto: CreateImportDto) {
+  async create(createImportDto: CreateImportDTO) {
     // Start transaction
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -32,7 +32,7 @@ export class ImportService {
       const import_products = createImportDto.products.map((item) => {
         return this.importProductRepo.create({
           quantity: item.quantity,
-          price_in: item.pricein,
+          price_in: item.price_in,
           product_id: item.product_id,
           import_id: importData.id,
         });
@@ -85,29 +85,32 @@ export class ImportService {
       relations: ['importProducts'],
     });
 
+    console.log('dddddddddddddddd',updateImportDto);
+
     if (!importProd) {
-      throw new Error('ORDER.ORDER UPDATE NOT FOUND!');
+      throw new Error('IMPORT.ORDER UPDATE NOT FOUND!');
     }
 
     importProd.total_amount = updateImportDto.totalAmount;
     importProd.employee_id = updateImportDto.user_id;
 
     // Cập nhật danh sách sản phẩm trong Import_productEntity
-    for (const productDto of updateImportDto.products) {
+    for (const ProductDTO of updateImportDto.products) {
       const product = importProd.importProducts.find(
-        (prod) => prod.product_id === productDto.product_id,
+        (prod) => prod.product_id === ProductDTO.product_id,
       );
 
       if (product) {
         // Nếu sản phẩm đã tồn tại, cập nhật thông tin
-        product.quantity = productDto.quantity;
-        product.price_in = productDto.pricein;
+        product.quantity = ProductDTO.quantity;
+        product.price_in = ProductDTO.price_in;
+        console.log(ProductDTO.price_in);
       } else {
         // Nếu sản phẩm không tồn tại, thêm mới
         const newProduct = new Import_productEntity();
-        newProduct.product_id = productDto.product_id;
-        newProduct.quantity = productDto.quantity;
-        newProduct.price_in = productDto.pricein;
+        newProduct.product_id = ProductDTO.product_id;
+        newProduct.quantity = ProductDTO.quantity;
+        newProduct.price_in = ProductDTO.price_in;
         newProduct.import = importProd; // Gán liên kết với order
 
         importProd.importProducts.push(newProduct); // Thêm vào danh sách sản phẩm
@@ -115,7 +118,8 @@ export class ImportService {
     }
 
     // Lưu thay đổi vào cơ sở dữ liệu
-    return await this.importRepo.save(importProd);
+    const rs = await this.importRepo.save(importProd);
+    return rs;
   }
 
   remove(id: number) {

@@ -2,19 +2,21 @@ import axios from "axios";
 import { getToken, getUserId } from "../util/auth-local";
 
 const BASE_URL = "http://localhost:6006";
+const token = getToken();
+
+const userId = getUserId();
 
 export const getUserOrders = async (userId, page = 1, limit = 10) => {
   try {
-    const token = getToken();
     const res = await axios.post(
-      `${BASE_URL}/order/all-user-order/${userId}`, { page, limit }, // body nếu không cần thêm dữ liệu
+      `${BASE_URL}/order/all-user-order/${userId}`,
+      { page, limit }, // body nếu không cần thêm dữ liệu
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
-    console.log(res.data);
     return res.data.data.list;
   } catch (error) {
     console.error("Error fetching user orders:", error);
@@ -24,8 +26,6 @@ export const getUserOrders = async (userId, page = 1, limit = 10) => {
 
 export async function getAddresses() {
   try {
-    const token = getToken();
-    const userId = getUserId();
     const res = await axios.get(`${BASE_URL}/location-user/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -38,16 +38,14 @@ export async function getAddresses() {
   }
 }
 
-export const createNewAddress = async (newName, newAddress, newPhone) => {
+export const createNewAddress = async (data) => {
   try {
-    const token = getToken();
-    const userId = getUserId();
     const res = await axios.post(
       `${BASE_URL}/location-user`,
       {
-        name: newName,
-        address: newAddress,
-        phone: newPhone,
+        name: data.name,
+        address: data.address,
+        phone: data.phone,
         default_location: true,
         user_id: userId,
       },
@@ -66,8 +64,7 @@ export const createNewAddress = async (newName, newAddress, newPhone) => {
 
 export const createOrder = async (orderData) => {
   try {
-    const token = getToken();
-    const res = await axios.post(`${BASE_URL}/order`, orderData, {
+    const res = await axios.post(`${BASE_URL}/order/${userId}`, orderData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -128,23 +125,36 @@ export const updateOrder = async (updateData) => {
     throw error;
   }
 };
-export async function getOrdersAdmin(page, limit, searchData) {
+
+export async function getOrdersAdmin(page, limit, orderStatus,paymentStatus,includeExcluded) {
   try {
     const token = getToken();
-    
-    // Chuyển searchData thành query string
-    const queryParams = new URLSearchParams(searchData).toString();
-
-    const res = await axios.get(`${BASE_URL}/order/manage-order/${page}/${limit}?${queryParams}`, {
+    const res = await axios.get(`${BASE_URL}/order/manage-order/${page}/${limit}?orderStatus=${orderStatus}&paymentStatus=${paymentStatus}&includeExcluded=${includeExcluded}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         accept: "*/*",
       },
     });
-    
+    console.log('api', res.data);
     return res.data;
   } catch (error) {
     console.error("Error fetching orders:", error);
     throw error;
   }
 }
+
+export const updateOrderAdmin = async ( orderData) => {
+  try {
+    const token = getToken(); // Lấy token
+    const userId= getUserId();
+    const res = await axios.patch(`${BASE_URL}/order/${userId}`, orderData, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Truyền token ở đây
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw error;
+  }
+};

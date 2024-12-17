@@ -22,10 +22,10 @@ class ProductDTO {
   @IsInt()
   @IsNotEmpty()
   @ApiProperty()
-  pricein: number;
+  price_in: number;
 }
 
-export class CreateImportDto {
+export class CreateImportDTO {
   @IsInt()
   @IsNotEmpty()
   @ApiProperty()
@@ -38,6 +38,7 @@ export class CreateImportDto {
 
   @IsArray()
   @ValidateNested({ each: true }) // Áp dụng xác thực cho từng phần tử trong mảng
+
   @Type(() => ProductDTO) // Chuyển đổi từng phần tử thành ProductDto
   @IsNotEmpty()
   @ApiProperty({ type: ProductDTO, isArray: true })

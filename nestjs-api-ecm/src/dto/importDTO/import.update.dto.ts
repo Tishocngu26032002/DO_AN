@@ -22,7 +22,7 @@ class ProductDTO {
   @IsInt()
   @IsNotEmpty()
   @ApiProperty()
-  pricein: number;
+  price_in: number;
 }
 
 export class UpdateImpotyDTO {
