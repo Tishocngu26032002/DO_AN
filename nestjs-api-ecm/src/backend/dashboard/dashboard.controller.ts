@@ -79,7 +79,7 @@ export class DashboardController {
   ) {
     try {
       const topCustomers = await this.dashboardService.getTopCustomersByRevenue(timeFilter);
-      return topCustomers;
+      return responseHandler.ok(topCustomers);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
       return responseHandler.error(errorMessage);

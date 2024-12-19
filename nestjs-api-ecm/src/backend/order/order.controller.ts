@@ -114,7 +114,7 @@ export class OrderController {
     }
   }
 
-  @Get('detail/:user_id/:id')
+  @Get('detail/:id')
   @Roles('user', 'admin')
   async getDetailOrder(@Param('id') id: string) {
     try {
