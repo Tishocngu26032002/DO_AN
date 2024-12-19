@@ -114,9 +114,9 @@ export class OrderController {
     }
   }
 
-  @Get('detail/:id')
+  @Get('detail/:user_id/:id')
   @Roles('user', 'admin')
-  async getDetailOrder(@Param('id') id: string) {
+  async getDetailOrder(@Param('user_id') user_id: string, @Param('id') id: string) {
     try {
       const orderDetail = await this.order_Service.getDetail(id);
       return responseHandler.ok(orderDetail);
