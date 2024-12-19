@@ -36,16 +36,6 @@ export class UpdateOrderDTO {
 
   @IsInt()
   @IsNotEmpty()
-  @ApiProperty()
-  totalPrice: number;
-
-  @IsEnum(PaymentMethod)
-  @IsNotEmpty()
-  @ApiProperty({ enum: PaymentMethod })
-  paymentMethod: PaymentMethod;
-
-  @IsInt()
-  @IsNotEmpty()
   @ApiProperty({ enum: OrderStatus })
   orderStatus: OrderStatus;
 
@@ -59,18 +49,8 @@ export class UpdateOrderDTO {
   employee_id: string;
 
   @IsString()
-  @ApiProperty()
-  location_id: string;
-
-  @IsString()
   @IsNotEmpty()
   @ApiProperty()
   paymentStatus: string;
 
-  @IsArray()
-  @ValidateNested({ each: true }) // Áp dụng xác thực cho từng phần tử trong mảng
-  @Type(() => ProductDto) // Chuyển đổi từng phần tử thành ProductDto
-  @IsNotEmpty()
-  @ApiProperty({ type: ProductDto, isArray: true })
-  products: ProductDto[];
 }

@@ -37,6 +37,18 @@ export class ImportController {
     }
   }
 
+  @Get('max-code')
+  @Roles('user')
+  async getImportCodeMax() {
+    try {
+      const result = await this.importService.getImportCodeMax();
+      return responseHandler.ok(result);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
+    }
+  }
+
   @Get(':page/:limit')
   @Roles('admin')
   async findAll(@Param('page') page: number, @Param('limit') limit: number) {
@@ -49,9 +61,9 @@ export class ImportController {
     }
   }
 
-  @Get(':import_id')
+  @Get(':id')
   @Roles('admin')
-  async findOne(@Param('import_id') import_id: string) {
+  async findOne(@Param('id') import_id: string) {
     try {
       const resultDetail = await this.importService.findOne(import_id);
       return responseHandler.ok(resultDetail);
@@ -75,7 +87,13 @@ export class ImportController {
 
   @Delete(':id')
   @Roles('admin')
-  remove(@Param('id') id: string) {
-    return this.importService.remove(+id);
+  async delete(@Param('id') id: string) {
+    try {
+      const check = await this.importService.delete(id);
+      return responseHandler.ok(check);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
+    }
   }
 }

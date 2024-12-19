@@ -41,6 +41,11 @@ export class UpdateImpotyDTO {
   @ApiProperty()
   import_id: string;
 
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  import_code: string;
+
   @IsArray()
   @ValidateNested({ each: true }) // Áp dụng xác thực cho từng phần tử trong mảng
   @Type(() => ProductDTO) // Chuyển đổi từng phần tử thành ProductDto

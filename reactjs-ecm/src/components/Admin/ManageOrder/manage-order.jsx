@@ -457,7 +457,7 @@ const ManageOrder = () => {
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white rounded-lg p-8 mt-2 w-1/2 max-h-[80vh] overflow-y-auto">
             <h2 className="text-2xl font-bold mb-4">Chi tiết đơn hàng</h2>
-            <p className="text-black"><strong>Nhân viên:</strong> {currentOrder.order.employee.lastName}</p>
+            <p className="text-black"><strong>Nhân viên:</strong> {currentOrder.order.employee?.lastName}</p>
             <p className="text-black"><strong>Khách hàng:</strong> {currentOrder.order.user.firstName} {currentOrder.order.user.lastName}</p>
             <p className="text-black"><strong>Địa chỉ:</strong> {currentOrder.order.location.address}</p>
             <p className="text-black"><strong>Số điện thoại:</strong> {currentOrder.order.location.phone}</p>
@@ -508,7 +508,7 @@ const ManageOrder = () => {
           <div className="bg-white rounded-lg p-8 mt-2 w-1/2 max-h-[80vh] overflow-y-auto">
             <h2 className="text-2xl text-[#006532] font-bold mb-4">Cập nhật đơn hàng</h2>
             <p className="text-black"><strong>Mã đơn hàng:</strong> {currentOrder.order.id}</p>
-            <p className="text-black"><strong>Nhân viên:</strong> {currentOrder.order.employee.lastName}</p>
+            <p className="text-black"><strong>Nhân viên:</strong> {currentOrder.order.employee?.lastName}</p>
             <p className="text-black"><strong>Khách hàng:</strong> {currentOrder.order.user.firstName} {currentOrder.order.user.lastName}</p>
             <p className="text-black"><strong>Địa chỉ:</strong> {currentOrder.order.location.address}</p>
             <p className="text-black"><strong>Số điện thoại:</strong> {currentOrder.order.location.phone}</p>
