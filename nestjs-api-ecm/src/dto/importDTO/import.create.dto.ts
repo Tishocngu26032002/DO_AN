@@ -34,6 +34,11 @@ export class CreateImportDTO {
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
+  import_code: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
   user_id: string;
 
   @IsArray()

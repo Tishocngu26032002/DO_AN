@@ -25,6 +25,7 @@ export class ImportService {
       const importProduct = this.importRepo.create({
         employee_id: createImportDto.user_id,
         total_amount: createImportDto.totalAmount,
+        import_code: createImportDto.import_code
       });
 
       const importData = await queryRunner.manager.save(importProduct);
@@ -67,6 +68,24 @@ export class ImportService {
     };
   }
 
+  async getImportCodeMax(){
+    const maxCode = await this.importRepo
+        .createQueryBuilder('import')
+        .select('MAX(import.import_code)', 'max')
+        .getRawOne();
+
+    let newCode = 'IPC00001';
+    if (maxCode.max) {
+      const currentNumber = parseInt(maxCode.max.slice(3), 10); // Lấy phần số của import_code
+      const nextNumber = currentNumber + 1;
+      newCode = `IPC${String(nextNumber).padStart(5, '0')}`; // Tạo mã mới với định dạng IPC00001
+    }
+    return {
+      import_code: newCode
+    };
+  }
+
+
   async findOne(importProd_id: string) {
     const importProd = await this.importRepo.findOne({
       where: { id: importProd_id },
@@ -85,14 +104,13 @@ export class ImportService {
       relations: ['importProducts'],
     });
 
-    console.log('dddddddddddddddd',updateImportDto);
-
     if (!importProd) {
       throw new Error('IMPORT.ORDER UPDATE NOT FOUND!');
     }
 
     importProd.total_amount = updateImportDto.totalAmount;
     importProd.employee_id = updateImportDto.user_id;
+    importProd.import_code = updateImportDto.import_code;
 
     // Cập nhật danh sách sản phẩm trong Import_productEntity
     for (const ProductDTO of updateImportDto.products) {
@@ -122,7 +140,7 @@ export class ImportService {
     return rs;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} import`;
+  async delete(id: string) {
+    return await this.importRepo.delete(id);
   }
 }
