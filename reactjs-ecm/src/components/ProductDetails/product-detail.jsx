@@ -1,10 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"; 
 import { useParams } from "react-router-dom";
 import Header from "../Header/header.jsx";
 import { PiShoppingCart } from "react-icons/pi";
 import { fetchProductDetail } from '../../services/product-service.js';
 import Footer from "../Footer/footer.jsx";
 import { PiMinusBold, PiPlusBold } from "react-icons/pi";
+import { authLocal, userIdLocal, getToken } from '../../util/auth-local.js';  // Import the auth methods
+import { getCarts, createCart, updateCart } from '../../services/cart-service.js'; // Assuming you have a cart service to handle API calls
+
 // Tách Image component
 const Image = ({ mainImage, setMainImage, productImages }) => (
   <div className="single-pro-image md:mr-12 md:w-1/3 xl:mr-12 xl:w-2/3">
@@ -29,6 +32,7 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [mainImage, setMainImage] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [carts, setCarts] = useState([]);
 
   const handleIncrease = () => {
     setQuantity((prev) => prev + 1);
@@ -37,7 +41,6 @@ const ProductDetail = () => {
   const handleDecrease = () => {
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1)); // Không cho phép số âm
   };
-
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -55,6 +58,63 @@ const ProductDetail = () => {
     };
     fetchProduct();
   }, [productId]);
+
+  useEffect(() => {
+    const getCartsOnPage = async () => {
+      try {
+        let token = getToken();
+        if (token) {
+          let userId = userIdLocal.getUserId();
+          userId = userId.replace(/^"|"$/g, "");
+
+          if (userId) {
+            const cartsData = await getCarts(userId, token);  // Lấy giỏ hàng từ API
+            setCarts(cartsData.data.data.cart); // Cập nhật giỏ hàng
+          }
+        }
+      } catch (error) {
+        console.log("Error fetching carts:", error);
+      }
+    };
+
+    getCartsOnPage();
+  }, []);
+
+  const handleAddToCart = async () => {
+    try {
+      let token = getToken();
+      if (token) {
+        let userId = userIdLocal.getUserId();
+        userId = userId.replace(/^"|"$/g, "");
+
+        if (userId) {
+          const cartIndex = carts.findIndex((cart) => cart.product_id === productId);
+
+          const cartData = {
+            quantity: quantity,
+            product_id: productId,
+            user_id: userId,
+          };
+
+          if (cartIndex !== -1) {
+            await updateCart({ ...carts[cartIndex], quantity: carts[cartIndex].quantity + quantity }, token);
+          } else {
+            await createCart(cartData, token);
+          }
+
+          const cartsData = await getCarts(userId, token);
+          setCarts(cartsData.data.data.cart);
+          alert("Product added to cart!");
+        } else {
+          alert("User ID is missing. Please log in.");
+        }
+      } else {
+        alert("Token is missing. Please log in.");
+      }
+    } catch (error) {
+      console.error("Error adding product to cart:", error);
+    }
+  };
 
   if (loading) return <div>Loading...</div>;
   if (!product) return <div>Product not found.</div>;
@@ -80,29 +140,32 @@ const ProductDetail = () => {
           <h4 className="py-5 text-4xl font-bold text-[#006532]">{product.name}</h4>
           <h2 className="text-2xl font-semibold text-[#006532]">${product.priceout}</h2>
           <div className="mt-4 flex">
-          <div className="product__details__quantity ">
-      <div className="flex items-center border-2 border-[#00653265] bg-white w-[140px] h-[48px] rounded">
-        <button
-          className="ml-[18px] mr-1  text-base font-normal text-gray-600  hover:bg-gray-300 focus:outline-none"
-          onClick={handleDecrease}
-        >
-          <PiMinusBold />
-        </button>
-          <input
-          type="text"
-          value={quantity}
-          readOnly
-          className="w-16 mr-1 text-base font-normal text-gray-600 text-center  border-0 focus:outline-none"
-        />
-        <button
-          className=" text-base font-normal text-gray-600  hover:bg-gray-300 focus:outline-none"
-          onClick={handleIncrease}
-        >
-          <PiPlusBold />
-        </button>
-      </div>
-    </div>
-            <button className="ml-4 h-12 rounded bg-[#006532] px-4 py-2 text-white">
+            <div className="product__details__quantity">
+              <div className="flex items-center border-2 border-[#00653265] bg-white w-[140px] h-[48px] rounded">
+                <button
+                  className="ml-[18px] mr-1  text-base font-normal text-gray-600  hover:bg-gray-300 focus:outline-none"
+                  onClick={handleDecrease}
+                >
+                  <PiMinusBold />
+                </button>
+                <input
+                  type="text"
+                  value={quantity}
+                  readOnly
+                  className="w-16 mr-1 text-base font-normal text-gray-600 text-center  border-0 focus:outline-none"
+                />
+                <button
+                  className=" text-base font-normal text-gray-600  hover:bg-gray-300 focus:outline-none"
+                  onClick={handleIncrease}
+                >
+                  <PiPlusBold />
+                </button>
+              </div>
+            </div>
+            <button
+              className="ml-4 h-12 rounded bg-[#006532] px-4 py-2 text-white"
+              onClick={handleAddToCart}
+            >
               Add to cart
             </button>
           </div>

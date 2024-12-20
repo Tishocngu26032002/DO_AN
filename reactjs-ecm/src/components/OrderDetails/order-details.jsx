@@ -1,8 +1,20 @@
 import React from "react";
 import Header from "../Header/header";
 import Footer from "../Footer/footer";
+import { useCart } from "../../Context/CartContext";
 
 const OrderDetails = () => {
+  const {
+    carts,
+    setCarts,
+    selectedCartItems,
+    clearSelectedCartItems,
+    totalQuantity,
+    setTotalQuantity,
+  } = useCart();
+
+  console.log("selectedCartItems", selectedCartItems);
+
   // Dữ liệu mẫu về đơn hàng
   const orderDetails = {
     orderId: "12345",
@@ -67,34 +79,35 @@ const OrderDetails = () => {
           {/* Thông tin đơn hàng */}
           <div className="mb-8">
             <p className="text-lg text-gray-700">
-              Order ID:{" "}
+              Id đặt hàng:{" "}
               <span className="font-semibold">{orderDetails.orderId}</span>
             </p>
             <p className="text-lg text-gray-700">
-              Order Date:{" "}
+              Ngày đặt hàng:{" "}
               <span className="font-semibold">{orderDetails.orderDate}</span>
             </p>
             <p className="text-lg text-gray-700">
-              Customer Name:{" "}
+              Họ và tên:{" "}
               <span className="font-semibold">{orderDetails.customerName}</span>
             </p>
             <p className="text-lg text-gray-700">
-              Shipping Address:{" "}
+              Địa chỉ:{" "}
               <span className="font-semibold">
                 {orderDetails.shippingAddress}
               </span>
             </p>
             <p className="text-lg text-gray-700">
-              Phone: <span className="font-semibold">{orderDetails.phone}</span>
+              Số điện thoại:{" "}
+              <span className="font-semibold">{orderDetails.phone}</span>
             </p>
             <p className="text-lg text-gray-700">
-              Payment Method:{" "}
+              Phương thức thanh toán:{" "}
               <span className="font-semibold">
                 {orderDetails.paymentMethod}
               </span>
             </p>
             <p className="text-lg text-gray-700">
-              Delivery Status:{" "}
+              Trạng thái giao hàng:{" "}
               <span className="font-semibold">
                 {orderDetails.deliveryStatus}
               </span>
@@ -135,9 +148,8 @@ const OrderDetails = () => {
           {/* Tóm tắt thanh toán */}
           <div className="shadow-lg mt-6 rounded-lg border border-gray-200 bg-white p-4">
             <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
-              <span>Subtotal</span>
+              <span>Tổng phụ</span>
               <span>
-                $
                 {orderDetails.products
                   .reduce(
                     (total, product) =>
@@ -145,15 +157,16 @@ const OrderDetails = () => {
                     0,
                   )
                   .toFixed(2)}
+                đ
               </span>
             </div>
             <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
-              <span>Delivery Fee</span>
-              <span>$35.00</span>
+              <span>Phí giao hàng</span>
+              <span>0đ</span>
             </div>
             <div className="flex items-center justify-between text-lg font-semibold text-[#006532]">
-              <span>Total</span>
-              <span>${calculateTotal().toFixed(2)}</span>
+              <span>Tổng cộng</span>
+              <span>{calculateTotal().toFixed(2)}đ</span>
             </div>
           </div>
         </div>

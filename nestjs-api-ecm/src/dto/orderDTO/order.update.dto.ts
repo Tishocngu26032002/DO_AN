@@ -5,9 +5,11 @@ import {
   IsInt,
   ValidateNested,
   IsPhoneNumber,
+  IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { ApplyStatus, OrderStatus, PaymentMethod } from 'src/share/Enum/Enum';
 
 class ProductDto {
   @IsString()
@@ -34,42 +36,21 @@ export class UpdateOrderDTO {
 
   @IsInt()
   @IsNotEmpty()
-  @ApiProperty()
-  totalPrice: number;
-
-  @IsInt()
-  @IsNotEmpty()
-  @ApiProperty()
-  paymentMethod: number;
-
-  @IsInt()
-  @IsNotEmpty()
-  @ApiProperty()
-  status: number;
+  @ApiProperty({ enum: OrderStatus })
+  orderStatus: OrderStatus;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
   user_id: string;
 
-  @IsPhoneNumber(null) // 'null' để chấp nhận tất cả mã vùng, hoặc bạn có thể thêm mã vùng nếu cần
-  @IsNotEmpty()
-  @ApiProperty()
-  phone: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty()
-  address: string;
-
   @IsString()
   @ApiProperty()
   employee_id: string;
 
-  @IsArray()
-  @ValidateNested({ each: true }) // Áp dụng xác thực cho từng phần tử trong mảng
-  @Type(() => ProductDto) // Chuyển đổi từng phần tử thành ProductDto
+  @IsString()
   @IsNotEmpty()
-  @ApiProperty({ type: ProductDto, isArray: true })
-  products: ProductDto[];
+  @ApiProperty()
+  paymentStatus: string;
+
 }

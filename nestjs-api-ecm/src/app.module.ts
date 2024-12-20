@@ -16,6 +16,7 @@ import { OrderEntity } from 'src/entities/order_entity/oder.entity';
 import { Location_userEntity } from 'src/entities/user_entity/location_user.entity';
 import { UserModule } from 'src/backend/user/user.module';
 import { Order_productEntity } from 'src/entities/order_entity/order_product.entity';
+import { EmailModule } from './backend/email/email.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { Order_productEntity } from 'src/entities/order_entity/order_product.ent
         logging: true,
       }),
     }),
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

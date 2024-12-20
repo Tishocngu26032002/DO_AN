@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,6 +6,11 @@ import { useMutation } from "@tanstack/react-query";
 import { loginApi } from "../../services/auth-api";
 import { Link, useNavigate } from "react-router-dom";
 import { authLocal } from "../../util/auth-local";
+import {
+  NotificationList,
+  notificationTypes,
+  showNotification,
+} from "../Notification/NotificationService";
 
 const schema = z.object({
   email: z.string().email("Email không hợp lệ"),
@@ -14,6 +19,9 @@ const schema = z.object({
 
 function LoginForm() {
   const navigate = useNavigate();
+
+  const [notifications, setNotifications] = useState([]);
+
   const {
     register,
     handleSubmit,
@@ -42,27 +50,52 @@ function LoginForm() {
         // Lưu userId vào localStorage
         localStorage.setItem("userId", JSON.stringify(response?.data.user.id));
 
+        showNotification(
+          "Đăng nhập thành công! Chào mừng bạn trở lại.",
+          notificationTypes.SUCCESS,
+          setNotifications,
+        );
+
         const role = response?.data.user.role;
+
         if (role === "admin") {
-          setTimeout(() => {
-            navigate("/admin");
-          }, 1000);
+          sessionStorage.setItem(
+            "notification",
+            JSON.stringify({
+              message: "Đăng nhập thành công! Chào mừng bạn trở lại.",
+              type: notificationTypes.SUCCESS,
+            }),
+          );
+          window.location.href = "/admin/dashboard";
         } else if (role === "user") {
-          setTimeout(() => {
-            navigate("/");
-          }, 1000);
+          sessionStorage.setItem(
+            "notification",
+            JSON.stringify({
+              message: "Đăng nhập thành công! Chào mừng bạn trở lại.",
+              type: notificationTypes.SUCCESS,
+            }),
+          );
+          window.location.href = "/";
         } else {
-          setTimeout(() => {
-            navigate("/shipper");
-          }, 1000);
+          sessionStorage.setItem(
+            "notification",
+            JSON.stringify({
+              message: "Đăng nhập thành công! Chào mừng bạn trở lại.",
+              type: notificationTypes.SUCCESS,
+            }),
+          );
+          window.location.href = "/shipper";
         }
+      } else {
+        showNotification(
+          "Đăng nhập thất bại! Kiểm tra lại thông tin.",
+          notificationTypes.ERROR,
+          setNotifications,
+        );
       }
     },
     onError: (error) => {
-      console.error("Login failed:", error);
-      alert(
-        "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập của bạn.",
-      );
+      console.log("Login failed:", error);
     },
   });
 
@@ -79,6 +112,8 @@ function LoginForm() {
             <span className="absolute bottom-0 left-0 h-0.5 w-8 bg-gradient-to-r from-[#f37a65] to-[#d64141]" />
           </p>
         </div>
+        {/* Hiển thị các thông báo */}
+        <NotificationList notifications={notifications} />
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6">
           <div className="flex flex-wrap justify-between gap-5">

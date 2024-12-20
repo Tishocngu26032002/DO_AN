@@ -24,6 +24,12 @@ export class User extends BaseEntity {
   @Column({ default: false })
   isActive: boolean;
 
+  @Column({ type: 'text', nullable: true })
+  url_image: string;
+
+  @Column({ type: 'text', nullable: true })
+  token: string;
+
   // Relation with Location_userEntity
   @OneToMany(() => Location_userEntity, (location) => location.user)
   locations: Location_userEntity[];

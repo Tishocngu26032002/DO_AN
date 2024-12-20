@@ -1,16 +1,23 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query} from '@nestjs/common';
-import { CartService } from './cart.service';
-import { CreateCartDto } from '../../dto/cart_product/create-cart.dto';
-import { UpdateCartDto } from '../../dto/cart_product/update-cart.dto';
-import {ApiBearerAuth, ApiQuery, ApiTags} from "@nestjs/swagger";
-import {AuthGuard} from "src/guards/JwtAuth.guard";
-import {RolesGuard} from "src/guards/Roles.guard";
-import {ApplyStatus, ExpirationStatus} from "src/share/Enum/Enum";
-import {Roles} from "src/decorator/Role.decorator";
-import {responseHandler} from "src/Until/responseUtil";
-import {CategoryCreateDTO} from "src/dto/categoryDTO/category.create.dto";
-import {UpdateLocationUserDto} from "src/dto/locationUserDTO/update-location_user.dto";
-import {ParseBooleanPipe} from "src/share/ParseBooleanPipe";
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/guards/JwtAuth.guard';
+import { RolesGuard } from 'src/guards/Roles.guard';
+import { Roles } from 'src/decorator/Role.decorator';
+import { responseHandler } from 'src/Until/responseUtil';
+import { CartService } from 'src/backend/cart/cart.service';
+import { CreateCartDto } from 'src/dto/cart_product/create-cart.dto';
+import { UpdateCartDto } from 'src/dto/cart_product/update-cart.dto';
+import {DeleteCartDto} from "src/dto/cart_product/delete-cart.dto";
 
 @Controller('cart')
 @ApiTags('Cart')
@@ -19,17 +26,14 @@ import {ParseBooleanPipe} from "src/share/ParseBooleanPipe";
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
-  @Get(':page/:limit')
+  @Get('list/:page/:limit')
   @Roles('admin')
   async getListCart(
-      @Param('page') page: number,
-      @Param('limit') limit: number,
+    @Param('page') page: number,
+    @Param('limit') limit: number,
   ) {
     try {
-      const listCart = await this.cartService.getList(
-          page,
-          limit,
-      );
+      const listCart = await this.cartService.getList(page, limit);
       return responseHandler.ok(listCart);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
@@ -37,9 +41,12 @@ export class CartController {
     }
   }
 
-  @Post('add-to-cart')
+  @Post('add-to-cart/:user_id')
   @Roles('user')
-  async addToCart(@Body() createCartDto: CreateCartDto) {
+  async addToCart(
+    @Param('user_id') user_id: string,
+    @Body() createCartDto: CreateCartDto,
+  ) {
     try {
       const addToCart = await this.cartService.create(createCartDto);
       return responseHandler.ok(addToCart);
@@ -49,11 +56,9 @@ export class CartController {
     }
   }
 
-  @Get('all-product-in-cart')
+  @Get('all-product/:user_id')
   @Roles('user')
-  async getAllProductInCart(
-      @Query('user_id') user_id: string,
-  ) {
+  async getAllProductInCart(@Param('user_id') user_id: string) {
     try {
       const filters = {
         user_id: user_id,
@@ -66,11 +71,14 @@ export class CartController {
     }
   }
 
-  @Patch()
+  @Patch(':user_id')
   @Roles('user')
   async update(@Body() updateCartDto: UpdateCartDto) {
     try {
-      const productUpdate = await this.cartService.update(updateCartDto, updateCartDto.id);
+      const productUpdate = await this.cartService.update(
+        updateCartDto,
+        updateCartDto.id,
+      );
       return responseHandler.ok(productUpdate);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
@@ -78,11 +86,13 @@ export class CartController {
     }
   }
 
-  @Delete(':id')
+  @Delete(':user_id')
   @Roles('user')
-  async delete(@Param('id') id: string) {
+  async delete(
+      @Param('user_id') user_id: string,
+      @Body() updateCartDto: DeleteCartDto) {
     try {
-      const check = await this.cartService.delete(id);
+      const check = await this.cartService.deleteProductsInCart(user_id, updateCartDto.cart_ids);
       return responseHandler.ok(check);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);

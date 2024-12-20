@@ -1,6 +1,11 @@
-import {Injectable, CanActivate, ExecutionContext, UnauthorizedException} from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import {responseHandler} from "src/Until/responseUtil";
+import { responseHandler } from 'src/Until/responseUtil';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -18,7 +23,7 @@ export class RolesGuard implements CanActivate {
     //Nếu không có quyền truy cập
     if (!user || !roles.includes(user.role)) {
       throw new UnauthorizedException(
-          responseHandler.unauthorized('You cannot access!'),
+        responseHandler.unauthorized('You cannot access!'),
       );
     }
     return roles.includes(user.role); // Kiểm tra role của user với roles yêu cầu

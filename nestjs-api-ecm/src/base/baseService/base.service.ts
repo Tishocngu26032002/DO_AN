@@ -1,11 +1,11 @@
-import {DeepPartial, Repository} from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 
 export class BaseService<T> {
   constructor(protected readonly repository: Repository<T>) {}
 
   async findAll(
-      limit: number = 10,
-      page: number = 1,
+    limit: number = 10,
+    page: number = 1,
   ): Promise<{ data: T[]; total: number }> {
     const [result, total] = await this.repository.findAndCount({
       take: limit,
@@ -32,8 +32,7 @@ export class BaseService<T> {
     const existingRecord = await this.repository.findOneBy({ id } as any);
     if (!existingRecord) {
       throw new Error('RECORD NOT FOUND!');
-    }
-    else return existingRecord;
+    } else return existingRecord;
   }
 
   async update(data: Partial<T>, id: string): Promise<T> {

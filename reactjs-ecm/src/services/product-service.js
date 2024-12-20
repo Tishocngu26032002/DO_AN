@@ -1,14 +1,30 @@
 import axios from "axios";
+import { format } from "date-fns";
+import { getToken } from "../util/auth-local";
 
 const BASE_URL = "http://localhost:6006";
-const getToken = () => {
-  let token = authLocal.getToken(); // Lấy token từ authLocal
-  return token ? token.replace(/"/g, "") : null; // Xóa dấu ngoặc kép nếu có
-};
 
 export async function getProducts(page, limit) {
   try {
     const response = await axios.get(`${BASE_URL}/product/${page}/${limit}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getFeatureProducts() {
+  try {
+    const response = await axios.get(`${BASE_URL}/dashboard/feature-product`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getLatestProducts() {
+  try {
+    const response = await axios.get(`${BASE_URL}/dashboard/latest-product`);
     return response.data;
   } catch (error) {
     throw error;
@@ -29,15 +45,12 @@ export async function getQueryProducts(page, limit, name, category_id) {
 // Hàm lấy chi tiết sản phẩm
 export const fetchProductDetail = async (productId) => {
   try {
-    const response = await axios.get(
-      `http://localhost:6006/product/${productId}`,
-    );
-    console.log(response.data);
+    const response = await axios.get(`${BASE_URL}/product/${productId}`);
     if (response.status === 200 && response.data && response.data.data) {
-      return response.data.data; // Trả về dữ liệu khi thành công
+      return response.data.data;
     } else {
       console.error("No data received from server.");
-      return null; // Trả về null khi không có dữ liệu
+      return null;
     }
   } catch (error) {
     console.error("Error fetching product detail:", error);
@@ -48,23 +61,89 @@ export const fetchProductDetail = async (productId) => {
 // Hàm lấy danh sách sản phẩm
 export const fetchProducts = async (currentPage, productsPerPage) => {
   try {
+    const token = getToken();
+    console.log(token);
     const response = await axios.get(
-      `http://localhost:6006/product/${currentPage}/${productsPerPage}`,
+      `${BASE_URL}/product/${currentPage}/${productsPerPage}`,
     );
-    return response.data.data.data.map((product) => ({
-      id: product.id,
-      name: product.name,
-      priceout: product.priceout,
-      category_id: product.category_id,
-      supplier_id: product.supplier_id,
-      url_images: product.url_images,
-      description: product.description,
-      stockQuantity: product.stockQuantity,
-      weight: product.weight,
-      expire_date: product.expire_date,
-    }));
+    console.log(response.data);
+    if (
+      response.status === 200 &&
+      response.data.success &&
+      Array.isArray(response.data.data.products)
+    ) {
+      const totalProducts = response.data.data.total;
+      console.log("Total Products:", totalProducts);
+      return {
+        products: response.data.data.products.map((product) => ({
+          id: product.id,
+          name: product.name,
+          priceout: product.priceout,
+          category_id: product.category_id,
+          supplier_id: product.supplier_id,
+          url_images: product.url_images,
+          description: product.description,
+          stockQuantity: product.stockQuantity,
+          weight: product.weight,
+          expire_date: format(new Date(product.expire_date), "yyyy-MM-dd"),
+        })),
+        totalProducts,
+      };
+    } else {
+      console.error("No products data received from server.");
+      return [];
+    }
   } catch (error) {
     console.error("Error fetching products:", error);
+    throw error;
+  }
+};
+
+// Hàm tìm kiểm sản phẩm
+export const searchProducts = async (page, limit, filters = {}) => {
+  try {
+    const params = new URLSearchParams();
+
+    if (filters.name) {
+      params.append("name", filters.name.trim());
+    }
+    if (filters.category_id) {
+      params.append("category", filters.category_id.trim());
+    }
+
+    const response = await axios.get(
+      `${BASE_URL}/product/search/${page}/${limit}`,
+      {
+        params,
+      },
+    );
+
+    if (
+      response.status === 200 &&
+      response.data.success &&
+      Array.isArray(response.data.data.products)
+    ) {
+      return {
+        products: response.data.data.products.map((product) => ({
+          id: product.id,
+          name: product.name,
+          priceout: product.priceout,
+          category_id: product.category_id,
+          supplier_id: product.supplier_id,
+          url_images: product.url_images,
+          description: product.description,
+          stockQuantity: product.stockQuantity,
+          weight: product.weight,
+          expire_date: format(new Date(product.expire_date), "yyyy-MM-dd"),
+        })),
+        totalProducts: response.data.data.totalProducts || 0,
+      };
+    } else {
+      console.error("No products data received from server for search.");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error searching products:", error);
     throw error;
   }
 };
@@ -73,16 +152,17 @@ export const fetchProducts = async (currentPage, productsPerPage) => {
 export const addProduct = async (formData) => {
   try {
     const token = getToken();
-    const response = await axios.post(
-      "http://localhost:6006/product",
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const response = await axios.post(`${BASE_URL}/product`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    );
-    return response.data;
+    });
+    if (response.status === 201 && response.data) {
+      return response.data;
+    } else {
+      console.error("Failed to add product. No data returned.");
+      return null;
+    }
   } catch (error) {
     console.error("Error adding product:", error);
     throw error;
@@ -93,16 +173,17 @@ export const addProduct = async (formData) => {
 export const editProduct = async (id, formData) => {
   try {
     const token = getToken();
-    const response = await axios.patch(
-      `http://localhost:6006/product/${id}`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const response = await axios.patch(`${BASE_URL}/product`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    );
-    return response.data;
+    });
+    if (response.status === 200 && response.data) {
+      return response.data;
+    } else {
+      console.error("Failed to edit product. No data returned.");
+      return null;
+    }
   } catch (error) {
     console.error("Error editing product:", error);
     throw error;
@@ -114,12 +195,19 @@ export const deleteProduct = async (id) => {
   try {
     const token = getToken();
     if (!token) throw new Error("No token found in localStorage");
-    const response = await axios.delete(`http://localhost:6006/product/${id}`, {
+    const response = await axios.delete(`${BASE_URL}/product/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    return response.data;
+    console.log("Response status:", response.status);
+    console.log("Response data:", response.data);
+    if (response.status === 200 && response.data) {
+      return response.data;
+    } else {
+      console.error("Failed to delete product. No data returned.");
+      return null;
+    }
   } catch (error) {
     console.error("Error deleting product:", error);
     throw error;
