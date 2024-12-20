@@ -1,4 +1,4 @@
-import React, {  useEffect, useState,  useRef } from 'react';
+import React, {  useEffect, useState } from 'react';
 import {useLocation, useParams, useNavigate } from 'react-router-dom';
 import AdminHeader from "../AdminHeader/admin-header.jsx";
 import { FaSave, FaTrash, FaEye,FaSearch, FaFilter, FaSort, FaEdit} from 'react-icons/fa';
@@ -9,7 +9,7 @@ import NotificationHandler from '../../Notification/notification-handle.jsx';
 
 
 
-const ManageOrder = () => {
+const  ManageOrderComplete = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -58,91 +58,39 @@ const ManageOrder = () => {
     setSortConfig({ key, direction });
   };
   
-  const calculateStockStatus = (orders, productInStock) => {
-    let stockMap = new Map();
-    productInStock.forEach(product => {
-      stockMap.set(product.id, product.stockQuantity);
-    });
-
-    orders.forEach(order => {
-      let hasMissingProduct = false; 
-  
-      order.order.products.forEach(product => {
-        const currentStock = stockMap.get(product.productId) || 0;
-        const newStock = currentStock - product.quantityBuy;
-        stockMap.set(product.productId, newStock);
-  
-        if (newStock >= 0) {
-          product.stockStatus = 'Đủ hàng';
-          product.missingQuantity = 0;
-        } else {
-          product.stockStatus = 'Thiếu hàng';
-          product.missingQuantity = Math.abs(newStock);
-          hasMissingProduct = true; 
-        }
-      });
-      order.order.statusProduct = hasMissingProduct ? 'Thiếu hàng' : 'Đủ hàng';
-    });
-  
-    return orders;
-  };
-  
-  const allOrdersRef = useRef([]);
 
 
   useEffect(() => {
     const queryParams = new URLSearchParams();
     if (filterOrderStatus) queryParams.set('orderStatus', filterOrderStatus);
-
     if (filterPaymentStatus) queryParams.set('paymentStatus', filterPaymentStatus);
-    window.history.replaceState(null, '', `/admin/manage-order/${currentPage}/${ordersPerPage}?${queryParams.toString()}`);
-
+    window.history.replaceState(null, '', `/admin/manage-order-complete/${currentPage}/${ordersPerPage}?${queryParams.toString()}`);
   }, [ filterOrderStatus, filterPaymentStatus, currentPage, ordersPerPage]);
 
+
+useEffect(() => {
   const fetchOrders = async () => {
     try {
-      const result1 = await getOrdersAdmin(1, ordersPerPage * totalPages, '', '', false);
-      if (result1.success) {
-        const allFetchedOrders = result1.data.orders;
-        setProductInStock(result1.data.productInStock);
-        const ordersWithStockStatus = calculateStockStatus(allFetchedOrders, result1.data.productInStock);
-        allOrdersRef.current = ordersWithStockStatus;
-        setAllOrders(ordersWithStockStatus);
-      }
+        const result2 = await getOrdersAdmin(1, ordersPerPage * totalPages, filterOrderStatus, filterPaymentStatus, true);
+        if (result2.success) {
+          const filteredOrders = result2.data.orders;
 
-      const result2 = await getOrdersAdmin(1, ordersPerPage * totalPages, filterOrderStatus, filterPaymentStatus, false);
-      if (result2.success) {
-        const filteredOrders = result2.data.orders;
-        const filteredOrdersWithStockStatus = filteredOrders.map(order => {
-          const matchedOrder = allOrdersRef.current.find(o => o.order.id === order.order.id);
-          return matchedOrder ? matchedOrder : order;
-        });
+          setTotalPages(Math.ceil(result2.data.total / ordersPerPage));
 
-        setTotalPages(Math.ceil(result2.data.total / ordersPerPage));
-        const pagedOrders = filteredOrdersWithStockStatus.slice((currentPage - 1) * ordersPerPage, currentPage * ordersPerPage);
-        setOrders(pagedOrders);
+          // Áp dụng phân trang và cập nhật `setOrders`
+          const pagedOrders = filteredOrders.slice((currentPage - 1) * ordersPerPage, currentPage * ordersPerPage);
+          setOrders(pagedOrders);
       } else {
         console.error('Failed to fetch filtered orders:', result2.message);
-        showNotification(
-          "Lỗi trong quá trình xử lý. Vui lòng thử lại",
-          notificationTypes.ERROR,
-          setNotifications,
-        );
       }
-      
     } catch (error) {
       console.error('Error fetching orders:', error);
-      showNotification(
-        "Lỗi trong quá trình xử lý. Vui lòng thử lại",
-        notificationTypes.ERROR,
-        setNotifications,
-      );
     }
   };
 
-  useEffect(() => {
-    fetchOrders();
-  }, [filterPaymentStatus, filterOrderStatus, ordersPerPage, totalPages, currentPage]);
+  fetchOrders();
+}, [filterPaymentStatus, filterOrderStatus, ordersPerPage, totalPages, currentPage]);
+
 
 
   useEffect(() => {
@@ -155,20 +103,20 @@ const ManageOrder = () => {
     if (filterOrderStatus) queryParams.set('orderStatus', filterOrderStatus); 
     if (filterPaymentStatus) queryParams.set('paymentStatus',filterPaymentStatus);
 
-    navigate(`/admin/manage-order/${page}/${ordersPerPage}?${queryParams.toString()}`);
+    navigate(`/admin/manage-order-complete/${page}/${ordersPerPage}?${queryParams.toString()}`);
   };
 
 
   const handleOrderStatusChange = (event) => {
     setFilterOrderStatus(event.target.value.trim());
-    navigate(`/admin/manage-order/1/${ordersPerPage}?${queryParams.toString()}`);
+    navigate(`/admin/manage-order-complete/1/${ordersPerPage}?${queryParams.toString()}`);
   };
   
   
   const handlePaymentStatusChange = (event) => {
     const newPaymentStatus = event.target.value.trim();
     setFilterPaymentStatus(newPaymentStatus);
-    navigate(`/admin/manage-order/1/${ordersPerPage}?${queryParams.toString()}`);
+    navigate(`/admin/manage-order-complete/1/${ordersPerPage}?${queryParams.toString()}`);
   };
 
   const handleViewOrder = (order) => {
@@ -187,44 +135,7 @@ const ManageOrder = () => {
     }
   };
 
-  const openUpdateModal = (or) => {
-    setCurrentOrder({
-      ...or,
-    });
-    setShowModal(true);
-  };
 
-  const handleSaveUpdate = async () => {
-    const { order: { products, ...orderDetails } } = currentOrder; // Destructure products từ order
-  
-    // Cập nhật thông tin order
-    const updatedData = {
-      order_id: orderDetails.id, // Sử dụng orderDetails để lấy các thuộc tính còn lại
-      totalPrice: orderDetails.total_price,
-      paymentMethod: orderDetails.payment_method,
-      orderStatus: orderDetails.orderStatus,
-      user_id: orderDetails.user.id,
-      employee_id: orderDetails.employee.id,
-      location_id: orderDetails.location.id,
-      paymentStatus: orderDetails.paymentStatus,
-      products: Array.isArray(products) ? products.map(product => ({
-        product_id: product.productId,
-        quantity: product.quantityBuy,
-        priceout: product.priceout,
-      })) : [],
-    };
-  
-    try {
-      const result = await updateOrderAdmin(updatedData); // Cập nhật đơn hàng
-
-      setShowModal(false);
-    } catch (error) {
-      console.error("Failed to update order:", error);
-    }
-  };
-  
-  
-  
   
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);
@@ -237,34 +148,8 @@ const ManageOrder = () => {
     <div className="bg-gray-100 min-h-screen">
       <AdminHeader />
       <div className="w-full p-4">
-        <h1 className="text-4xl font-bold mb-8 mt-4 text-[#006532] text-center">Manage Order</h1>
-       
-          <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4 ">
-              <div
-                className="shadow-md rounded-lg border border-t-4 border-[#e0e0e0] border-t-[#F29339] bg-white p-2 transition-shadow duration-300 ease-in-out hover:shadow-custom-dark"
-              >
-                <h3 className="mb-2 text-xl font-semibold text-center text-[#006532]"> Đơn hàng chưa kiểm duyệt</h3>
-                <p className='text-xl text-center'>20</p>
-              </div>
-              <div
-                className="shadow-md rounded-lg border border-t-4 border-[#e0e0e0] border-t-[#84b2da] bg-white p-2 transition-shadow duration-300 ease-in-out hover:shadow-custom-dark"
-              >
-                <h3 className="mb-2 text-xl font-semibold text-[#006532] text-center"> Đơn hàng chưa chờ giao</h3>
-                <p className='text-xl text-center'>20</p>
-              </div>
-              <div
-                className="shadow-md rounded-lg border border-t-4 border-[#e0e0e0] border-t-[#4175a2] bg-white p-2 transition-shadow duration-300 ease-in-out hover:shadow-custom-dark"
-              >
-                <h3 className="mb-2 text-xl text-center font-semibold text-[#006532]"> Đơn hàng đang giao</h3>
-                <p className='text-xl text-center'>20</p>
-              </div>
-              <div
-                className="shadow-md rounded-lg border border-t-4 border-[#e0e0e0] border-t-[#a33c33] bg-white p-2 transition-shadow duration-300 ease-in-out hover:shadow-custom-dark"
-              >
-                <h3 className="mb-2 text-xl text-center font-semibold text-[#006532]"> Đơn hàng thiếu hàng</h3>
-                <p className='text-xl text-center'>20</p>
-              </div>
-          </div>
+        <h1 className="text-4xl font-bold mb-8 mt-4 text-[#006532] text-center">Đơn hàng đã hoàn thành</h1>
+    
         {/* Tìm kiếm và lọc */}
         <div className="flex items-center flex-col md:flex-row  mt-4 mb-3 px-6 py-3 bg-white rounded-lg  tablet:h-28">
           <div className="flex items-center  space-x-2 w-4/5 ">
@@ -289,37 +174,7 @@ const ManageOrder = () => {
               />
             )}
           </div>
-          <div className=' pl-3 tablet:mt-36 tablet:left-24 tablet:absolute'>
-            {selectedOrders.length > 0 && (
-                <div className="  relative  w-full flex space-x-2">
-              
-              <button 
-                className="px-2 py-1 text-sm rounded-md bg-[#84b2da] text-white hover:bg-[#73a0c9] transition duration-300 ease-in-out transform hover:-translate-y-1 shadow-[0_4px_6px_rgba(0,0,0,0.4),0_1px_3px_rgba(0,0,0,0.08)]"
-                
-              >
-                Chờ giao hàng
-              </button>
-              <button 
-                className="px-2 py-1 text-sm rounded-md bg-[#4175a2] text-white hover:bg-[#35628d] transition duration-300 ease-in-out transform hover:-translate-y-1 shadow-[0_4px_6px_rgba(0,0,0,0.4),0_1px_3px_rgba(0,0,0,0.08)]"
-                
-              >
-                Đang vận chuyển
-              </button>
-              <button 
-                className="px-2 py-1 text-sm rounded-md bg-[#ad402a] text-white hover:bg-[#973727] transition duration-300 ease-in-out transform hover:-translate-y-1 shadow-[0_4px_6px_rgba(0,0,0,0.4),0_1px_3px_rgba(0,0,0,0.08)]"
-                
-              >
-                Hủy đơn hàng
-              </button>
-              <button 
-                className="px-2 py-1 text-sm rounded-md bg-[#006532] text-white hover:bg-[#00572b] transition duration-300 ease-in-out transform hover:-translate-y-1 shadow-[0_4px_6px_rgba(0,0,0,0.4),0_1px_3px_rgba(0,0,0,0.08)]"
-                
-              >
-                Đã giao hàng
-              </button>
-            </div>
-            )}
-          </div>
+         
           </div>
        
           <div className="flex items-center space-x-2 w-2/5 tablet:w-full justify-end">
@@ -330,9 +185,6 @@ const ManageOrder = () => {
                 className="border rounded-lg px-3 py-2 w-full appearance-none pr-8"
               >
                 <option value="">Tất cả</option>
-                <option value="Đang kiểm hàng">Đang kiểm hàng</option>
-                <option value="Chờ giao hàng">Chờ giao hàng</option>
-                <option value="Đang vận chuyển">Đang vận chuyển</option>
                 <option value="Đã giao hàng">Đã giao hàng</option>
                 <option value="Hủy đơn hàng">Hủy đơn hàng</option>
             
@@ -372,7 +224,7 @@ const ManageOrder = () => {
                 <th className="py-3 pr-3 text-left hidden md:table-cell">Phương thức thanh toán <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('payment_method')}/></th>
                 <th className="py-3 pr-3 text-left hidden lg:table-cell">Tình trạng đơn hàng <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('orderStatus')}/></th>
                 <th className="py-3 pr-3 text-left hidden lg:table-cell">Tình trạng thanh toán <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('paymentStatus')}/></th>
-                <th className="py-3 pr-3 text-left hidden lg:table-cell">Tình trạng trong kho <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('statusProduct')}/></th>
+                
                 <th className="py-3 px-6 text-left">Actions</th>
               </tr>
             </thead>
@@ -420,13 +272,7 @@ const ManageOrder = () => {
                   }`}
                 >{or.order.paymentStatus}</p></td>
 
-                <td className="py-3 pr-3 text-left hidden lg:table-cell"><p
-                  className={`text-center  rounded-md  ${
-                    or.order.statusProduct === 'Thiếu hàng'
-                      ? 'bg-[#cf4631] text-white xl:w-40'
-                      : 'bg-[#006532] text-white'
-                  }`}
-                >{or.order.statusProduct}</p></td>
+               
                   <td className="py-3 pr-3">
                     <div className="flex space-x-4">
                       <button 
@@ -457,7 +303,7 @@ const ManageOrder = () => {
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white rounded-lg p-8 mt-2 w-1/2 max-h-[80vh] overflow-y-auto">
             <h2 className="text-2xl font-bold mb-4">Chi tiết đơn hàng</h2>
-            <p className="text-black"><strong>Nhân viên:</strong> {currentOrder.order.employee?.lastName}</p>
+            <p className="text-black"><strong>Nhân viên:</strong> {currentOrder.order.employee.lastName}</p>
             <p className="text-black"><strong>Khách hàng:</strong> {currentOrder.order.user.firstName} {currentOrder.order.user.lastName}</p>
             <p className="text-black"><strong>Địa chỉ:</strong> {currentOrder.order.location.address}</p>
             <p className="text-black"><strong>Số điện thoại:</strong> {currentOrder.order.location.phone}</p>
@@ -474,8 +320,6 @@ const ManageOrder = () => {
                   <th className="py-2 px-4 text-left text-white">Tên sản phẩm</th>
                   <th className="py-2 px-4 text-left text-white">Giá bán</th>
                   <th className="py-2 px-4 text-left text-white">Số lượng khách đặt</th>
-                  <th className="py-2 px-4 text-left text-white">Tình trạng trong kho</th>
-                  <th className="py-2 px-4 text-left text-white">Số lượng còn thiếu</th>
                 </tr>
               </thead>
               <tbody>
@@ -484,8 +328,6 @@ const ManageOrder = () => {
                     <td className="py-2 px-4">{product.productName}</td>
                     <td className="py-2 px-4">{product.priceout}</td>
                     <td className="py-2 px-4">{product.quantityBuy}</td>
-                    <td className="py-2 px-4">{product.stockStatus}</td>
-                    <td className="py-2 px-4">{product.missingQuantity}</td>
                   </tr>
                 ))}
               </tbody>
@@ -507,8 +349,7 @@ const ManageOrder = () => {
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white rounded-lg p-8 mt-2 w-1/2 max-h-[80vh] overflow-y-auto">
             <h2 className="text-2xl text-[#006532] font-bold mb-4">Cập nhật đơn hàng</h2>
-            <p className="text-black"><strong>Mã đơn hàng:</strong> {currentOrder.order.id}</p>
-            <p className="text-black"><strong>Nhân viên:</strong> {currentOrder.order.employee?.lastName}</p>
+            <p className="text-black"><strong>Nhân viên:</strong> {currentOrder.order.employee.lastName}</p>
             <p className="text-black"><strong>Khách hàng:</strong> {currentOrder.order.user.firstName} {currentOrder.order.user.lastName}</p>
             <p className="text-black"><strong>Địa chỉ:</strong> {currentOrder.order.location.address}</p>
             <p className="text-black"><strong>Số điện thoại:</strong> {currentOrder.order.location.phone}</p>
@@ -541,8 +382,8 @@ const ManageOrder = () => {
             </table>
             <div className="flex mt-6 space-x-4">
               <select
-                value={currentOrder.order.orderStatus}
-                onChange={(e) =>   setCurrentOrder({...currentOrder, order: {...currentOrder.order, orderStatus: e.target.value,}, })}
+                defaultValue={currentOrder.order.orderStatus}
+                onChange={(e) => setCurrentOrder({ ...currentOrder, status: e.target.value })}
                 className="border rounded-lg px-4 py-2 w-full mb-4 border-green-500 bg-gray-100 hover:bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 <option value="">Tất cả</option>
@@ -553,8 +394,8 @@ const ManageOrder = () => {
                 <option value="Hủy đơn hàng">Hủy đơn hàng</option>
               </select>
               <select
-                value={currentOrder.order.paymentStatus}
-                onChange={(e) => setCurrentOrder({...currentOrder, order: {...currentOrder.order, paymentStatus: e.target.value,},})}
+                defaultValue={currentOrder.order.paymentStatus}
+                onChange={(e) => setCurrentOrder({ ...currentOrder, status: e.target.value })}
                 className="border rounded-lg px-4 py-2 w-full mb-4 border-green-500 bg-gray-100 hover:bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 <option value="">Tất cả</option>
@@ -565,7 +406,7 @@ const ManageOrder = () => {
             </div>
             <div className="flex justify-end mt-4">
               <button
-                 onClick={handleSaveUpdate}
+                // onClick={() => handleSaveUpdate(currentOrder.status, currentOrder.paymentStatus)}
                 className="bg-[#006532] text-white py-2 px-4 rounded hover:bg-green-700 transition-all"
               >
                 Cập nhật
@@ -599,4 +440,4 @@ const ManageOrder = () => {
   );
 };
 
-export default ManageOrder;
+export default ManageOrderComplete;

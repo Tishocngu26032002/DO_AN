@@ -97,7 +97,7 @@ export class OrderService extends BaseService<OrderEntity> {
     });
     const emailList = admins.map((admin) => admin?.email);
 
-    //await this.notificationService.sendNotification(order, message, NotificationStatus.Success, NotificationType.NewOrder);
+    await this.notificationService.sendNotification(order, message, NotificationStatus.Success, NotificationType.NewOrder);
 
     if (emailList.length > 0) {
       const emailEntities: Email_entity[] = emailList.map((adminEmail) => {
@@ -316,35 +316,9 @@ export class OrderService extends BaseService<OrderEntity> {
       if (!order) {
         throw new Error('ORDER.ORDER UPDATE NOT FOUND!');
       }
-
-      order.total_price = updateOrderDTO.totalPrice;
-      order.payment_method = updateOrderDTO.paymentMethod;
-      order.orderStatus = updateOrderDTO.orderStatus;
-      order.user_id = updateOrderDTO.user_id;
-      order.employee_id = updateOrderDTO.employee_id;
-      order.location_id = updateOrderDTO.location_id;
-
-      // Cập nhật danh sách sản phẩm trong Order_productEntity
-      for (const productDto of updateOrderDTO.products) {
-        const product = order.orderProducts.find(
-          (prod) => prod.product_id === productDto.product_id,
-        );
-
-        if (product) {
-          // Nếu sản phẩm đã tồn tại, cập nhật thông tin
-          product.quantity = productDto.quantity;
-          product.priceout = productDto.priceout;
-        } else {
-          // Nếu sản phẩm không tồn tại, thêm mới
-          const newProduct = new Order_productEntity();
-          newProduct.product_id = productDto.product_id;
-          newProduct.quantity = productDto.quantity;
-          newProduct.priceout = productDto.priceout;
-          newProduct.order = order; // Gán liên kết với order
-
-          order.orderProducts.push(newProduct); // Thêm vào danh sách sản phẩm
-        }
-      }
+      if(updateOrderDTO.orderStatus != null) order.orderStatus = updateOrderDTO.orderStatus;
+      if(updateOrderDTO.employee_id != null) order.employee_id = updateOrderDTO.employee_id;
+      if(updateOrderDTO.paymentStatus != null) order.paymentStatus = Object.values(PaymentStatus).find((value) => value === updateOrderDTO.paymentStatus);;
 
       // Lưu thay đổi vào cơ sở dữ liệu
       return await this.orderRepo.save(order);

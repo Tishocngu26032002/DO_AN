@@ -67,7 +67,7 @@ const ManageUser = () => {
           role: filterRole === "" ? undefined : filterRole,
         };
         console.log(searchData);
-  
+        
         try {
           
           const result = await getSearchUsers(currentPage, usersPerPage, searchData);
@@ -357,7 +357,7 @@ const ManageUser = () => {
     if (filterStatus) queryParams.set('status', filterStatus);
     if (filterRole) queryParams.set('role', filterRole);
   
-    navigate(`/manage-user/${page}/${usersPerPage}?${queryParams.toString()}`);
+    navigate(`/admin/manage-user/${page}/${usersPerPage}?${queryParams.toString()}`);
   };
   
 
@@ -365,18 +365,19 @@ const ManageUser = () => {
 const handleSearchChange = (event) => {
   const newSearchTerm = event.target.value;
   setSearchTerm(newSearchTerm);
-
+  navigate(`/admin/manage-user/1/${usersPerPage}?${queryParams.toString()}`);
 };
 
 const handleStatusChange = (event) => {
   const newStatus = event.target.value;
   setFilterStatus(newStatus);
-
+  navigate(`/admin/manage-user/1/${usersPerPage}?${queryParams.toString()}`);
 };
 
 const handleRoleChange = (event) => {
   const newRole = event.target.value;
   setFilterRole(newRole);
+  navigate(`/admin/manage-user/1/${usersPerPage}?${queryParams.toString()}`);
 };
 
 

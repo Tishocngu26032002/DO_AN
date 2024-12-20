@@ -89,14 +89,6 @@ const UserProfile = () => {
     setIsEditing(true);
   };
 
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setEditForm((prev) => ({
-  //     ...prev,
-  //     [name]: value
-  //   }));
-  // };
-
   const handleTextChange = (e) => {
     const { name, value } = e.target;
   
@@ -125,7 +117,6 @@ const UserProfile = () => {
             ...prev,
             [name]: imageUrl,
           }));
-          console.log("Uploaded image URL:", imageUrl);
         } else {
           console.error("No URL returned from the server.");
         }
