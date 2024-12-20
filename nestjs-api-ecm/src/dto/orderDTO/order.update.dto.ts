@@ -4,11 +4,12 @@ import {
   IsNotEmpty,
   IsInt,
   ValidateNested,
-  IsPhoneNumber, IsEnum,
+  IsPhoneNumber,
+  IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import {ApplyStatus, OrderStatus, PaymentMethod} from "src/share/Enum/Enum";
+import { ApplyStatus, OrderStatus, PaymentMethod } from 'src/share/Enum/Enum';
 
 class ProductDto {
   @IsString()
@@ -35,17 +36,7 @@ export class UpdateOrderDTO {
 
   @IsInt()
   @IsNotEmpty()
-  @ApiProperty()
-  totalPrice: number;
-
-  @IsEnum(PaymentMethod)
-  @IsNotEmpty()
-  @ApiProperty({enum: PaymentMethod})
-  paymentMethod: PaymentMethod;
-
-  @IsInt()
-  @IsNotEmpty()
-  @ApiProperty({enum: OrderStatus})
+  @ApiProperty({ enum: OrderStatus })
   orderStatus: OrderStatus;
 
   @IsString()
@@ -58,18 +49,8 @@ export class UpdateOrderDTO {
   employee_id: string;
 
   @IsString()
-  @ApiProperty()
-  location_id: string;
-
-  @IsString()
   @IsNotEmpty()
   @ApiProperty()
   paymentStatus: string;
 
-  @IsArray()
-  @ValidateNested({ each: true }) // Áp dụng xác thực cho từng phần tử trong mảng
-  @Type(() => ProductDto) // Chuyển đổi từng phần tử thành ProductDto
-  @IsNotEmpty()
-  @ApiProperty({ type: ProductDto, isArray: true })
-  products: ProductDto[];
 }

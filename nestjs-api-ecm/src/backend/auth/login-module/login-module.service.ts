@@ -45,6 +45,9 @@ export class LoginModuleService {
       role: user.role,
     });
 
+    user.token = accessToken;
+    await this.userRepository.save(user);
+
     return {
       user: user,
       accessToken: accessToken,

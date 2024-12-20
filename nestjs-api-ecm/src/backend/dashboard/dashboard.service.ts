@@ -9,6 +9,7 @@ import {TimeFilter} from "src/share/Enum/Enum";
 import {endOfMonth, endOfWeek, endOfYear, startOfMonth, startOfWeek, startOfYear} from "date-fns";
 import {OrderProductRepository} from "src/repository/OrderProductRepository";
 import {ImportRepository} from "src/repository/ImportRepository";
+import {ImportProductRepository} from "src/repository/ImportProductRepository";
 
 @Injectable()
 export class DashboardService {
@@ -18,7 +19,9 @@ export class DashboardService {
         @InjectRepository(OrderProductRepository)
         private readonly orderProductRepo: OrderProductRepository,
         @InjectRepository(ImportRepository)
-        private readonly importRepo: ImportRepository
+        private readonly importRepo: ImportRepository,
+        @InjectRepository(ImportProductRepository)
+        private readonly importProRepo: ImportProductRepository
     ) {}
 
     async getSummaryStatistic(timeFilter: TimeFilter) {
@@ -93,6 +96,16 @@ export class DashboardService {
 
         const revenueByCategory = await this.orderRepo.getRevenueByCategory(startDate, endDate);
         return revenueByCategory;
+    }
+
+    async getLatestProduct() {
+        const products = await this.importProRepo.findLatestProducts();
+        return products;
+    }
+
+    async getFeatureProduct() {
+        const products = await this.orderProductRepo.getFeatureProductsByRevenue();
+        return products;
     }
 
     timeFilterCreate(timeFilter: TimeFilter): { startDate: Date; endDate: Date } {

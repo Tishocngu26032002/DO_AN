@@ -25,6 +25,7 @@ export enum PaymentStatus {
 
 export enum OrderStatus {
     Checking = "Đang kiểm hàng",
+    WaitingForDelivered = "Chờ giao hàng",
     InTransit = "Đang vận chuyển",
     Delivered = "Đã giao hàng",
     Canceled = "Hủy đơn hàng"
@@ -40,5 +41,16 @@ export enum TimeFilter {
     Month = "Tháng",
     Quarter = "Quý",
     Year = "Năm",
+}
+
+export enum NotificationType {
+    NewOrder = "Đơn hàng mới",
+    Delivered = "Đơn hàng được giao hàng thành công",
+    Cancel = "Đơn hàng bị hủy",
+}
+
+export enum NotificationStatus {
+    Success = "Success",
+    Warning = "Warning",
 }
 

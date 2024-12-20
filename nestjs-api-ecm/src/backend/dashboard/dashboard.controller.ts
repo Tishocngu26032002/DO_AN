@@ -79,7 +79,7 @@ export class DashboardController {
   ) {
     try {
       const topCustomers = await this.dashboardService.getTopCustomersByRevenue(timeFilter);
-      return topCustomers;
+      return responseHandler.ok(topCustomers);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
       return responseHandler.error(errorMessage);
@@ -118,6 +118,28 @@ export class DashboardController {
     try {
       const revenueByCategory = await this.dashboardService.getRevenueByCategory(timeFilter);
       return responseHandler.ok(revenueByCategory);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
+    }
+  }
+
+  @Get('latest-product')
+  async getLateProduct() {
+    try {
+      const latestProducts = await this.dashboardService.getLatestProduct();
+      return responseHandler.ok(latestProducts);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
+    }
+  }
+
+  @Get('feature-product')
+  async getFeatureProduct() {
+    try {
+      const featureProducts = await this.dashboardService.getFeatureProduct();
+      return responseHandler.ok(featureProducts);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
       return responseHandler.error(errorMessage);
