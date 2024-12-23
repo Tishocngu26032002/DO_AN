@@ -293,7 +293,7 @@ export class OrderService extends BaseService<OrderEntity> {
   async getDetail(order_id: string) {
     const order = await this.orderRepo.findOne({
       where: { id: order_id },
-      relations: ['orderProducts', 'location'],
+      relations: ['orderProducts', 'orderProducts.product', 'location'],
     });
 
     if (!order) {
