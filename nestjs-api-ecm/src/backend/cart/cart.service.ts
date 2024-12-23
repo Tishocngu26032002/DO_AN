@@ -6,6 +6,7 @@ import { CartRepository } from 'src/repository/CartRepository';
 import { Cart_productEntity } from 'src/entities/cartproduct_entity/cart_product.entity';
 import { BaseService } from 'src/base/baseService/base.service';
 import any = jasmine.any;
+import {In} from "typeorm";
 
 @Injectable()
 export class CartService extends BaseService<Cart_productEntity> {
@@ -79,7 +80,21 @@ export class CartService extends BaseService<Cart_productEntity> {
     return await super.update(cartUpdateDTO, id);
   }
 
-  async delete(id: string) {
-    return await super.delete(id);
+  async deleteProductsInCart(user_id: string, cart_ids: string[]) {
+    if (!cart_ids || cart_ids.length === 0) {
+      throw new Error('cart_ids cannot be empty');
+    }
+    try {
+      const result = await this.cartRepo.delete({
+        id: In(cart_ids),
+        user_id: user_id, // Kiểm tra user_id
+      });
+      if (result.affected === 0) {
+        throw new Error('No records were deleted. Check cart_ids.');
+      }
+      return result;
+    } catch (error) {
+      throw new Error(`Failed to delete products in cart`);
+    }
   }
 }

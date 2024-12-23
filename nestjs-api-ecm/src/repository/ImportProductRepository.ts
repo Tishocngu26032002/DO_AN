@@ -15,6 +15,7 @@ export class ImportProductRepository extends Repository<Import_productEntity> {
             .addSelect('product.name', 'productName')
             .addSelect('product.url_images', 'productImages')
             .addSelect('product.priceout', 'priceOut')
+            .addSelect('product.weight', 'productWeight')
             .addSelect('category.name', 'categoryName')
             .innerJoin('import_product.product', 'product') // Join Product table
             .innerJoin('product.category', 'category') // Join Category table

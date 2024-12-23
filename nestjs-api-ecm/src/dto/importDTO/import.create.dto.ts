@@ -8,7 +8,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
-class ProductDto {
+class ProductImportDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
@@ -22,7 +22,7 @@ class ProductDto {
   @IsInt()
   @IsNotEmpty()
   @ApiProperty()
-  pricein: number;
+  price_in: number;
 }
 
 export class CreateImportDto {
@@ -38,8 +38,8 @@ export class CreateImportDto {
 
   @IsArray()
   @ValidateNested({ each: true }) // Áp dụng xác thực cho từng phần tử trong mảng
-  @Type(() => ProductDto) // Chuyển đổi từng phần tử thành ProductDto
+  @Type(() => ProductImportDto) // Chuyển đổi từng phần tử thành ProductDto
   @IsNotEmpty()
-  @ApiProperty({ type: ProductDto, isArray: true })
-  products: ProductDto[];
+  @ApiProperty({ type: ProductImportDto, isArray: true })
+  products: ProductImportDto[];
 }
