@@ -181,7 +181,7 @@ const Report = () => {
           <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
             <h4 className="text-xl font-semibold text-[#006532]">Doanh thu</h4>
             <p className="text-3xl font-bold text-[#006532]">
-            {dashboardData?.thisTime?.revenue || 0} VND
+              {dashboardData?.thisTime?.revenue || 0} VND
             </p>
             <p className="text-sm text-gray-500">
               {getComparisonText(timeFilter)} +

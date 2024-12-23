@@ -41,14 +41,13 @@ const ManageProduct = () => {
     const loadCategories = async () => {
       try {
         const response = await getCategory(1, 20);
-  
         setCategory(response.data.data);
       } catch (error) {
         console.log(error);
       }
     };
     loadCategories();
-  });
+  }, []);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -124,6 +123,7 @@ const ManageProduct = () => {
 
   const handleFilter = (categoryId) => {
     setFilterCategory(categoryId);
+    setSearchMode(false);
     if (categoryId) {
       setFilteredProducts(products.filter((product) => product.category_id === categoryId));
     } else {
