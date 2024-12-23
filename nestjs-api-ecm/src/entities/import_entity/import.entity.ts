@@ -13,6 +13,8 @@ import { Import_productEntity } from 'src/entities/import_entity/import_product.
 export class ImportEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+  @Column({ type: 'varchar', length: 36, nullable: true })
+  import_code: string;
   @Column({ type: 'int' })
   total_amount: number;
   @Column({ type: 'varchar', length: 36 })

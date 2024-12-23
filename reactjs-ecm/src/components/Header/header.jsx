@@ -6,6 +6,7 @@ import { IoMenu, IoClose } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
 import img from "../../../public/images/Crops organic farm.png";
 import { getUser } from "../../services/user-service";
+import { logoutUser } from "../../services/auth-api";
 import {
   NotificationList,
   notificationTypes,
@@ -15,7 +16,7 @@ import { useCart } from "../../Context/CartContext";
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState(null); // Thêm state để lưu trữ thông tin người dùng
+  const [user, setUser] = useState(null); 
 
   const [cartItemsQuantity, setCartItemsQuantity] = useState(0);
 
@@ -23,16 +24,16 @@ function Header() {
 
   const { totalQuantity, isLoading } = useCart();
 
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   useEffect(() => {
-    // Giả sử hàm getUser là một hàm bất đồng bộ để lấy thông tin người dùng
     const fetchUser = async () => {
       try {
-        const response = await getUser(); // Gọi hàm getUser để lấy thông tin người dùng
-        setUser(response.data); // Lưu thông tin người dùng vào state
+        const response = await getUser(); 
+        setUser(response.data); 
       } catch (error) {
         console.error("Failed to fetch user", error);
       }
@@ -49,17 +50,33 @@ function Header() {
     ? user.lastName.substring(0, 4).toUpperCase()
     : "";
 
-  const handleLogoutUser = async () => {
-    localStorage.clear();
-    setUser(null); // Đặt lại user state sau khi đăng xuất
-
-    showNotification(
-      "Bạn đã đăng xuất thành công.",
-      notificationTypes.INFO,
-      setNotifications,
-    );
-  };
-
+    const handleLogoutUser = async () => {
+      try {
+        // Gọi hàm logoutUser với userId
+        await logoutUser();
+        
+        // Xóa token khỏi localStorage và đặt lại state user
+        localStorage.clear();
+        setUser(null); // Đặt lại user state sau khi đăng xuất
+    
+        // Hiển thị thông báo đăng xuất thành công
+        showNotification(
+          "Bạn đã đăng xuất thành công.",
+          notificationTypes.INFO,
+          setNotifications,
+        );
+      } catch (error) {
+        // Xử lý lỗi khi đăng xuất
+        console.error("Error logging out:", error);
+    
+        // Hiển thị thông báo lỗi
+        showNotification(
+          "Đăng xuất thất bại. Vui lòng thử lại.",
+          notificationTypes.ERROR,
+          setNotifications,
+        );
+      }
+    };
   return (
     <>
       {/* Hiển thị các thông báo */}
@@ -145,7 +162,7 @@ function Header() {
                 </li>
               )}
               <li id="lg-bag" className="md:mb-3 md:h-5 md:px-4">
-                <Link to="/login">
+                <Link to={user ? "/home-page" : "/login"}>
                   <FaRegUser
                     aria-hidden="true"
                     className="h-[23px] w-[23px] text-[#006532] transition duration-300 hover:text-[#80c9a4]"

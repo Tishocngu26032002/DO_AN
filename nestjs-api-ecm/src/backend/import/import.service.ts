@@ -1,9 +1,9 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ConsoleLogger, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ImportEntity } from 'src/entities/import_entity/import.entity';
 import { Import_productEntity } from 'src/entities/import_entity/import_product.entity';
-import { CreateImportDto } from 'src/dto/importDTO/import.create.dto';
+import { CreateImportDTO } from 'src/dto/importDTO/import.create.dto';
 import { UpdateImpotyDTO } from 'src/dto/importDTO/import.update.dto';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class ImportService {
     private readonly importProductRepo: Repository<Import_productEntity>,
     private readonly dataSource: DataSource,
   ) {}
-  async create(createImportDto: CreateImportDto) {
+  async create(createImportDto: CreateImportDTO) {
     // Start transaction
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -25,6 +25,7 @@ export class ImportService {
       const importProduct = this.importRepo.create({
         employee_id: createImportDto.user_id,
         total_amount: createImportDto.totalAmount,
+        import_code: createImportDto.import_code
       });
 
       const importData = await queryRunner.manager.save(importProduct);
@@ -57,7 +58,7 @@ export class ImportService {
 
   async findAll(page: number, limit: number) {
     const [productImports, totalImport] = await this.importRepo.findAndCount({
-      relations: ['Import_productEntity'],
+      relations: ['importProducts'],
       skip: (page - 1) * limit,
       take: limit,
     });
@@ -67,10 +68,28 @@ export class ImportService {
     };
   }
 
+  async getImportCodeMax(){
+    const maxCode = await this.importRepo
+        .createQueryBuilder('import')
+        .select('MAX(import.import_code)', 'max')
+        .getRawOne();
+
+    let newCode = 'IPC00001';
+    if (maxCode.max) {
+      const currentNumber = parseInt(maxCode.max.slice(3), 10); // Lấy phần số của import_code
+      const nextNumber = currentNumber + 1;
+      newCode = `IPC${String(nextNumber).padStart(5, '0')}`; // Tạo mã mới với định dạng IPC00001
+    }
+    return {
+      import_code: newCode
+    };
+  }
+
+
   async findOne(importProd_id: string) {
     const importProd = await this.importRepo.findOne({
       where: { id: importProd_id },
-      relations: ['Import_productEntity'],
+      relations: ['importProducts'],
     });
 
     if (!importProd) {
@@ -82,32 +101,34 @@ export class ImportService {
   async update(updateImportDto: UpdateImpotyDTO) {
     const importProd = await this.importRepo.findOne({
       where: { id: updateImportDto.import_id },
-      relations: ['Import_productEntity'],
+      relations: ['importProducts'],
     });
 
     if (!importProd) {
-      throw new Error('ORDER.ORDER UPDATE NOT FOUND!');
+      throw new Error('IMPORT.ORDER UPDATE NOT FOUND!');
     }
 
     importProd.total_amount = updateImportDto.totalAmount;
     importProd.employee_id = updateImportDto.user_id;
+    importProd.import_code = updateImportDto.import_code;
 
     // Cập nhật danh sách sản phẩm trong Import_productEntity
-    for (const productDto of updateImportDto.products) {
+    for (const ProductDTO of updateImportDto.products) {
       const product = importProd.importProducts.find(
-        (prod) => prod.product_id === productDto.product_id,
+        (prod) => prod.product_id === ProductDTO.product_id,
       );
 
       if (product) {
         // Nếu sản phẩm đã tồn tại, cập nhật thông tin
-        product.quantity = productDto.quantity;
-        product.price_in = productDto.pricein;
+        product.quantity = ProductDTO.quantity;
+        product.price_in = ProductDTO.price_in;
+        console.log(ProductDTO.price_in);
       } else {
         // Nếu sản phẩm không tồn tại, thêm mới
         const newProduct = new Import_productEntity();
-        newProduct.product_id = productDto.product_id;
-        newProduct.quantity = productDto.quantity;
-        newProduct.price_in = productDto.pricein;
+        newProduct.product_id = ProductDTO.product_id;
+        newProduct.quantity = ProductDTO.quantity;
+        newProduct.price_in = ProductDTO.price_in;
         newProduct.import = importProd; // Gán liên kết với order
 
         importProd.importProducts.push(newProduct); // Thêm vào danh sách sản phẩm
@@ -115,10 +136,11 @@ export class ImportService {
     }
 
     // Lưu thay đổi vào cơ sở dữ liệu
-    return await this.importRepo.save(importProd);
+    const rs = await this.importRepo.save(importProd);
+    return rs;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} import`;
+  async delete(id: string) {
+    return await this.importRepo.delete(id);
   }
 }

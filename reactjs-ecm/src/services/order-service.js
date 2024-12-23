@@ -125,26 +125,36 @@ export const updateOrder = async (updateData) => {
     throw error;
   }
 };
-export async function getOrdersAdmin(page, limit, searchData) {
+
+export async function getOrdersAdmin(page, limit, orderStatus,paymentStatus,includeExcluded) {
   try {
     const token = getToken();
-
-    // Chuyển searchData thành query string
-    const queryParams = new URLSearchParams(searchData).toString();
-
-    const res = await axios.get(
-      `${BASE_URL}/order/manage-order/${page}/${limit}?${queryParams}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          accept: "*/*",
-        },
+    const res = await axios.get(`${BASE_URL}/order/manage-order/${page}/${limit}?orderStatus=${orderStatus}&paymentStatus=${paymentStatus}&includeExcluded=${includeExcluded}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: "*/*",
       },
-    );
-
+    });
+    console.log('api', res.data);
     return res.data;
   } catch (error) {
     console.error("Error fetching orders:", error);
     throw error;
   }
 }
+
+export const updateOrderAdmin = async ( orderData) => {
+  try {
+    const token = getToken(); // Lấy token
+    const userId= getUserId();
+    const res = await axios.patch(`${BASE_URL}/order/${userId}`, orderData, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Truyền token ở đây
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw error;
+  }
+};
