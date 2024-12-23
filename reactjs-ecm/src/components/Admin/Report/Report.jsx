@@ -76,7 +76,7 @@ const Report = () => {
   const fetchTopProducts = async (topProductsFilter) => {
     try {
       const response = await getTopProducts(topProductsFilter);
-      console.log("response", response);
+
       if (response.success) {
         setTopProducts(response.data);
       } else {
@@ -91,8 +91,8 @@ const Report = () => {
     try {
       const response = await getTopCustomers(topCustomersFilter);
 
-      if (response) {
-        setTopCustomers(response);
+      if (response.success) {
+        setTopCustomers(response.data);
       } else {
         console.error("Failed to fetch top customers data:", response.message);
       }

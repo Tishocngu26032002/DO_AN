@@ -157,12 +157,8 @@ export const addProduct = async (formData) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    if (response.status === 201 && response.data) {
-      return response.data;
-    } else {
-      console.error("Failed to add product. No data returned.");
-      return null;
-    }
+
+    return response.data;
   } catch (error) {
     console.error("Error adding product:", error);
     throw error;

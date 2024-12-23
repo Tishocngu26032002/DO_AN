@@ -215,42 +215,43 @@ const Cart = () => {
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
-                    <th className="w-1/4 rounded-tl-md bg-[#006532] p-2 pl-6 text-left font-normal text-white md:w-1/3">
+                    <th className="w-1/6 rounded-tl-md bg-[#006532] p-2 pl-6 text-left font-normal text-white">
                       <input
                         type="checkbox"
                         checked={selectAll}
                         onChange={handleSelectAll}
+                        className="h-5 w-5"
                       />
                     </th>
-                    <th className="w-1/4 bg-[#006532] p-2 text-left font-normal text-white">
+                    <th className="w-2/5 bg-[#006532] p-2 text-left font-normal text-white">
                       Sản phẩm
                     </th>
-
-                    <th className="w-1/4 bg-[#006532] py-2 pl-8 text-left font-normal text-white">
+                    <th className="w-1/6 bg-[#006532] p-2 text-center font-normal text-white">
                       Số lượng
                     </th>
-                    <th className="w-1/4 rounded-tr-md bg-[#006532] py-2 pr-6 text-end font-normal text-white">
+                    <th className="w-1/6 rounded-tr-md bg-[#006532] p-2 pr-6 text-right font-normal text-white">
                       Số tiền
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {/* Sample Product Row */}
                   {carts.map((cart) => (
                     <tr key={cart.id} className="border-t-2 border-[#00653294]">
-                      <td className="mx-2 w-2/5 p-2 md:w-2/3">
-                        <div className="cart-info flex flex-wrap items-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedItems.includes(cart.id)}
-                            onChange={() => handleSelectCartItem(cart.id)}
-                          />
+                      <td className="w-1/6 p-2 pl-6">
+                        <input
+                          type="checkbox"
+                          checked={selectedItems.includes(cart.id)}
+                          onChange={() => handleSelectCartItem(cart.id)}
+                          className="h-5 w-5"
+                        />
+                      </td>
+                      <td className="w-2/5 p-2">
+                        <div className="flex items-center">
                           <img
                             src={cart.product.url_images}
                             alt="Image"
-                            className="mr-3 h-[80px] md:h-[120px]"
+                            className="mr-3 h-[80px] w-[80px] object-cover md:h-[120px] md:w-[120px]"
                           />
-
                           <div>
                             <p className="mb-[10px] font-semibold text-[#006532]">
                               {cart.product.name}
@@ -270,37 +271,33 @@ const Cart = () => {
                           </div>
                         </div>
                       </td>
-
-                      <td className="w-1/6">
-                        {/* <QuantityInput /> */}
-                        <div className="product__details__quantity">
-                          <div className="flex h-[48px] w-[140px] items-center rounded border-2 border-[#00653265] bg-white">
-                            <button
-                              className="ml-[18px] mr-1 text-base font-normal text-gray-600 hover:bg-gray-300 focus:outline-none"
-                              onClick={() =>
-                                handleDecrease(cart.id, cart.quantity)
-                              }
-                            >
-                              <PiMinusBold />
-                            </button>
-                            <input
-                              type="text"
-                              value={cart.quantity}
-                              readOnly
-                              className="mr-1 w-16 border-0 text-center text-base font-normal text-gray-600 focus:outline-none"
-                            />
-                            <button
-                              className="text-base font-normal text-gray-600 hover:bg-gray-300 focus:outline-none"
-                              onClick={() =>
-                                handleIncrease(cart.id, cart.quantity)
-                              }
-                            >
-                              <PiPlusBold />
-                            </button>
-                          </div>
+                      <td className="w-1/6 p-2 text-center">
+                        <div className="flex items-center justify-center rounded-lg border border-[#00653265]">
+                          <button
+                            className="ml-2 mr-1 text-base font-normal text-gray-600 hover:bg-gray-300 focus:outline-none"
+                            onClick={() =>
+                              handleDecrease(cart.id, cart.quantity)
+                            }
+                          >
+                            <PiMinusBold />
+                          </button>
+                          <input
+                            type="text"
+                            value={cart.quantity}
+                            readOnly
+                            className="mx-1 w-12 border-0 text-center text-base font-normal text-gray-600 focus:outline-none"
+                          />
+                          <button
+                            className="ml-1 text-base font-normal text-gray-600 hover:bg-gray-300 focus:outline-none"
+                            onClick={() =>
+                              handleIncrease(cart.id, cart.quantity)
+                            }
+                          >
+                            <PiPlusBold />
+                          </button>
                         </div>
                       </td>
-                      <td className="w-1/6 p-2 pr-5 text-right font-semibold text-[#006532]">
+                      <td className="w-1/6 p-2 pr-6 text-right font-semibold text-[#006532]">
                         {cart.product.priceout * cart.quantity}đ
                       </td>
                     </tr>

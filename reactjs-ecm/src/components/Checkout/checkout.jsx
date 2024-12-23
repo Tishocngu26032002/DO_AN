@@ -55,6 +55,7 @@ const Checkout = () => {
     mutationFn: async (data) => {
       // call api thêm địa chỉ mới
       const response = await createNewAddress(data);
+      console.log("resAdd", response);
       return response.data; // Tải lại trang để lấy danh sách địa chỉ mới
     },
     onSuccess: (response) => {
@@ -174,15 +175,9 @@ const Checkout = () => {
         // clearSelectedCartItems();
 
         setTotalQuantity(res.data.data.total);
-
-        // const orderResponse = {
-        //   orderId: response.orderId,
-        //   status: response.status,
-        //   // các thuộc tính khác nếu cần
-        // };
-
+        console.log("response.orderId", response.data.data.id);
         navigate("/order-success", {
-          state: { orderResponse: response.data.data },
+          state: { orderId: response.data.data.id },
         });
       } else {
         showNotification(
