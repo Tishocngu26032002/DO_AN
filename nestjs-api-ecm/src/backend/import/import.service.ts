@@ -5,6 +5,7 @@ import { ImportEntity } from 'src/entities/import_entity/import.entity';
 import { Import_productEntity } from 'src/entities/import_entity/import_product.entity';
 import { CreateImportDTO } from 'src/dto/importDTO/import.create.dto';
 import { UpdateImpotyDTO } from 'src/dto/importDTO/import.update.dto';
+import {GenerateEntityCode} from "src/share/GenerateEntityCode";
 
 @Injectable()
 export class ImportService {
@@ -25,7 +26,7 @@ export class ImportService {
       const importProduct = this.importRepo.create({
         employee_id: createImportDto.user_id,
         total_amount: createImportDto.totalAmount,
-        import_code: createImportDto.import_code
+        import_code: GenerateEntityCode.generateOrderCode("IP")
       });
 
       const importData = await queryRunner.manager.save(importProduct);

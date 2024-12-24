@@ -6,6 +6,8 @@ import {OrderStatus, PaymentMethod, PaymentStatus} from "src/share/Enum/Enum";
 import {Location_userEntity} from "src/entities/user_entity/location_user.entity";
 @Entity({ name: 'orders' })
 export class OrderEntity extends BaseEntity {
+  @Column({ type: 'varchar' })
+  order_code: string;
   @Column({ type: 'int' })
   total_price: number;
   @Column({ type: 'varchar' })
