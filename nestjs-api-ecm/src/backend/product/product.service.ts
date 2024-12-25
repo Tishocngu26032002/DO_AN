@@ -83,7 +83,15 @@ export class ProductService extends BaseService<ProductEntity>{
     }
 
     async detail(id: string) {
-        return await super.findOne(id);
+        const whereConditions: any = {};
+        whereConditions.id = id;
+        const result = await this.productsRepo.findOne({
+            where: whereConditions,
+            relations: ['category']
+        });
+        return {
+            products: result,
+        };
     }
 
     async update(productUpdateDTO: ProductUpdateDTO, id: string) {
