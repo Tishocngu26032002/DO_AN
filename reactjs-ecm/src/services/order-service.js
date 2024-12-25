@@ -147,11 +147,13 @@ export const updateOrderAdmin = async ( orderData) => {
   try {
     const token = getToken(); // Lấy token
     const userId= getUserId();
+    console.log(orderData);
     const res = await axios.patch(`${BASE_URL}/order/${userId}`, orderData, {
       headers: {
         Authorization: `Bearer ${token}`, // Truyền token ở đây
       },
     });
+    console.log('1',res.data)
     return res.data;
   } catch (error) {
     console.error("Error updating user:", error);

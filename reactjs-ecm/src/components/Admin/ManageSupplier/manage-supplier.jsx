@@ -2,7 +2,7 @@ import  { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import AdminHeader from "../AdminHeader/admin-header.jsx";
 import { FaPlus, FaEdit, FaTrash, FaSearch } from "react-icons/fa";
-import { createSupplier,deleteSuppliers,deleteSupplier, getSupplier,updateSupplier,getSearchSuppliers} from "../../../services/supplier-service.js";
+import { createSupplier,deleteSupplier, getSupplier,updateSupplier,getSearchSuppliers} from "../../../services/supplier-service.js";
 import { uploadImage } from "../../../services/image-service.js";
 import { ClipLoader } from 'react-spinners';
 import { showNotification, notificationTypes, NotificationList } from '../../Notification/NotificationService.jsx';
@@ -54,7 +54,7 @@ const [showConfirmDeleteMultiple, setShowConfirmDeleteMultiple] = useState(false
   useEffect(() => {
     const queryParams = new URLSearchParams();
     if (searchTerm) queryParams.set('search', searchTerm);
-    window.history.replaceState(null, '', `/manage-supplier/${page}/${limit}?${queryParams.toString()}`);
+    window.history.replaceState(null, '', `/admin/manage-supplier/${page}/${limit}?${queryParams.toString()}`);
   }, [searchTerm, page, limit]);
 
   useEffect(() => {
@@ -305,28 +305,42 @@ const [showConfirmDeleteMultiple, setShowConfirmDeleteMultiple] = useState(false
 
   const deleteSelectedSuppliers = async () => {
     try {
+      console.log("Selected suppliers to delete:", selectedSuppliers);
+  
       await Promise.all(
-        selectedSuppliers.map((id) => deleteSuppliers(id)),
+        selectedSuppliers.map(async (id) => {
+          const response = await deleteSupplier(id);
+          if (!response.success) {
+            throw new Error(`Failed to delete supplier with id ${id}`);
+          }
+          return response;
+        }),
       );
+  
       setSuppliers(
         suppliers.filter(
           (supplier) => !selectedSuppliers.includes(supplier.id),
         ),
       );
+  
       setSelectedSuppliers([]);
       sessionStorage.setItem('notification', JSON.stringify({
         message: 'Xóa nhà cung cấp thành công!',
         type: notificationTypes.SUCCESS
       }));
+  
+      console.log("Suppliers after deletion:", suppliers);
       window.location.reload();
+  
     } catch (error) {
       console.error("Error deleting selected suppliers:", error);
       sessionStorage.setItem('notification', JSON.stringify({
-        message: 'Xóa không thành công. Vui long thử lại',
+        message: 'Xóa không thành công. Vui lòng thử lại',
         type: notificationTypes.ERROR
       }));
     }
   };
+  
 
   const handleDeleteSelectedSuppliers = () => {
     setShowConfirmDeleteMultiple(true);
@@ -335,6 +349,7 @@ const [showConfirmDeleteMultiple, setShowConfirmDeleteMultiple] = useState(false
   const confirmDeleteSelectedSuppliers = async () => {
     await deleteSelectedSuppliers();
     setShowConfirmDeleteMultiple(false);
+    window.location.reload();
   };
   // Hàm lọc danh sách suppliers
   const filteredSuppliers = suppliers.filter((supplier) =>

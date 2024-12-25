@@ -24,13 +24,23 @@ const ManageOrder = () => {
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [showConfirmPopupMulti, setShowConfirmPopupMulti] = useState(false);
-  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const ordersPerPage = parseInt(paramOrdersPerPage) || 8; // Số lượng người dùng trên mỗi trang
   const currentPage = parseInt(paramCurrentPage) || 1;
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [productInStock, setProductInStock] = useState([]);
   const [allOrders, setAllOrders] = useState([]);
+  const [showConfirmCancel, setShowConfirmCancel] = useState(false);
+  const [orderToCancel, setOrderToCancel] = useState(null);
+  const [showConfirmPopupInTransit, setShowConfirmPopupInTransit] = useState(false);
+  const [showConfirmPopupConfirmed, setShowConfirmPopupConfirmed] = useState(false);
+  const [showConfirmPopupDelivered, setShowConfirmPopupDelivered] = useState(false);
+  const [orderStatusSummary, setOrderStatusSummary] = useState({
+    "Đang kiểm hàng": 0,
+    "Chờ giao hàng": 0,
+    "Đang giao hàng": 0,
+    "Thiếu hàng": 0,
+  });
   const sortedOrders = React.useMemo(() => {
     let sortableOrders = [...orders];
     if (sortConfig !== null) {
@@ -89,7 +99,6 @@ const ManageOrder = () => {
   
   const allOrdersRef = useRef([]);
 
-
   useEffect(() => {
     const queryParams = new URLSearchParams();
     if (filterOrderStatus) queryParams.set('orderStatus', filterOrderStatus);
@@ -108,6 +117,7 @@ const ManageOrder = () => {
         const ordersWithStockStatus = calculateStockStatus(allFetchedOrders, result1.data.productInStock);
         allOrdersRef.current = ordersWithStockStatus;
         setAllOrders(ordersWithStockStatus);
+        setOrderStatusSummary(result1.data.orderStatusSummary);
       }
 
       const result2 = await getOrdersAdmin(1, ordersPerPage * totalPages, filterOrderStatus, filterPaymentStatus, false);
@@ -121,13 +131,6 @@ const ManageOrder = () => {
         setTotalPages(Math.ceil(result2.data.total / ordersPerPage));
         const pagedOrders = filteredOrdersWithStockStatus.slice((currentPage - 1) * ordersPerPage, currentPage * ordersPerPage);
         setOrders(pagedOrders);
-      } else {
-        console.error('Failed to fetch filtered orders:', result2.message);
-        showNotification(
-          "Lỗi trong quá trình xử lý. Vui lòng thử lại",
-          notificationTypes.ERROR,
-          setNotifications,
-        );
       }
       
     } catch (error) {
@@ -195,37 +198,313 @@ const ManageOrder = () => {
   };
 
   const handleSaveUpdate = async () => {
-    const { order: { products, ...orderDetails } } = currentOrder; // Destructure products từ order
-  
-    // Cập nhật thông tin order
-    const updatedData = {
-      order_id: orderDetails.id, // Sử dụng orderDetails để lấy các thuộc tính còn lại
-      totalPrice: orderDetails.total_price,
-      paymentMethod: orderDetails.payment_method,
-      orderStatus: orderDetails.orderStatus,
-      user_id: orderDetails.user.id,
-      employee_id: orderDetails.employee.id,
-      location_id: orderDetails.location.id,
-      paymentStatus: orderDetails.paymentStatus,
-      products: Array.isArray(products) ? products.map(product => ({
-        product_id: product.productId,
-        quantity: product.quantityBuy,
-        priceout: product.priceout,
-      })) : [],
-    };
-  
     try {
-      const result = await updateOrderAdmin(updatedData); // Cập nhật đơn hàng
-
+      const { order: { products, ...orderDetails } } = currentOrder;
+      // Cập nhật thông tin order
+      const updatedData = {
+        order_id: orderDetails.id, 
+        totalPrice: orderDetails.total_price,
+        paymentMethod: orderDetails.payment_method,
+        orderStatus: orderDetails.orderStatus,
+        user_id: orderDetails.user.id,
+        employee_id: orderDetails.employee.id,
+        location_id: orderDetails.location.id,
+        paymentStatus: orderDetails.paymentStatus,
+        products: Array.isArray(products) ? products.map(product => ({
+          product_id: product.productId,
+          quantity: product.quantityBuy,
+          priceout: product.priceout,
+        })) : [],
+      };
+      const result = await updateOrderAdmin(updatedData); 
       setShowModal(false);
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Cập nhật đơn hàng thành công!',
+        type: notificationTypes.SUCCESS
+         }));
+      window.location.reload();
     } catch (error) {
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Cập nhật đơn hàng không thành công. Vui lòng thử lại !',
+        type: notificationTypes.ERROR,
+      }));
+      window.location.reload();
       console.error("Failed to update order:", error);
     }
   };
   
+  const handleCancelOrder = async (or) => {
+    try {
+      const { order: { products, ...orderDetails } } = or;
+      // Cập nhật thông tin order
+      const updatedData = {
+        order_id: orderDetails.id, // Sử dụng orderDetails để lấy các thuộc tính còn lại
+        totalPrice: orderDetails.total_price,
+        paymentMethod: orderDetails.payment_method,
+        orderStatus: "Hủy đơn hàng",
+        user_id: orderDetails.user.id,
+        employee_id: orderDetails.employee.id,
+        location_id: orderDetails.location.id,
+        paymentStatus: orderDetails.paymentStatus,
+        products: Array.isArray(products) ? products.map(product => ({
+          product_id: product.productId,
+          quantity: product.quantityBuy,
+          priceout: product.priceout,
+        })) : [],
+      };
+    
+      console.log('update', updatedData);
+      
+      const result = await updateOrderAdmin(updatedData); // Cập nhật đơn hàng
+      setShowModal(false);
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Hủy đơn hàng thành công!',
+        type: notificationTypes.SUCCESS
+         }));
+      window.location.reload();
+    } catch (error) {
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xóa không thành công.',
+        type: notificationTypes.ERROR,
+      }));
+      window.location.reload();
+      console.error("Failed to update order:", error);
+    }
+  };
+
+  const handleCancelSelectedOrders = async () => {
+    try {
+      await Promise.all(
+        selectedOrders.map(async (orderId) => {
+          const or = orders.find((order) => order.order.id === orderId);
+          if (or && or.order) {
+            const { order: { products, ...orderDetails } } = or;
+            const updatedData = {
+              order_id: orderDetails.id,
+              totalPrice: orderDetails.total_price,
+              paymentMethod: orderDetails.payment_method,
+              orderStatus: "Hủy đơn hàng",
+              user_id: orderDetails.user.id,
+              employee_id: orderDetails.employee.id,
+              location_id: orderDetails.location.id,
+              paymentStatus: orderDetails.paymentStatus,
+              products: Array.isArray(products) ? products.map(product => ({
+                product_id: product.productId,
+                quantity: product.quantityBuy,
+                priceout: product.priceout,
+              })) : [],
+            };
+    
+            console.log('update', updatedData);
+            const result = await updateOrderAdmin(updatedData); // Cập nhật đơn hàng
+          } else {
+            console.error("Order data is missing:", or);
+          }
+        })
+      );
+      sessionStorage.setItem('notification', JSON.stringify({
+      message: 'Hủy đơn hàng thành công!',
+      type: notificationTypes.SUCCESS
+       }));
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to delete selected orders or their locations:', error);
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xóa không thành công.',
+        type: notificationTypes.ERROR,
+      }));
+      window.location.reload();
+    }
+  };
   
+  const handleMultiCancelClick = () => {
+    setShowConfirmPopupMulti(true);
+  };
+
+  const cancelMultiCancel = () => {
+    setShowConfirmPopupMulti(false);
+  };
+
+  const confirmMultiCancel = () => {
+    handleCancelSelectedOrders();
+    setShowConfirmPopupMulti(false);
+  };
+
+  const handleConfirmedSelectedOrders = async () => {
+    try {
+      await Promise.all(
+        selectedOrders.map(async (orderId) => {
+          const or = orders.find((order) => order.order.id === orderId);
+          if (or && or.order) {
+            const { order: { products, ...orderDetails } } = or;
+            const updatedData = {
+              order_id: orderDetails.id,
+              totalPrice: orderDetails.total_price,
+              paymentMethod: orderDetails.payment_method,
+              orderStatus: "Chờ giao hàng",
+              user_id: orderDetails.user.id,
+              employee_id: orderDetails.employee.id,
+              location_id: orderDetails.location.id,
+              paymentStatus: orderDetails.paymentStatus,
+              products: Array.isArray(products) ? products.map(product => ({
+                product_id: product.productId,
+                quantity: product.quantityBuy,
+                priceout: product.priceout,
+              })) : [],
+            };
+    
+            console.log('update', updatedData);
+            const result = await updateOrderAdmin(updatedData); // Cập nhật đơn hàng
+          } else {
+            console.error("Order data is missing:", or);
+          }
+        })
+      );
+      sessionStorage.setItem('notification', JSON.stringify({
+      message: 'Xác nhận đơn hàng thành công!',
+      type: notificationTypes.SUCCESS
+       }));
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to delete selected orders or their locations:', error);
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xác nhận không thành công.',
+        type: notificationTypes.ERROR,
+      }));
+      window.location.reload();
+    }
+  };
   
+  const handleMultiConfirmedClick = () => {
+    setShowConfirmPopupConfirmed(true);
+  };
+
+  const cancelMultiConfirmed = () => {
+    setShowConfirmPopupConfirmed(false);
+  };
+
+  const confirmMultiConfirmed = () => {
+    handleConfirmedSelectedOrders();
+    setShowConfirmPopupConfirmed(false);
+  };
+
+
+  const handleInTransitSelectedOrders = async () => {
+    try {
+      await Promise.all(
+        selectedOrders.map(async (orderId) => {
+          const or = orders.find((order) => order.order.id === orderId);
+          if (or && or.order) {
+            const { order: { products, ...orderDetails } } = or;
+            const updatedData = {
+              order_id: orderDetails.id,
+              totalPrice: orderDetails.total_price,
+              paymentMethod: orderDetails.payment_method,
+              orderStatus: "Đang vận chuyển",
+              user_id: orderDetails.user.id,
+              employee_id: orderDetails.employee.id,
+              location_id: orderDetails.location.id,
+              paymentStatus: orderDetails.paymentStatus,
+              products: Array.isArray(products) ? products.map(product => ({
+                product_id: product.productId,
+                quantity: product.quantityBuy,
+                priceout: product.priceout,
+              })) : [],
+            };
+    
+            console.log('update', updatedData);
+            const result = await updateOrderAdmin(updatedData); // Cập nhật đơn hàng
+          } else {
+            console.error("Order data is missing:", or);
+          }
+        })
+      );
+      sessionStorage.setItem('notification', JSON.stringify({
+      message: 'Xác nhận đơn hàng thành công!',
+      type: notificationTypes.SUCCESS
+       }));
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to delete selected orders or their locations:', error);
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xác nhận không thành công.',
+        type: notificationTypes.ERROR,
+      }));
+      window.location.reload();
+    }
+  };
   
+  const handleMultiInTransitClick = () => {
+    setShowConfirmPopupInTransit(true);
+  };
+
+  const cancelMultiInTransit = () => {
+    setShowConfirmPopupInTransit(false);
+  };
+
+  const confirmMultiInTransit = () => {
+    handleInTransitSelectedOrders();
+    setShowConfirmPopupInTransit(false);
+  };
+
+  const handleDeliveredSelectedOrders = async () => {
+    try {
+      await Promise.all(
+        selectedOrders.map(async (orderId) => {
+          const or = orders.find((order) => order.order.id === orderId);
+          if (or && or.order) {
+            const { order: { products, ...orderDetails } } = or;
+            const updatedData = {
+              order_id: orderDetails.id,
+              totalPrice: orderDetails.total_price,
+              paymentMethod: orderDetails.payment_method,
+              orderStatus: "Đã giao hàng",
+              user_id: orderDetails.user.id,
+              employee_id: orderDetails.employee.id,
+              location_id: orderDetails.location.id,
+              paymentStatus: orderDetails.paymentStatus,
+              products: Array.isArray(products) ? products.map(product => ({
+                product_id: product.productId,
+                quantity: product.quantityBuy,
+                priceout: product.priceout,
+              })) : [],
+            };
+    
+            console.log('update', updatedData);
+            const result = await updateOrderAdmin(updatedData); // Cập nhật đơn hàng
+          } else {
+            console.error("Order data is missing:", or);
+          }
+        })
+      );
+      sessionStorage.setItem('notification', JSON.stringify({
+      message: 'Xác nhận đơn hàng thành công!',
+      type: notificationTypes.SUCCESS
+       }));
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to delete selected orders or their locations:', error);
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xác nhận không thành công.',
+        type: notificationTypes.ERROR,
+      }));
+      window.location.reload();
+    }
+  };
+  
+  const handleMultiDeliveredClick = () => {
+    setShowConfirmPopupDelivered(true);
+  };
+
+  const cancelMultiDelivered = () => {
+    setShowConfirmPopupDelivered(false);
+  };
+
+  const confirmMultiDelivered = () => {
+    handleDeliveredSelectedOrders();
+    setShowConfirmPopupDelivered(false);
+  };
+
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);
     const time = date.toLocaleTimeString('vi-VN', { hour12: false });
@@ -235,6 +514,10 @@ const ManageOrder = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen">
+    <div className="fixed z-50 space-y-3">
+        <NotificationList notifications={notifications} />
+      </div>
+      <NotificationHandler setNotifications={setNotifications} />
       <AdminHeader />
       <div className="w-full p-4">
         <h1 className="text-4xl font-bold mb-8 mt-4 text-[#006532] text-center">Manage Order</h1>
@@ -243,28 +526,24 @@ const ManageOrder = () => {
               <div
                 className="shadow-md rounded-lg border border-t-4 border-[#e0e0e0] border-t-[#F29339] bg-white p-2 transition-shadow duration-300 ease-in-out hover:shadow-custom-dark"
               >
-                <h3 className="mb-2 text-xl font-semibold text-center text-[#006532]"> Đơn hàng chưa kiểm duyệt</h3>
-                <p className='text-xl text-center'>20</p>
+                <h3 className="mb-2 text-xl font-semibold text-center text-[#006532]"> Đang kiểm hàng</h3>
+                <p className='text-xl text-center'>{orderStatusSummary["Đang kiểm hàng"]??0}</p>
               </div>
               <div
                 className="shadow-md rounded-lg border border-t-4 border-[#e0e0e0] border-t-[#84b2da] bg-white p-2 transition-shadow duration-300 ease-in-out hover:shadow-custom-dark"
               >
-                <h3 className="mb-2 text-xl font-semibold text-[#006532] text-center"> Đơn hàng chưa chờ giao</h3>
-                <p className='text-xl text-center'>20</p>
+                <h3 className="mb-2 text-xl font-semibold text-[#006532] text-center"> Chờ giao hàng</h3>
+                <p className='text-xl text-center'>{orderStatusSummary["Chờ giao hàng"]??0}</p>
               </div>
               <div
                 className="shadow-md rounded-lg border border-t-4 border-[#e0e0e0] border-t-[#4175a2] bg-white p-2 transition-shadow duration-300 ease-in-out hover:shadow-custom-dark"
               >
-                <h3 className="mb-2 text-xl text-center font-semibold text-[#006532]"> Đơn hàng đang giao</h3>
-                <p className='text-xl text-center'>20</p>
+                <h3 className="mb-2 text-xl text-center font-semibold text-[#006532]"> Đang vận chuyển</h3>
+                <p className='text-xl text-center'>{orderStatusSummary["Đang vận chuyển"]??0}</p>
               </div>
-              <div
-                className="shadow-md rounded-lg border border-t-4 border-[#e0e0e0] border-t-[#a33c33] bg-white p-2 transition-shadow duration-300 ease-in-out hover:shadow-custom-dark"
-              >
-                <h3 className="mb-2 text-xl text-center font-semibold text-[#006532]"> Đơn hàng thiếu hàng</h3>
-                <p className='text-xl text-center'>20</p>
-              </div>
+            
           </div>
+        
         {/* Tìm kiếm và lọc */}
         <div className="flex items-center flex-col md:flex-row  mt-4 mb-3 px-6 py-3 bg-white rounded-lg  tablet:h-28">
           <div className="flex items-center  space-x-2 w-4/5 ">
@@ -272,48 +551,43 @@ const ManageOrder = () => {
             <input 
                     type="checkbox" 
                     onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedOrders(sortedOrders.map(order => order.id));
-                      } else {
-                        setSelectedOrders([]);
-                      }
-                    }}
+                  if (e.target.checked) {
+                    setSelectedOrders(
+                      orders.map((or) => or.order.id),
+                    );
+                  } else {
+                    setSelectedOrders([]);
+                  }
+                }}
                    
                   />
               </div>
-            <div className=' tablet:mt-36 tablet:left-16 tablet:absolute'>
-            {selectedOrders.length > 0 && (
-              <FaTrash 
-                // onClick={handleDeleteSelectedOrders} 
-                className='text-gray-400 hover:text-red-500  ' 
-              />
-            )}
-          </div>
+
           <div className=' pl-3 tablet:mt-36 tablet:left-24 tablet:absolute'>
             {selectedOrders.length > 0 && (
                 <div className="  relative  w-full flex space-x-2">
               
               <button 
                 className="px-2 py-1 text-sm rounded-md bg-[#84b2da] text-white hover:bg-[#73a0c9] transition duration-300 ease-in-out transform hover:-translate-y-1 shadow-[0_4px_6px_rgba(0,0,0,0.4),0_1px_3px_rgba(0,0,0,0.08)]"
-                
+                onClick={handleMultiConfirmedClick}
               >
-                Chờ giao hàng
+                Xác nhận
               </button>
               <button 
                 className="px-2 py-1 text-sm rounded-md bg-[#4175a2] text-white hover:bg-[#35628d] transition duration-300 ease-in-out transform hover:-translate-y-1 shadow-[0_4px_6px_rgba(0,0,0,0.4),0_1px_3px_rgba(0,0,0,0.08)]"
-                
+                onClick={handleMultiInTransitClick}
               >
-                Đang vận chuyển
+                Vận chuyển
               </button>
               <button 
                 className="px-2 py-1 text-sm rounded-md bg-[#ad402a] text-white hover:bg-[#973727] transition duration-300 ease-in-out transform hover:-translate-y-1 shadow-[0_4px_6px_rgba(0,0,0,0.4),0_1px_3px_rgba(0,0,0,0.08)]"
-                
+                onClick={handleMultiCancelClick}
               >
                 Hủy đơn hàng
               </button>
               <button 
                 className="px-2 py-1 text-sm rounded-md bg-[#006532] text-white hover:bg-[#00572b] transition duration-300 ease-in-out transform hover:-translate-y-1 shadow-[0_4px_6px_rgba(0,0,0,0.4),0_1px_3px_rgba(0,0,0,0.08)]"
-                
+                onClick={handleMultiDeliveredClick}
               >
                 Đã giao hàng
               </button>
@@ -435,12 +709,15 @@ const ManageOrder = () => {
                       >
                         <FaEye size={18} />
                       </button>
-                      {/* <button 
-                        onClick={() => handleCancelOrder(or.order.orderId)} 
+                      <button 
+                         onClick={() => {
+                          setOrderToCancel(or);
+                          setShowConfirmCancel(true);
+                        }} 
                         className="text-red-600 hover:text-red-700"
                       >
                         <MdOutlineCancel size={18} />
-                      </button> */}
+                      </button>
                       <button onClick={() => openUpdateModal(or)} className="text-[#006532] hover:text-[#005a2f]">
                       <FaEdit />
                     </button>
@@ -580,7 +857,88 @@ const ManageOrder = () => {
           </div>
         </div>
       )}
-
+      {showConfirmCancel && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-600">Xác nhận hủy</h2>
+            <p>Bạn có chắc chắn muốn hủy đơn này không?</p>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => setShowConfirmCancel(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={() => handleCancelOrder(orderToCancel)}
+                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+              >
+                Xác nhận 
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showConfirmPopupMulti && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg">
+            <h2 className="text-xl text-[#006532] mb-4">Bạn có chắc chắn muốn hủy các đơn hàng này?</h2>
+            <div className="flex justify-end">
+              <button onClick={cancelMultiCancel} className="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded mr-2">
+                Hủy
+              </button>
+              <button onClick={confirmMultiCancel} className="bg-[#006532] hover:bg-[#246d49] text-white px-4 py-2 rounded">
+                Xác nhận hủy
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showConfirmPopupConfirmed && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg">
+            <h2 className="text-xl text-[#006532] mb-4">Bạn có muốn xác nhận các đơn hàng này?</h2>
+            <div className="flex justify-end">
+              <button onClick={cancelMultiConfirmed} className="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded mr-2">
+                Hủy
+              </button>
+              <button onClick={confirmMultiConfirmed} className="bg-[#006532] hover:bg-[#246d49] text-white px-4 py-2 rounded">
+                Xác nhận
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showConfirmPopupInTransit && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg">
+            <h2 className="text-xl text-[#006532] mb-4">Bạn có muốn giao các đơn hàng này?</h2>
+            <div className="flex justify-end">
+              <button onClick={cancelMultiInTransit} className="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded mr-2">
+                Hủy
+              </button>
+              <button onClick={confirmMultiInTransit} className="bg-[#006532] hover:bg-[#246d49] text-white px-4 py-2 rounded">
+                Xác nhận giao
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showConfirmPopupDelivered && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg">
+            <h2 className="text-xl text-[#006532] mb-4">Bạn có muốn xác nhận đã giao các đơn hàng này?</h2>
+            <div className="flex justify-end">
+              <button onClick={cancelMultiDelivered} className="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded mr-2">
+                Hủy
+              </button>
+              <button onClick={confirmMultiDelivered} className="bg-[#006532] hover:bg-[#246d49] text-white px-4 py-2 rounded">
+                Xác nhận đã giao
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
         <div className="flex justify-center mt-4">
         {/* Hiển thị các nút phân trang */}
         {Array.from({ length: totalPages }, (_, index) => (

@@ -434,6 +434,7 @@ const ManageImport = () => {
                   <MdOutlineInbox />
                 </th>
                 <th className="py-3 text-left">STT </th> 
+                <th className="py-3  px-6 text-left">Mã đơn</th> 
                 <th className="py-3 px-6 text-left">Ngày tạo <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('createdAt')}/></th>
                 <th className="py-3 px-6 text-left">Tổng số tiền <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('total_amount')}/></th>
                 <th className="py-3 px-6 text-left">Tên nhân viên <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('employee_id')}/></th>
@@ -456,6 +457,7 @@ const ManageImport = () => {
                   />
                 </td>
                 <td className="py-3">{(currentPage - 1) * importPrsPerPage + index + 1}</td>
+                <td className="py-3 px-6">{importPr.import_code}</td>
                 <td className="py-3 px-6 w-1/6 hidden xl:table-cell "> {(() => {
                     const date = new Date(importPr.createdAt);
                     const time = date.toLocaleTimeString('vi-VN', { hour12: false });
