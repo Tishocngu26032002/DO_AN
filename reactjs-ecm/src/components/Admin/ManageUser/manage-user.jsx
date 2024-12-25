@@ -44,6 +44,7 @@ const ManageUser = () => {
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [showConfirmPopupMulti, setShowConfirmPopupMulti] = useState(false);
+  const [timeFilter, setTimeFilter] = useState("Tuần");
 
   // Cập nhật URL khi thay đổi filter
   useEffect(() => {
@@ -500,6 +501,46 @@ const handleRoleChange = (event) => {
             {currentUser?.id ? 'Save Changes' : 'Add User'}
           </button>
         </Modal>
+        
+        <div className="mb-8">
+          {/* Chọn thời gian */}
+          <div className="mb-6 flex space-x-4">
+            {["Tuần", "Tháng", "Quý", "Năm"].map((filter) => (
+              <button
+                key={filter}
+                className={`shadow-md rounded-lg border p-2 text-white ${
+                  timeFilter === filter ? "bg-[#004d26]" : "bg-[#006532]"
+                } hover:bg-[#004d26]`}
+                onClick={() => {
+                  setTimeFilter(filter);
+                }}
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mb-8 grid grid-cols-2 gap-6 md:grid-cols-4">
+          <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
+            <h4 className="text-xl font-semibold text-[#006532]">Tổng số khách hàng</h4>
+            <p className="text-3xl font-bold text-[#006532]">
+              50
+            </p>
+            <p className="text-sm text-gray-500">
+              So với tuần trước: +5
+            </p>
+          </div>
+          <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
+            <h4 className="text-xl font-semibold text-[#006532]">Số khách hàng mới</h4>
+            <p className="text-3xl font-bold text-[#006532]">
+              15
+            </p>
+            <p className="text-sm text-gray-500">
+              So với tuần trước: +2
+            </p>
+          </div>
+        </div>
 
         {/* Thanh tìm kiếm và bộ lọc */}
         <div className="flex items-center flex-col md:flex-row  mt-4 mb-3 px-6 py-3 bg-white border-2 rounded-lg shadow-custom-slate">
@@ -635,9 +676,10 @@ const handleRoleChange = (event) => {
         {showViewPopup && currentUser && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70">
             <div className="bg-white p-6 rounded-lg shadow-lg w-96 border border-gray-200">
-              <h2 className="text-2xl font-semibold mb-4 text-[#006532]">User: {currentUser.id}</h2>
+              {/* <h2 className="text-2xl font-semibold mb-4 text-[#006532]">User: {currentUser.id}</h2>
               <p className="text-black"><strong className="text-[#006532]">firstname:</strong> {currentUser.firstName}</p>
-              <p className="text-black"><strong className="text-[#006532]">lastname:</strong> {currentUser.lastName}</p>
+              <p className="text-black"><strong className="text-[#006532]">lastname:</strong> {currentUser.lastName}</p> */}
+              <h2 className="text-2xl font-semibold mb-4 text-[#006532]">User: {currentUser.firstName} {currentUser.lastName}</h2>
               <p className="text-black"><strong className="text-[#006532]">Email:</strong> {currentUser.email}</p>
               <p className="text-black"><strong className="text-[#006532]">Phone:</strong> {currentUser.phone}</p>
               <p className="text-black"><strong className="text-[#006532]">Address:</strong> {currentUser.address}</p>
