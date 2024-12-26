@@ -2,14 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import AdminHeader from "../AdminHeader/admin-header.jsx";
 import { FaPlus, FaEdit, FaTrash, FaSearch } from "react-icons/fa";
-import {
-  createSupplier,
-  deleteSuppliers,
-  deleteSupplier,
-  getSupplier,
-  updateSupplier,
-  getSearchSuppliers,
-} from "../../../services/supplier-service.js";
+import { createSupplier,deleteSupplier, getSupplier,updateSupplier,getSearchSuppliers} from "../../../services/supplier-service.js";
 import { uploadImage } from "../../../services/image-service.js";
 import { ClipLoader } from "react-spinners";
 import {
@@ -63,12 +56,8 @@ const ManageSupplier = () => {
 
   useEffect(() => {
     const queryParams = new URLSearchParams();
-    if (searchTerm) queryParams.set("search", searchTerm);
-    window.history.replaceState(
-      null,
-      "",
-      `/manage-supplier/${page}/${limit}?${queryParams.toString()}`,
-    );
+    if (searchTerm) queryParams.set('search', searchTerm);
+    window.history.replaceState(null, '', `/admin/manage-supplier/${page}/${limit}?${queryParams.toString()}`);
   }, [searchTerm, page, limit]);
 
   useEffect(() => {
@@ -345,32 +334,42 @@ const ManageSupplier = () => {
 
   const deleteSelectedSuppliers = async () => {
     try {
-      await Promise.all(selectedSuppliers.map((id) => deleteSuppliers(id)));
+      console.log("Selected suppliers to delete:", selectedSuppliers);
+  
+      await Promise.all(
+        selectedSuppliers.map(async (id) => {
+          const response = await deleteSupplier(id);
+          if (!response.success) {
+            throw new Error(`Failed to delete supplier with id ${id}`);
+          }
+          return response;
+        }),
+      );
+  
       setSuppliers(
         suppliers.filter(
           (supplier) => !selectedSuppliers.includes(supplier.id),
         ),
       );
+  
       setSelectedSuppliers([]);
-      sessionStorage.setItem(
-        "notification",
-        JSON.stringify({
-          message: "Xóa nhà cung cấp thành công!",
-          type: notificationTypes.SUCCESS,
-        }),
-      );
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xóa nhà cung cấp thành công!',
+        type: notificationTypes.SUCCESS
+      }));
+  
+      console.log("Suppliers after deletion:", suppliers);
       window.location.reload();
+  
     } catch (error) {
       console.error("Error deleting selected suppliers:", error);
-      sessionStorage.setItem(
-        "notification",
-        JSON.stringify({
-          message: "Xóa không thành công. Vui long thử lại",
-          type: notificationTypes.ERROR,
-        }),
-      );
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xóa không thành công. Vui lòng thử lại',
+        type: notificationTypes.ERROR
+      }));
     }
   };
+  
 
   const handleDeleteSelectedSuppliers = () => {
     setShowConfirmDeleteMultiple(true);
@@ -379,6 +378,7 @@ const ManageSupplier = () => {
   const confirmDeleteSelectedSuppliers = async () => {
     await deleteSelectedSuppliers();
     setShowConfirmDeleteMultiple(false);
+    window.location.reload();
   };
   // Hàm lọc danh sách suppliers
   const filteredSuppliers = suppliers.filter((supplier) =>
@@ -434,8 +434,8 @@ const ManageSupplier = () => {
       </div>
       <NotificationHandler setNotifications={setNotifications} />
       <AdminHeader />
-      <div className="p-4 lg:mx-12">
-        <h1 className="mb-8 mt-4 text-center text-4xl font-bold text-[#006532]">
+      <div className="w-5/6 p-4 ml-[260px]">
+      <h1 className="mb-8 mt-4 text-center text-4xl font-bold text-[#006532]">
           Manage Suppliers
         </h1>
 

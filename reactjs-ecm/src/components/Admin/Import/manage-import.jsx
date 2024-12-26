@@ -469,33 +469,31 @@ const ManageImport = () => {
               </div>
             ))}
 
-            <button
-              onClick={handleAddProductField}
-              className="mb-4 rounded-lg bg-[#006532] px-4 py-2 text-white hover:bg-[#004f29]"
-            >
-              Thêm sản phẩm
-            </button>
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={handleSaveImportPr}
-                className="rounded-lg bg-[#006532] px-4 py-2 text-white hover:bg-[#004f29]"
-              >
-                Lưu
-              </button>
-              <button
-                onClick={() => setShowAddPopup(false)}
-                className="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-700"
-              >
-                Hủy
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      <div className="p-4 lg:mx-12">
-        <h1 className="mb-8 mt-4 text-start text-4xl font-bold text-[#006532]">
-          Quản lý đơn nhập hàng
-        </h1>
+      <button
+        onClick={handleAddProductField}
+        className="bg-[#006532] text-white px-4 py-2 rounded-lg hover:bg-[#004f29] mb-4"
+      >
+        Thêm sản phẩm
+      </button>
+      <div className="flex justify-end space-x-4">
+        <button
+          onClick={ handleSaveImportPr}
+          className="bg-[#006532] text-white px-4 py-2 rounded-lg hover:bg-[#004f29]"
+        >
+          Lưu
+        </button>
+        <button
+          onClick={() => setShowAddPopup(false)}
+          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+        >
+          Hủy
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+      <div className="w-5/6 p-4 ml-[260px]">
+        <h1 className="text-4xl font-bold mb-8 mt-4 text-[#006532] text-start">Quản lý đơn nhập hàng</h1>
 
         {/* Thanh tìm kiếm và bộ lọc */}
         <div className="mb-3 mt-4 flex flex-col items-center rounded-lg border-2 bg-white px-6 py-3 shadow-custom-slate md:flex-row">
@@ -533,73 +531,45 @@ const ManageImport = () => {
                   {/*  */}
                   <MdOutlineInbox />
                 </th>
-                <th className="py-3 text-left">STT </th>
-                <th className="px-6 py-3 text-left">
-                  Ngày tạo{" "}
-                  <FaSort
-                    className="ml-1 inline cursor-pointer"
-                    onClick={() => requestSort("createdAt")}
-                  />
-                </th>
-                <th className="px-6 py-3 text-left">
-                  Tổng số tiền{" "}
-                  <FaSort
-                    className="ml-1 inline cursor-pointer"
-                    onClick={() => requestSort("total_amount")}
-                  />
-                </th>
-                <th className="px-6 py-3 text-left">
-                  Tên nhân viên{" "}
-                  <FaSort
-                    className="ml-1 inline cursor-pointer"
-                    onClick={() => requestSort("employee_id")}
-                  />
-                </th>
-                <th className="px-6 py-3 text-left">Hành động</th>
+                <th className="py-3 text-left">STT </th> 
+                <th className="py-3  px-6 text-left">Mã đơn</th> 
+                <th className="py-3 px-6 text-left">Ngày tạo <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('createdAt')}/></th>
+                <th className="py-3 px-6 text-left">Tổng số tiền <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('total_amount')}/></th>
+                <th className="py-3 px-6 text-left">Tên nhân viên <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('employee_id')}/></th>
+                <th className="py-3 px-6 text-left">Hành động</th>
               </tr>
             </thead>
             <tbody>
-              {sortedImportPrs.length === 0 ? (
-                <tr>
-                  <td colSpan="11" className="py-4 text-center">
-                    No importPrs found.
-                  </td>
-                </tr>
-              ) : (
-                sortedImportPrs.map((importPr, index) => (
-                  <tr key={importPr.id} className="border-b hover:bg-[#e0f7e0]">
-                    <td className="py-4 pl-6 pr-3">
-                      <input
-                        type="checkbox"
-                        checked={selectedImportPrs.includes(importPr.id)}
-                        // onChange={() => handleSelectImportPr(importPr.id)}
-                      />
-                    </td>
-                    <td className="py-3">
-                      {(currentPage - 1) * importPrsPerPage + index + 1}
-                    </td>
-                    <td className="hidden w-1/6 px-6 py-3 xl:table-cell">
-                      {" "}
-                      {(() => {
-                        const date = new Date(importPr.createdAt);
-                        const time = date.toLocaleTimeString("vi-VN", {
-                          hour12: false,
-                        });
-                        const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-                        return `${time} ${formattedDate}`;
-                      })()}
-                    </td>
-                    <td className="px-6 py-4">{importPr.total_amount}</td>
-                    <td className="px-6 py-4">{importPr.employee_id}</td>
-                    <td className="px-6 py-3">
-                      <div className="flex space-x-4">
-                        <button
-                          onClick={() => handleViewImportPr(importPr)}
-                          className="text-blue-600 hover:text-blue-700"
-                        >
-                          <FaEye size={18} />
-                        </button>
-                        {/* <button onClick={() => openUpdateModal(importPr)} className="text-[#006532] hover:text-[#005a2f]">
+            {sortedImportPrs.length === 0 ? (
+            <tr>
+              <td colSpan="11" className="py-4 text-center">No importPrs found.</td>
+            </tr>
+          ) : (
+            sortedImportPrs.map((importPr, index) => (
+              <tr key={importPr.id} className="border-b hover:bg-[#e0f7e0]">
+                <td className="py-4 pl-6 pr-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedImportPrs.includes(importPr.id)}
+                    // onChange={() => handleSelectImportPr(importPr.id)}
+                  />
+                </td>
+                <td className="py-3">{(currentPage - 1) * importPrsPerPage + index + 1}</td>
+                <td className="py-3 px-6">{importPr.import_code}</td>
+                <td className="py-3 px-6 w-1/6 hidden xl:table-cell "> {(() => {
+                    const date = new Date(importPr.createdAt);
+                    const time = date.toLocaleTimeString('vi-VN', { hour12: false });
+                    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+                    return `${time} ${formattedDate}`;
+                  })()}</td>
+                  <td className="py-4 px-6">{importPr.total_amount}</td>
+                  <td className="py-4 px-6">{importPr.employee_id}</td>
+                <td className="py-3 px-6">
+                  <div className="flex space-x-4">
+                    <button onClick={() => handleViewImportPr(importPr)} className="text-blue-600 hover:text-blue-700">
+                      <FaEye size={18} />
+                    </button>
+                    {/* <button onClick={() => openUpdateModal(importPr)} className="text-[#006532] hover:text-[#005a2f]">
                       <FaEdit />
                     </button> */}
                         {/* <button onClick={() => handleDeleteClick(importPr.id)} className="text-gray-400 hover:text-red-500">

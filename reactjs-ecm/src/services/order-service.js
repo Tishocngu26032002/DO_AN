@@ -161,6 +161,7 @@ export const updateOrderAdmin = async (orderData) => {
         Authorization: `Bearer ${token}`, // Truyền token ở đây
       },
     });
+    console.log('1',res.data)
     return res.data;
   } catch (error) {
     console.error("Error updating user:", error);
