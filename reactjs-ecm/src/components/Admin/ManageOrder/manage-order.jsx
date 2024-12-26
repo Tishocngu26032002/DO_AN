@@ -236,7 +236,6 @@ const ManageOrder = () => {
   const handleCancelOrder = async (or) => {
     try {
       const { order: { products, ...orderDetails } } = or;
-      // Cập nhật thông tin order
       const updatedData = {
         order_id: orderDetails.id, // Sử dụng orderDetails để lấy các thuộc tính còn lại
         totalPrice: orderDetails.total_price,
@@ -264,7 +263,7 @@ const ManageOrder = () => {
       window.location.reload();
     } catch (error) {
       sessionStorage.setItem('notification', JSON.stringify({
-        message: 'Xóa không thành công.',
+        message: 'Hủy không thành công.',
         type: notificationTypes.ERROR,
       }));
       window.location.reload();
@@ -519,8 +518,8 @@ const ManageOrder = () => {
       </div>
       <NotificationHandler setNotifications={setNotifications} />
       <AdminHeader />
-      <div className="w-full p-4">
-        <h1 className="text-4xl font-bold mb-8 mt-4 text-[#006532] text-center">Manage Order</h1>
+      <div className="w-5/6 p-4 ml-[260px]">
+        <h1 className="text-4xl font-bold mb-8 mt-4 text-[#006532] text-center">Quản lý đơn hàng</h1>
        
           <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4 ">
               <div

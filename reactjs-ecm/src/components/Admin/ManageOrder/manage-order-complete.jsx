@@ -147,7 +147,7 @@ useEffect(() => {
   return (
     <div className="bg-gray-100 min-h-screen">
       <AdminHeader />
-      <div className="w-full p-4">
+      <div className="w-5/6 p-4 ml-[260px]">
         <h1 className="text-4xl font-bold mb-8 mt-4 text-[#006532] text-center">Đơn hàng đã hoàn thành</h1>
     
         {/* Tìm kiếm và lọc */}

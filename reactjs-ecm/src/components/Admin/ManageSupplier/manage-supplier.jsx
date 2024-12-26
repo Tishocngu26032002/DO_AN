@@ -365,7 +365,7 @@ const [showConfirmDeleteMultiple, setShowConfirmDeleteMultiple] = useState(false
       </div>
       <NotificationHandler setNotifications={setNotifications} />
       <AdminHeader />
-      <div className="p-4 lg:mx-12">
+      <div className="w-5/6 p-4 ml-[260px]">
       <h1 className="mb-8 mt-4 text-center text-4xl font-bold text-[#006532]">
           Manage Suppliers
         </h1>

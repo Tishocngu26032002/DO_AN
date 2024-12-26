@@ -394,7 +394,7 @@ const ManageImport = () => {
     </div>
   </div>
 )}
-      <div className="lg:mx-12 p-4">
+      <div className="w-5/6 p-4 ml-[260px]">
         <h1 className="text-4xl font-bold mb-8 mt-4 text-[#006532] text-start">Quản lý đơn nhập hàng</h1>
 
         {/* Thanh tìm kiếm và bộ lọc */}
