@@ -48,7 +48,7 @@ function RegisterForm() {
       return response.data;
     },
     onSuccess: (response) => {
-      if (response && response.success === false) {
+      if (response && response.success === true) {
         alert("Vui lòng kiểm tra Email nhận OTP");
         navigate("/otp", { state: { email } });
       }

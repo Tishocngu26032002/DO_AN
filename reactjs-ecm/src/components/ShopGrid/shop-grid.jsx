@@ -217,26 +217,71 @@ const ShopGrid = () => {
     ));
   };
 
+  // const renderPagination = () => {
+  //   if (params.total < PER_PAGE) return null;
+
+  //   const totalPages = Math.ceil(params.total / PER_PAGE);
+  //   return (
+  //     <div id="pagination" className="section-p1">
+  //       {[...Array(totalPages)].map((_, index) => (
+  //         <a
+  //           key={index + 1}
+  //           data-page={index + 1}
+  //           className={`page ${
+  //             params.page === index + 1
+  //               ? "active bg-[#088178] text-white"
+  //               : "bg-gray-200"
+  //           } mx-1 rounded p-2`}
+  //           onClick={() => handlePageChange(index + 1)}
+  //         >
+  //           {index + 1}
+  //         </a>
+  //       ))}
+  //     </div>
+  //   );
+  // };
+
   const renderPagination = () => {
     if (params.total < PER_PAGE) return null;
 
     const totalPages = Math.ceil(params.total / PER_PAGE);
+    const visiblePages = 5; // Hiển thị tối đa 5 trang
+
+    const startPage = Math.max(1, params.page - Math.floor(visiblePages / 2));
+    const endPage = Math.min(totalPages, startPage + visiblePages - 1);
+
     return (
       <div id="pagination" className="section-p1">
-        {[...Array(totalPages)].map((_, index) => (
+        {params.page > 1 && (
+          <button
+            className="page mx-1 rounded bg-gray-200 p-2"
+            onClick={() => handlePageChange(params.page - 1)}
+          >
+            Trước
+          </button>
+        )}
+        {[...Array(endPage - startPage + 1)].map((_, index) => (
           <a
-            key={index + 1}
-            data-page={index + 1}
+            key={startPage + index}
+            data-page={startPage + index}
             className={`page ${
-              params.page === index + 1
-                ? "active bg-[#088178] text-white"
+              params.page === startPage + index
+                ? "active bg-[#006532] text-white"
                 : "bg-gray-200"
             } mx-1 rounded p-2`}
-            onClick={() => handlePageChange(index + 1)}
+            onClick={() => handlePageChange(startPage + index)}
           >
-            {index + 1}
+            {startPage + index}
           </a>
         ))}
+        {params.page < totalPages && (
+          <button
+            className="page mx-1 rounded bg-gray-200 p-2"
+            onClick={() => handlePageChange(params.page + 1)}
+          >
+            Tiếp
+          </button>
+        )}
       </div>
     );
   };
