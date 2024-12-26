@@ -326,7 +326,7 @@ const Checkout = () => {
                 Phương thức thanh toán
               </h3>
               <div className="shadow-lg flex space-x-4 rounded-lg border border-gray-200 bg-white p-6">
-                {["Thanh toán khi nhận hàng", "Chuyển khoản ngân hàng"].map(
+                {["Thanh toán khi nhận hàng", "Thanh toán qua MOMO"].map(
                   (method) => (
                     <button
                       key={method}
@@ -339,7 +339,7 @@ const Checkout = () => {
                     >
                       {method === "Thanh toán khi nhận hàng"
                         ? "Thanh toán khi nhận hàng"
-                        : "Chuyển khoản ngân hàng"}
+                        : "Thanh toán qua MOMO"}
                     </button>
                   ),
                 )}
