@@ -1,9 +1,15 @@
 import AdminHeader from "../AdminHeader/admin-header.jsx";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
-import { uploadImage } from '../../../services/image-service.js';
-import { fetchProducts, searchProducts, addProduct, editProduct, deleteProduct } from '../../../services/product-service.js';
+import { FaTrash, FaEdit, FaPlus } from "react-icons/fa";
+import { uploadImage } from "../../../services/image-service.js";
+import {
+  fetchProducts,
+  searchProducts,
+  addProduct,
+  editProduct,
+  deleteProduct,
+} from "../../../services/product-service.js";
 import { getCategory } from "../../../services/category-service.js";
 import { getSupplier } from "../../../services/supplier-service.js";
 
@@ -22,7 +28,7 @@ const ManageProduct = () => {
     description: "",
     stockQuantity: "",
     weight: "",
-    expire_date: ""
+    expire_date: "",
   });
   const [filterCategory, setFilterCategory] = useState("");
   const [category, setCategory] = useState([]);
@@ -70,7 +76,7 @@ const ManageProduct = () => {
         if (!searchMode) {
           const { products: productsData, totalProducts } = await fetchProducts(
             currentPage,
-            productsPerPage
+            productsPerPage,
           );
           setProducts(productsData || []);
           setFilteredProducts(productsData || []);
@@ -90,14 +96,18 @@ const ManageProduct = () => {
         ...form,
         expire_date: form.expire_date
           ? new Date(form.expire_date).toISOString().split("T")[0]
-          : ""
+          : "",
       };
 
       if (form.url_image) {
         setLoading(true); // Bắt đầu trạng thái tải
         try {
           const uploadResult = await uploadImage(form.url_image); // Gọi service upload
-          if (uploadResult && Array.isArray(uploadResult) && uploadResult.length > 0) {
+          if (
+            uploadResult &&
+            Array.isArray(uploadResult) &&
+            uploadResult.length > 0
+          ) {
             let imageUrl = JSON.stringify(uploadResult[0]);
             // Loại bỏ dấu ngoặc kép nếu có
             if (imageUrl.startsWith('"') && imageUrl.endsWith('"')) {
@@ -115,7 +125,7 @@ const ManageProduct = () => {
             JSON.stringify({
               message: "Lỗi trong quá trình thêm ảnh. Vui lòng thử lại",
               type: notificationTypes.ERROR,
-            })
+            }),
           );
           return; // Kết thúc sớm nếu lỗi
         } finally {
@@ -128,8 +138,8 @@ const ManageProduct = () => {
         window.location.reload();
         setProducts(
           products.map((product) =>
-            product.id === editId ? { ...formattedForm, id: editId } : product
-          )
+            product.id === editId ? { ...formattedForm, id: editId } : product,
+          ),
         );
         setEditMode(false);
         setEditId(null);
@@ -149,7 +159,7 @@ const ManageProduct = () => {
         description: "",
         stockQuantity: "",
         weight: "",
-        expire_date: ""
+        expire_date: "",
       });
       setIsModalOpen(false);
       handleFilter(filterCategory);
@@ -172,7 +182,9 @@ const ManageProduct = () => {
     setFilterCategory(categoryId);
     setSearchMode(false);
     if (categoryId) {
-      setFilteredProducts(products.filter((product) => product.category_id === categoryId));
+      setFilteredProducts(
+        products.filter((product) => product.category_id === categoryId),
+      );
     } else {
       setFilteredProducts(products);
     }
@@ -186,11 +198,8 @@ const ManageProduct = () => {
 
     const fetchFilteredProducts = async () => {
       try {
-        const { products: searchedProducts, totalProducts } = await searchProducts(
-          currentPage,
-          productsPerPage,
-          filters
-        );
+        const { products: searchedProducts, totalProducts } =
+          await searchProducts(currentPage, productsPerPage, filters);
         setFilteredProducts(searchedProducts || []);
         setTotalProducts(totalProducts);
       } catch (error) {
@@ -224,7 +233,7 @@ const ManageProduct = () => {
       description: product.description,
       stockQuantity: product.stockQuantity,
       weight: product.weight,
-      expire_date: product.expire_date
+      expire_date: product.expire_date,
     });
     setEditMode(true);
     setEditId(id);
@@ -241,42 +250,48 @@ const ManageProduct = () => {
     <>
       <AdminHeader />
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4 text-[#225a3e]">Quản lý sản phẩm</h1>
+        <h1 className="mb-4 text-2xl font-bold text-[#225a3e]">
+          Quản lý sản phẩm
+        </h1>
 
-        <div className="p-4 bg-white shadow-md rounded-md mb-4">
-          <h2 className="text-xl font-bold mb-4">Tìm kiếm sản phẩm</h2>
+        <div className="shadow-md mb-4 rounded-md bg-white p-4">
+          <h2 className="mb-4 text-xl font-bold">Tìm kiếm sản phẩm</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block mb-2 font-medium">Tên sản phẩm</label>
+              <label className="mb-2 block font-medium">Tên sản phẩm</label>
               <input
                 type="text"
                 value={searchQuery.name}
-                onChange={(e) => setSearchQuery({ ...searchQuery, name: e.target.value })}
-                className="w-full p-2 border border-gray-300 rounded-md"
+                onChange={(e) =>
+                  setSearchQuery({ ...searchQuery, name: e.target.value })
+                }
+                className="w-full rounded-md border border-gray-300 p-2"
                 placeholder="Nhập tên sản phẩm"
               />
             </div>
             <div>
-              <label className="block mb-2 font-medium">Danh mục</label>
+              <label className="mb-2 block font-medium">Danh mục</label>
               <select
                 value={filterCategory}
                 onChange={(e) => handleFilter(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
+                className="w-full rounded-md border border-gray-300 p-2"
               >
                 <option value="">Tất cả danh mục</option>
-              {category.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
+                {category.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
         </div>
         {/* Product List */}
         <div>
-          <h2 className="text-xl font-bold mb-4 text-[#225a3e]">Danh sách sản phẩm</h2>
-          <table className="table-auto w-full text-left border-collapse border border-gray-300">
+          <h2 className="mb-4 text-xl font-bold text-[#225a3e]">
+            Danh sách sản phẩm
+          </h2>
+          <table className="w-full table-auto border-collapse border border-gray-300 text-left">
             <thead className="bg-[#225a3e] text-white">
               <tr>
                 <th className="border px-4 py-2">STT</th>
@@ -300,29 +315,38 @@ const ManageProduct = () => {
                     <td className="border px-4 py-2">{product.name}</td>
                     <td className="border px-4 py-2">{product.priceout}</td>
                     <td className="border px-4 py-2">
-                      {category.find((category) => category.id === product.category_id)?.name || "Không rõ"}
+                      {category.find(
+                        (category) => category.id === product.category_id,
+                      )?.name || "Không rõ"}
                     </td>
                     <td className="border px-4 py-2">
-                      {supplier.find((supplier) => supplier.id === product.supplier_id)?.name || "Không rõ"}
+                      {supplier.find(
+                        (supplier) => supplier.id === product.supplier_id,
+                      )?.name || "Không rõ"}
                     </td>
                     <td className="border px-4 py-2">{product.description}</td>
-                    <td className="border px-4 py-2">{product.stockQuantity}</td>
+                    <td className="border px-4 py-2">
+                      {product.stockQuantity}
+                    </td>
                     <td className="border px-4 py-2">{product.weight}</td>
                     <td className="border px-4 py-2 text-center">
                       <img
                         src={product.url_image}
                         alt={product.name}
-                        className="h-12 mx-auto"
+                        className="mx-auto h-12"
                       />
                     </td>
                     <td className="border px-4 py-2">
-                      {new Date(product.expire_date).toLocaleDateString("vi-VN", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })}
+                      {new Date(product.expire_date).toLocaleDateString(
+                        "vi-VN",
+                        {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        },
+                      )}
                     </td>
-                    <td className="px-4 py-2 flex justify-center space-x-2">
+                    <td className="flex justify-center space-x-2 px-4 py-2">
                       <button
                         onClick={() => handleEdit(product.id)}
                         className="text-[#225a3e] hover:text-green-700"
@@ -340,7 +364,7 @@ const ManageProduct = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="10" className="text-center py-4">
+                  <td colSpan="10" className="py-4 text-center">
                     Không có sản phẩm nào.
                   </td>
                 </tr>
@@ -349,41 +373,50 @@ const ManageProduct = () => {
           </table>
         </div>
 
-
         {/* Floating Add Button */}
         <button
           onClick={() => setIsModalOpen(true)}
-          className="fixed bottom-4 right-4 bg-[#225a3e] text-white p-4 rounded-full shadow-lg"
+          className="shadow-lg fixed bottom-4 right-4 rounded-full bg-[#225a3e] p-4 text-white"
         >
           <FaPlus />
         </button>
 
         {/* Product Form Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-1/3">
-              <h2 className="text-xl font-bold mb-4">
-                {editMode ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm'}
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
+            <div className="shadow-lg w-1/3 rounded bg-white p-6">
+              <h2 className="mb-4 text-xl font-bold">
+                {editMode ? "Cập nhật sản phẩm" : "Thêm sản phẩm"}
               </h2>
               <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-2 gap-4">
                   {/* Form Fields */}
                   {[
-                    { label: 'Tên sản phẩm', field: 'name', type: 'text' },
-                    { label: 'Giá', field: 'priceout', type: 'number' },
-                    { label: 'Mô tả', field: 'description', type: 'text' },
-                    { label: 'Số lượng trong kho', field: 'stockQuantity', type: 'number' },
-                    { label: 'Khối lượng', field: 'weight', type: 'number' },
-                    { label: 'Ngày hết hạn', field: 'expire_date', type: 'date' },
+                    { label: "Tên sản phẩm", field: "name", type: "text" },
+                    { label: "Giá", field: "priceout", type: "number" },
+                    { label: "Mô tả", field: "description", type: "text" },
+                    {
+                      label: "Số lượng trong kho",
+                      field: "stockQuantity",
+                      type: "number",
+                    },
+                    { label: "Khối lượng", field: "weight", type: "number" },
+                    {
+                      label: "Ngày hết hạn",
+                      field: "expire_date",
+                      type: "date",
+                    },
                   ].map(({ label, field, type }, index) => (
                     <div className="mb-4" key={index}>
                       <label className="block text-gray-700">{label}</label>
                       <input
                         type={type}
-                        value={form[field] || ''}
-                        onChange={(e) => setForm({ ...form, [field]: e.target.value })}
-                        className="w-full p-2 border border-gray-300 rounded focus:border-[#225a3e]"
-                        required={field !== 'supplier'} // Set 'required' if field is not optional
+                        value={form[field] || ""}
+                        onChange={(e) =>
+                          setForm({ ...form, [field]: e.target.value })
+                        }
+                        className="w-full rounded border border-gray-300 p-2 focus:border-[#225a3e]"
+                        required={field !== "supplier"} // Set 'required' if field is not optional
                       />
                     </div>
                   ))}
@@ -394,9 +427,11 @@ const ManageProduct = () => {
                     <select
                       id="category"
                       value={form.category_id}
-                      onChange={(e) => setForm({ ...form, category_id: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, category_id: e.target.value })
+                      }
                       required
-                      className="w-full p-2 border border-gray-300 rounded focus:border-[#225a3e]"
+                      className="w-full rounded border border-gray-300 p-2 focus:border-[#225a3e]"
                     >
                       <option value="">-- Chọn danh mục --</option>
                       {category.map((category) => (
@@ -409,13 +444,17 @@ const ManageProduct = () => {
 
                   {/* Dropdown for supplier */}
                   <div className="mb-4">
-                    <label className="block text-gray-700">Chọn nhà cung cấp</label>
+                    <label className="block text-gray-700">
+                      Chọn nhà cung cấp
+                    </label>
                     <select
                       id="supplier"
                       value={form.supplier_id}
-                      onChange={(e) => setForm({ ...form, supplier_id: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, supplier_id: e.target.value })
+                      }
                       required
-                      className="w-full p-2 border border-gray-300 rounded focus:border-[#225a3e]"
+                      className="w-full rounded border border-gray-300 p-2 focus:border-[#225a3e]"
                     >
                       <option value="">-- Chọn nhà cung cấp --</option>
                       {supplier.map((supplier) => (
@@ -434,23 +473,34 @@ const ManageProduct = () => {
                     type="file"
                     name="url_image"
                     onChange={handleImageChange} // Xử lý sự kiện chọn ảnh
-                    className="w-full p-2 border border-gray-300 rounded focus:border-[#225a3e]"
+                    className="w-full rounded border border-gray-300 p-2 focus:border-[#225a3e]"
                   />
                 </div>
 
                 {/* Buttons */}
                 <div className="flex justify-end">
-                  <button type="submit" className="bg-[#225a3e] text-white p-2 rounded">
-                    {editMode ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm'}
+                  <button
+                    type="submit"
+                    className="rounded bg-[#225a3e] p-2 text-white"
+                  >
+                    {editMode ? "Cập nhật sản phẩm" : "Thêm sản phẩm"}
                   </button>
                   <button
                     type="button"
                     onClick={() => {
                       setIsModalOpen(false);
                       setEditMode(false);
-                      setForm({ name: '', priceout: '', description: '', stockQuantity: '', weight: '', expire_date: '', url_image: '' });
+                      setForm({
+                        name: "",
+                        priceout: "",
+                        description: "",
+                        stockQuantity: "",
+                        weight: "",
+                        expire_date: "",
+                        url_image: "",
+                      });
                     }}
-                    className="bg-gray-500 text-white p-2 ml-2 rounded"
+                    className="ml-2 rounded bg-gray-500 p-2 text-white"
                   >
                     Hủy
                   </button>

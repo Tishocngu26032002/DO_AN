@@ -1,9 +1,25 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import Header from "../Header/header";
 import Footer from "../Footer/footer";
 import { useCart } from "../../Context/CartContext";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getOrderDetails } from "../../services/order-service";
+import { getUserId } from "../../util/auth-local";
 
 const OrderDetails = () => {
+  const location = useLocation();
+  const { orderId } = location.state || {}; // Lấy response từ state
+  console.log("orderId", orderId);
+
+  const [orderDetails, setOrderDetails] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
+
+  const userId = getUserId();
+
   const {
     carts,
     setCarts,
@@ -15,57 +31,36 @@ const OrderDetails = () => {
 
   console.log("selectedCartItems", selectedCartItems);
 
-  // Dữ liệu mẫu về đơn hàng
-  const orderDetails = {
-    orderId: "12345",
-    orderDate: "07-11-2024",
-    customerName: "John Doe",
-    shippingAddress: "123 Main Street, City, Country",
-    phone: "0123456789",
-    paymentMethod: "Cash on Delivery",
-    deliveryStatus: "Pending",
-    products: [
-      {
-        id: 1,
-        name: "Orange Printed Tshirt",
-        quantity: 2,
-        price: 78.0,
-        size: "M",
-        imgSrc: "./images/product/262.png",
-      },
-      {
-        id: 2,
-        name: "Orange Printed Tshirt",
-        quantity: 1,
-        price: 78.0,
-        size: "L",
-        imgSrc: "./images/product/264.png",
-      },
-      {
-        id: 3,
-        name: "Orange Printed Tshirt",
-        quantity: 3,
-        price: 78.0,
-        size: "S",
-        imgSrc: "./images/product/266.png",
-      },
-    ],
+  useEffect(() => {
+    const fetchOrderDetails = async () => {
+      try {
+        const response = await getOrderDetails(orderId);
+        setOrderDetails(response.data);
+      } catch (error) {
+        console.error("Failed to fetch order details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (orderId) fetchOrderDetails();
+  }, [orderId]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  const calculateTotal = (products) => {
+    if (!products) return 0;
+    return products.reduce(
+      (total, product) => total + product.priceout * product.quantity,
+      0,
+    );
   };
 
-  // Tính tổng tiền đơn hàng
-  const calculateTotal = () => {
-    try {
-      const subtotal = orderDetails.products.reduce(
-        (total, product) => total + product.price * product.quantity,
-        0,
-      );
-      const deliveryFee = 35.0;
-      return subtotal + deliveryFee;
-    } catch (error) {
-      console.error("Error calculating total:", error);
-    }
-  };
-
+  {
+    console.log("orderDetails", orderDetails);
+  }
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
@@ -73,44 +68,47 @@ const OrderDetails = () => {
       <div className="container mx-auto p-6 md:p-12">
         <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-8 md:p-16">
           <h2 className="mb-6 text-3xl font-bold text-[#006532]">
-            Order Details
+            Chi tiết đặt hàng
           </h2>
 
           {/* Thông tin đơn hàng */}
           <div className="mb-8">
             <p className="text-lg text-gray-700">
-              Id đặt hàng:{" "}
-              <span className="font-semibold">{orderDetails.orderId}</span>
+              Mã đơn hàng: <span className="font-semibold">OR35273</span>
             </p>
             <p className="text-lg text-gray-700">
               Ngày đặt hàng:{" "}
-              <span className="font-semibold">{orderDetails.orderDate}</span>
+              <span className="font-semibold">
+                {new Date(orderDetails.createdAt).toLocaleDateString()}
+              </span>
             </p>
             <p className="text-lg text-gray-700">
               Họ và tên:{" "}
-              <span className="font-semibold">{orderDetails.customerName}</span>
+              <span className="font-semibold">
+                {orderDetails.location.name}
+              </span>
             </p>
             <p className="text-lg text-gray-700">
               Địa chỉ:{" "}
               <span className="font-semibold">
-                {orderDetails.shippingAddress}
+                {orderDetails.location.address}
               </span>
             </p>
             <p className="text-lg text-gray-700">
               Số điện thoại:{" "}
-              <span className="font-semibold">{orderDetails.phone}</span>
+              <span className="font-semibold">
+                {orderDetails.location.phone}
+              </span>
             </p>
             <p className="text-lg text-gray-700">
               Phương thức thanh toán:{" "}
               <span className="font-semibold">
-                {orderDetails.paymentMethod}
+                {orderDetails.payment_method}
               </span>
             </p>
             <p className="text-lg text-gray-700">
               Trạng thái giao hàng:{" "}
-              <span className="font-semibold">
-                {orderDetails.deliveryStatus}
-              </span>
+              <span className="font-semibold">{orderDetails.orderStatus}</span>
             </p>
           </div>
 
@@ -119,26 +117,36 @@ const OrderDetails = () => {
             Products
           </h3>
           <div className="grid grid-cols-1 gap-4">
-            {orderDetails.products.map((product) => (
+            {orderDetails.orderProducts.map((product) => (
               <div
                 key={product.id}
                 className="shadow-lg flex items-center space-x-4 rounded-lg border border-gray-200 bg-white p-4"
               >
                 <img
-                  src={product.imgSrc}
-                  alt={product.name}
+                  // src={product.imgSrc}
+                  src="Image"
+                  alt={product.product.name}
                   className="h-24 w-24 rounded-lg"
                 />
                 <div>
                   <h4 className="text-lg font-semibold text-[#006532]">
-                    {product.name}
+                    {product.product.name}
+                    {/* Cám cá rô */}
                   </h4>
                   <p className="text-sm text-gray-500">
-                    Quantity: {product.quantity}
+                    Số lượng: {product.quantity}
                   </p>
-                  <p className="text-sm text-gray-500">Size: {product.size}</p>
+                  <p className="text-sm text-gray-500">Bao: 30kg</p>
                   <p className="text-sm font-medium text-gray-700">
-                    Price: ${product.price}
+                    <div className="flex gap-1">
+                      <div>Số tiền:</div>
+                      <h4 className="flex gap-1">
+                        <p className="underline">đ</p>
+                        {new Intl.NumberFormat("vi-VN").format(
+                          product.priceout,
+                        )}
+                      </h4>
+                    </div>
                   </p>
                 </div>
               </div>
@@ -149,25 +157,37 @@ const OrderDetails = () => {
           <div className="shadow-lg mt-6 rounded-lg border border-gray-200 bg-white p-4">
             <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
               <span>Tổng phụ</span>
+
               <span>
-                {orderDetails.products
-                  .reduce(
-                    (total, product) =>
-                      total + product.price * product.quantity,
-                    0,
-                  )
-                  .toFixed(2)}
-                đ
+                <span className="underline">đ</span>{" "}
+                {new Intl.NumberFormat("vi-VN").format(
+                  calculateTotal(orderDetails.orderProducts),
+                )}
               </span>
             </div>
             <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
               <span>Phí giao hàng</span>
-              <span>0đ</span>
+              <span>
+                <span className="underline">đ</span> 0
+              </span>
             </div>
             <div className="flex items-center justify-between text-lg font-semibold text-[#006532]">
               <span>Tổng cộng</span>
-              <span>{calculateTotal().toFixed(2)}đ</span>
+              <span>
+                <span className="underline">đ</span>{" "}
+                {new Intl.NumberFormat("vi-VN").format(
+                  calculateTotal(orderDetails.orderProducts),
+                )}
+              </span>
             </div>
+          </div>
+          <div className="mt-8 flex justify-center">
+            <button
+              onClick={() => navigate(`/order-history/${userId}`)}
+              className="w-full rounded-lg bg-[#006532] px-4 py-2 text-center text-white hover:bg-[#004721] md:w-auto"
+            >
+              Lịch sử đơn hàng
+            </button>
           </div>
         </div>
       </div>
