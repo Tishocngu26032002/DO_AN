@@ -1,6 +1,6 @@
 import axios from "axios";
 import { format } from "date-fns";
-import { getToken } from "../util/auth-local";
+import { getToken, userIdLocal } from "../util/auth-local";
 
 const BASE_URL = "http://localhost:6006";
 
@@ -173,7 +173,7 @@ export const addProduct = async (formData) => {
 export const editProduct = async (id, formData) => {
   try {
     const token = getToken();
-    const response = await axios.patch(`${BASE_URL}/product`, formData, {
+    const response = await axios.patch(`${BASE_URL}/product/${userIdLocal}`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
