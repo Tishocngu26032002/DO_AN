@@ -11,6 +11,7 @@ import {
   deleteProduct,
 } from "../../../services/product-service.js";
 import { getCategory } from "../../../services/category-service.js";
+import { getSupplier } from "../../../services/supplier-service.js";
 
 const ManageProduct = () => {
   const { currentPage: pageParam, productsPerPage: perPageParam } = useParams();
@@ -18,9 +19,9 @@ const ManageProduct = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [form, setForm] = useState({
+    id: "",
     name: "",
     priceout: "",
-    banner: "",
     category_id: "",
     supplier_id: "",
     url_image: "",
@@ -31,6 +32,7 @@ const ManageProduct = () => {
   });
   const [filterCategory, setFilterCategory] = useState("");
   const [category, setCategory] = useState([]);
+  const [supplier, setSupplier] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
   const [searchQuery, setSearchQuery] = useState({
@@ -40,6 +42,7 @@ const ManageProduct = () => {
   const [searchMode, setSearchMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [totalProducts, setTotalProducts] = useState();
+  const [loading, setLoading] = useState(false);
   const currentPage = parseInt(pageParam) || 1;
   const productsPerPage = parseInt(perPageParam) || 8;
 
@@ -47,14 +50,25 @@ const ManageProduct = () => {
     const loadCategories = async () => {
       try {
         const response = await getCategory(1, 20);
-
         setCategory(response.data.data);
       } catch (error) {
         console.log(error);
       }
     };
     loadCategories();
-  });
+  }, []);
+
+  useEffect(() => {
+    const loadSupplier = async () => {
+      try {
+        const response = await getSupplier(1, 20);
+        setSupplier(response.data.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    loadSupplier();
+  }, []);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -85,14 +99,41 @@ const ManageProduct = () => {
           : "",
       };
 
-      // Upload hình ảnh nếu có
       if (form.url_image) {
-        const uploadResult = await uploadImage(form.url_image); // Gọi service upload
-        formattedForm.url_image = uploadResult.imageUrl; // Gán URL từ API trả về
+        setLoading(true); // Bắt đầu trạng thái tải
+        try {
+          const uploadResult = await uploadImage(form.url_image); // Gọi service upload
+          if (
+            uploadResult &&
+            Array.isArray(uploadResult) &&
+            uploadResult.length > 0
+          ) {
+            let imageUrl = JSON.stringify(uploadResult[0]);
+            // Loại bỏ dấu ngoặc kép nếu có
+            if (imageUrl.startsWith('"') && imageUrl.endsWith('"')) {
+              imageUrl = imageUrl.slice(1, -1);
+            }
+            formattedForm.url_image = imageUrl; // Gán URL vào form
+          } else {
+            console.error("No URL returned from the server.");
+            throw new Error("Upload image failed.");
+          }
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          sessionStorage.setItem(
+            "notification",
+            JSON.stringify({
+              message: "Lỗi trong quá trình thêm ảnh. Vui lòng thử lại",
+              type: notificationTypes.ERROR,
+            }),
+          );
+          return; // Kết thúc sớm nếu lỗi
+        } finally {
+          setLoading(false); // Kết thúc trạng thái tải
+        }
       }
 
       if (editMode) {
-        // Chế độ chỉnh sửa
         await editProduct(editId, formattedForm);
         window.location.reload();
         setProducts(
@@ -103,18 +144,15 @@ const ManageProduct = () => {
         setEditMode(false);
         setEditId(null);
       } else {
-        // Chế độ thêm sản phẩm mới
         const newProduct = await addProduct(formattedForm);
-        console.log("newProduct", newProduct);
+        window.location.reload();
         setProducts([...products, newProduct]);
       }
 
-      // Reset form và đóng modal
       setForm({
         id: "",
         name: "",
         priceout: "",
-        banner: "",
         category_id: "",
         supplier_id: "",
         url_image: "",
@@ -130,8 +168,19 @@ const ManageProduct = () => {
     }
   };
 
+  const handleImageChange = (e) => {
+    const { files } = e.target;
+    if (files && files.length > 0) {
+      setForm((prevForm) => ({
+        ...prevForm,
+        url_image: files[0], // Lưu file vào state
+      }));
+    }
+  };
+
   const handleFilter = (categoryId) => {
     setFilterCategory(categoryId);
+    setSearchMode(false);
     if (categoryId) {
       setFilteredProducts(
         products.filter((product) => product.category_id === categoryId),
@@ -139,9 +188,6 @@ const ManageProduct = () => {
     } else {
       setFilteredProducts(products);
     }
-  };
-  const handleImageChange = (e) => {
-    setForm({ ...form, url_image: e.target.files[0] });
   };
 
   useEffect(() => {
@@ -181,7 +227,6 @@ const ManageProduct = () => {
       id: product.id,
       name: product.name,
       priceout: product.priceout,
-      banner: product.banner,
       category_id: product.category_id,
       supplier_id: product.supplier_id,
       url_image: product.url_image,
@@ -253,6 +298,7 @@ const ManageProduct = () => {
                 <th className="border px-4 py-2">Tên sản phẩm</th>
                 <th className="border px-4 py-2">Giá</th>
                 <th className="border px-4 py-2">Danh mục</th>
+                <th className="border px-4 py-2">Nhà cung cấp</th>
                 <th className="border px-4 py-2">Mô tả</th>
                 <th className="border px-4 py-2">Số lượng trong kho</th>
                 <th className="border px-4 py-2">Khối lượng</th>
@@ -264,13 +310,19 @@ const ManageProduct = () => {
             <tbody>
               {filteredProducts.length > 0 ? (
                 filteredProducts.map((product, index) => (
-                  <tr key={product.id} className="border-t">
+                  <tr key={index} className="border-t">
                     <td className="border px-4 py-2">{index + 1}</td>
                     <td className="border px-4 py-2">{product.name}</td>
                     <td className="border px-4 py-2">{product.priceout}</td>
                     <td className="border px-4 py-2">
-                      {category.find((cat) => cat.id === product.category_id)
-                        ?.name || "Không rõ"}
+                      {category.find(
+                        (category) => category.id === product.category_id,
+                      )?.name || "Không rõ"}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {supplier.find(
+                        (supplier) => supplier.id === product.supplier_id,
+                      )?.name || "Không rõ"}
                     </td>
                     <td className="border px-4 py-2">{product.description}</td>
                     <td className="border px-4 py-2">
@@ -337,74 +389,127 @@ const ManageProduct = () => {
                 {editMode ? "Cập nhật sản phẩm" : "Thêm sản phẩm"}
               </h2>
               <form onSubmit={handleSubmit}>
-                {/* Form Fields */}
-                {[
-                  { label: "Tên sản phẩm", field: "name", type: "text" },
-                  { label: "Giá", field: "priceout", type: "number" },
-                  { label: "Mô tả", field: "description", type: "text" },
-                  {
-                    label: "Số lượng trong kho",
-                    field: "stockQuantity",
-                    type: "number",
-                  },
-                  { label: "Khối lượng", field: "weight", type: "number" },
-                  { label: "Ngày hết hạn", field: "expire_date", type: "date" },
-                ].map(({ label, field, type }, index) => (
-                  <div className="mb-4" key={index}>
-                    <label className="block text-gray-700">{label}</label>
-                    <input
-                      type={type}
-                      value={form[field] || ""}
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Form Fields */}
+                  {[
+                    { label: "Tên sản phẩm", field: "name", type: "text" },
+                    { label: "Giá", field: "priceout", type: "number" },
+                    { label: "Mô tả", field: "description", type: "text" },
+                    {
+                      label: "Số lượng trong kho",
+                      field: "stockQuantity",
+                      type: "number",
+                    },
+                    { label: "Khối lượng", field: "weight", type: "number" },
+                    {
+                      label: "Ngày hết hạn",
+                      field: "expire_date",
+                      type: "date",
+                    },
+                  ].map(({ label, field, type }, index) => (
+                    <div className="mb-4" key={index}>
+                      <label className="block text-gray-700">{label}</label>
+                      <input
+                        type={type}
+                        value={form[field] || ""}
+                        onChange={(e) =>
+                          setForm({ ...form, [field]: e.target.value })
+                        }
+                        className="w-full rounded border border-gray-300 p-2 focus:border-[#225a3e]"
+                        required={field !== "supplier"} // Set 'required' if field is not optional
+                      />
+                    </div>
+                  ))}
+
+                  {/* Dropdown for category */}
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Chọn danh mục</label>
+                    <select
+                      id="category"
+                      value={form.category_id}
                       onChange={(e) =>
-                        setForm({ ...form, [field]: e.target.value })
+                        setForm({ ...form, category_id: e.target.value })
                       }
+                      required
                       className="w-full rounded border border-gray-300 p-2 focus:border-[#225a3e]"
-                      required={field !== "supplier"} // Set 'required' if field is not optional
-                    />
+                    >
+                      <option value="">-- Chọn danh mục --</option>
+                      {category.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                ))}
+
+                  {/* Dropdown for supplier */}
+                  <div className="mb-4">
+                    <label className="block text-gray-700">
+                      Chọn nhà cung cấp
+                    </label>
+                    <select
+                      id="supplier"
+                      value={form.supplier_id}
+                      onChange={(e) =>
+                        setForm({ ...form, supplier_id: e.target.value })
+                      }
+                      required
+                      className="w-full rounded border border-gray-300 p-2 focus:border-[#225a3e]"
+                    >
+                      <option value="">-- Chọn nhà cung cấp --</option>
+                      {supplier.map((supplier) => (
+                        <option key={supplier.id} value={supplier.id}>
+                          {supplier.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
                 {/* Input for image upload */}
                 <div className="mb-4">
                   <label className="block text-gray-700">Hình ảnh</label>
                   <input
                     type="file"
-                    accept="image/*"
+                    name="url_image"
                     onChange={handleImageChange} // Xử lý sự kiện chọn ảnh
                     className="w-full rounded border border-gray-300 p-2 focus:border-[#225a3e]"
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  className="rounded bg-[#225a3e] p-2 text-white"
-                >
-                  {editMode ? "Cập nhật sản phẩm" : "Thêm sản phẩm"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsModalOpen(false);
-                    setEditMode(false);
-                    setForm({
-                      name: "",
-                      priceout: "",
-                      banner: "",
-                      description: "",
-                      stockQuantity: "",
-                      weight: "",
-                      expire_date: "",
-                      url_image: "",
-                    });
-                  }}
-                  className="ml-2 rounded bg-gray-500 p-2 text-white"
-                >
-                  Hủy
-                </button>
+                {/* Buttons */}
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    className="rounded bg-[#225a3e] p-2 text-white"
+                  >
+                    {editMode ? "Cập nhật sản phẩm" : "Thêm sản phẩm"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      setEditMode(false);
+                      setForm({
+                        name: "",
+                        priceout: "",
+                        description: "",
+                        stockQuantity: "",
+                        weight: "",
+                        expire_date: "",
+                        url_image: "",
+                      });
+                    }}
+                    className="ml-2 rounded bg-gray-500 p-2 text-white"
+                  >
+                    Hủy
+                  </button>
+                </div>
               </form>
             </div>
           </div>
         )}
+
         <div className="mt-4 flex justify-center">
           {Array.from({ length: totalPages }, (_, index) => (
             <button

@@ -68,6 +68,7 @@ root.render(
                   <Route path="/order-success" element={<OrderSuccess />} />
                   <Route path="/order-details" element={<OrderDetails />} />
                   <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/user/:userId" element={<UserProfile />} />
                   <Route
                     path="/change-password/:userId"
                     element={<ChangePassword />}

@@ -122,6 +122,32 @@ const OrderHistory = () => {
   return (
     <>
       <Header />
+      {/* Sidebar thống kê */}
+      <div className="min-h-screen w-1/4 bg-[#006532] p-6 text-white">
+        <h2 className="mb-6 mt-8 text-center text-xl font-semibold">
+          Thống kê
+        </h2>
+        <div className="space-y-4">
+          <div className="rounded-md bg-green-700 p-4">
+            <p className="text-lg font-medium">Tổng đơn hàng</p>
+            <p className="text-2xl font-bold">100</p>
+          </div>
+          <div className="rounded-md bg-green-700 p-4">
+            <p className="text-lg font-medium">Đơn đang kiểm</p>
+            <p className="text-2xl font-bold">25</p>
+          </div>
+          <div className="rounded-md bg-green-700 p-4">
+            <p className="text-lg font-medium">Đơn đã giao</p>
+            <p className="text-2xl font-bold">65</p>
+          </div>
+          <div className="rounded-md bg-green-700 p-4">
+            <p className="text-lg font-medium">Đơn đã hủy</p>
+            <p className="text-2xl font-bold">10</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Main content - Lịch sử đơn hàng */}
       <div className="mx-auto mt-12 max-w-4xl p-6">
         <h1 className="mb-4 text-2xl font-semibold text-[#006532]">
           Lịch sử đơn hàng
@@ -139,22 +165,14 @@ const OrderHistory = () => {
                   Mã đơn hàng: <span className="font-bold">{order.id}</span>
                 </p>
                 <p>
-                  Ngày đặt hàng:{" "}
-                  {new Date(order.createdAt).toLocaleDateString()}
+                  Ngày đặt: {new Date(order.createdAt).toLocaleDateString()}
                 </p>
-                <p>Trạng thái giao hàng: {order.orderStatus}</p>
+                <p>Trạng thái: {order.orderStatus}</p>
                 <p>
-                  {/* Tổng tiền:{" "}
+                  Tổng tiền:{" "}
                   <span className="font-semibold text-[#006532]">
-                    {order.total_price} VNĐ
-                  </span> */}
-                  <div className="flex gap-1">
-                    <div>Tổng tiền:</div>
-                    <h4 className="flex gap-1 font-semibold text-[#006532]">
-                      <p className="underline">đ</p>
-                      {new Intl.NumberFormat("vi-VN").format(order.total_price)}
-                    </h4>
-                  </div>
+                    {order.total_price.toLocaleString()} VNĐ
+                  </span>
                 </p>
                 <button
                   onClick={() => fetchOrderDetail(order.id)}
@@ -168,9 +186,9 @@ const OrderHistory = () => {
         )}
 
         {/* Pagination */}
-        {/* <div className="flex justify-between items-center mt-16">
+        <div className="mt-16 flex items-center justify-between">
           <button
-            className="px-4 py-2 bg-[#006532] text-white rounded-md hover:bg-opacity-90"
+            className="rounded-md bg-[#006532] px-4 py-2 text-white hover:bg-opacity-90"
             onClick={handlePrevPage}
             disabled={page === 1}
           >
@@ -178,22 +196,13 @@ const OrderHistory = () => {
           </button>
           <span>Trang {page}</span>
           <button
-            className="px-4 py-2 bg-[#006532] text-white rounded-md hover:bg-opacity-90"
+            className="rounded-md bg-[#006532] px-4 py-2 text-white hover:bg-opacity-90"
             onClick={handleNextPage}
             disabled={orders.length < limit}
           >
             Trang sau
           </button>
-        </div> */}
-
-        <section
-          id="pagination"
-          className="section-p1 flex justify-center space-x-2"
-        >
-          <div className="mb-4 mt-2 flex justify-center">
-            {renderPagination()}
-          </div>
-        </section>
+        </div>
 
         {/* Order Detail Modal */}
         {selectedOrder && (
@@ -202,12 +211,14 @@ const OrderHistory = () => {
               <h2 className="mb-4 text-xl font-semibold text-[#006532]">
                 Chi tiết đơn hàng {selectedOrder.id}
               </h2>
-              <p>Ngày đặt: {new Date(selectedOrder.createdAt)}</p>
+              <p>
+                Ngày đặt: {new Date(selectedOrder.createdAt).toLocaleString()}
+              </p>
               <p>Trạng thái: {selectedOrder.orderStatus}</p>
               <p>
                 Tổng tiền:{" "}
                 <span className="font-semibold text-[#006532]">
-                  {selectedOrder.total_price} VNĐ
+                  {selectedOrder.total_price.toLocaleString()} VNĐ
                 </span>
               </p>
               <h3 className="mt-4 font-medium text-[#006532]">
@@ -216,8 +227,8 @@ const OrderHistory = () => {
               <ul className="list-disc pl-5">
                 {selectedOrder.items.map((item) => (
                   <li key={item.product_id}>
-                    {item.product_name} - {item.quantity} x {item.unit_price}{" "}
-                    VNĐ
+                    {item.product_name} - {item.quantity} x{" "}
+                    {item.unit_price.toLocaleString()} VNĐ
                   </li>
                 ))}
               </ul>
