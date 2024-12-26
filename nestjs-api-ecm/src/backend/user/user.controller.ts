@@ -97,14 +97,13 @@ export class UserController {
   }
 
   //get info user for admin
-  @Get(':user_id/:user_id_get')
+  @Get(':user_id_get')
   @ApiOperation({
     summary: 'get info user by admin',
     description: 'get info user by admin',
   })
   @Roles('admin')
   async findOneByAdmin(
-    @Param('user_id') user_id: string,
     @Param('user_id_get') user_id_get: string,
   ) {
     try {
