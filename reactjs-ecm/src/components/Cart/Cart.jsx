@@ -260,7 +260,15 @@ const Cart = () => {
                               Bao: {cart.product.weight}kg
                             </small>
                             <small className="block">
-                              Đơn giá: {cart.product.priceout}đ
+                              <div className="flex gap-1">
+                                <div>Đơn giá:</div>
+                                <h4 className="flex gap-1">
+                                  <p className="underline">đ</p>
+                                  {new Intl.NumberFormat("vi-VN").format(
+                                    cart.product.priceout,
+                                  )}
+                                </h4>
+                              </div>
                             </small>
                             <button
                               onClick={() => handleDeleteCart(cart.id)}
@@ -298,7 +306,14 @@ const Cart = () => {
                         </div>
                       </td>
                       <td className="w-1/6 p-2 pr-6 text-right font-semibold text-[#006532]">
-                        {cart.product.priceout * cart.quantity}đ
+                        <p>
+                          <span className="text-sm font-normal underline">
+                            đ
+                          </span>{" "}
+                          {new Intl.NumberFormat("vi-VN").format(
+                            cart.product.priceout * cart.quantity,
+                          )}
+                        </p>
                       </td>
                     </tr>
                   ))}
@@ -313,7 +328,12 @@ const Cart = () => {
                         Tổng thanh toán
                       </td>
                       <td className="px-2 pt-5 text-right font-bold text-[#006532]">
-                        {totalCost}đ
+                        <p>
+                          <span className="text-sm font-normal underline">
+                            đ
+                          </span>{" "}
+                          {new Intl.NumberFormat("vi-VN").format(totalCost)}
+                        </p>
                       </td>
                     </tr>
                   </tbody>
@@ -325,7 +345,7 @@ const Cart = () => {
                   onClick={handleNavigate}
                   className="w-[320px] rounded border-2 border-[#006532] bg-[#006532] px-4 py-2 text-white hover:bg-[#80c9a4] hover:text-[#006532]"
                 >
-                  Thanh toán
+                  Mua hàng
                 </button>
               </div>
             </div>

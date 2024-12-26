@@ -291,6 +291,48 @@ const ManageOrder = () => {
     return `${formattedDate} ${time}`;
   };
 
+  const renderPagination = () => {
+    const visiblePages = 5; // Hiển thị tối đa 5 trang
+
+    const startPage = Math.max(1, currentPage - Math.floor(visiblePages / 2));
+    const endPage = Math.min(totalPages, startPage + visiblePages - 1);
+
+    return (
+      <div id="pagination" className="section-p1">
+        {currentPage > 1 && (
+          <button
+            className="page mx-1 rounded bg-gray-200 p-2"
+            onClick={() => handlePageChange(currentPage - 1)}
+          >
+            Trước
+          </button>
+        )}
+        {[...Array(endPage - startPage + 1)].map((_, index) => (
+          <a
+            key={startPage + index}
+            data-page={startPage + index}
+            className={`page ${
+              currentPage === startPage + index
+                ? "active bg-[#006532] text-white"
+                : "bg-gray-200"
+            } mx-1 rounded p-2`}
+            onClick={() => handlePageChange(startPage + index)}
+          >
+            {startPage + index}
+          </a>
+        ))}
+        {currentPage < totalPages && (
+          <button
+            className="page mx-1 rounded bg-gray-200 p-2"
+            onClick={() => handlePageChange(currentPage + 1)}
+          >
+            Tiếp
+          </button>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <AdminHeader />
@@ -788,9 +830,9 @@ const ManageOrder = () => {
           </div>
         )}
 
-        <div className="mt-4 flex justify-center">
-          {/* Hiển thị các nút phân trang */}
-          {Array.from({ length: totalPages }, (_, index) => (
+        {/* <div className="mt-4 flex justify-center"> */}
+        {/* Hiển thị các nút phân trang */}
+        {/* {Array.from({ length: totalPages }, (_, index) => (
             <button
               key={index + 1}
               onClick={() => handlePageChange(index + 1)}
@@ -799,8 +841,16 @@ const ManageOrder = () => {
             >
               {index + 1}
             </button>
-          ))}
-        </div>
+          ))} */}
+        {/* </div> */}
+        <section
+          id="pagination"
+          className="section-p1 flex justify-center space-x-2"
+        >
+          <div className="mb-4 mt-2 flex justify-center">
+            {renderPagination()}
+          </div>
+        </section>
       </div>
     </div>
   );

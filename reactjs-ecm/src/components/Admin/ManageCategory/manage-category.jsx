@@ -252,25 +252,70 @@ const ManageCategory = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // const renderPagination = () => {
+  //   if (params.total < PER_PAGE) return null;
+  //   const totalPages = Math.ceil(params.total / PER_PAGE);
+  //   return (
+  //     <div>
+  //       {[...Array(totalPages)].map((_, index) => (
+  //         <a
+  //           key={index + 1}
+  //           data-page={index + 1}
+  //           className={`mx-1 rounded px-3 py-1 ${
+  //             index + 1 === params.page
+  //               ? "bg-[#006532] text-white"
+  //               : "bg-gray-200 text-gray-800 hover:bg-blue-200"
+  //           }`}
+  //           onClick={() => handlePageChange(index + 1)}
+  //         >
+  //           {index + 1}
+  //         </a>
+  //       ))}
+  //     </div>
+  //   );
+  // };
+
   const renderPagination = () => {
     if (params.total < PER_PAGE) return null;
+
     const totalPages = Math.ceil(params.total / PER_PAGE);
+    const visiblePages = 5; // Hiển thị tối đa 5 trang
+
+    const startPage = Math.max(1, params.page - Math.floor(visiblePages / 2));
+    const endPage = Math.min(totalPages, startPage + visiblePages - 1);
+
     return (
-      <div>
-        {[...Array(totalPages)].map((_, index) => (
-          <a
-            key={index + 1}
-            data-page={index + 1}
-            className={`mx-1 rounded px-3 py-1 ${
-              index + 1 === params.page
-                ? "bg-[#006532] text-white"
-                : "bg-gray-200 text-gray-800 hover:bg-blue-200"
-            }`}
-            onClick={() => handlePageChange(index + 1)}
+      <div id="pagination" className="section-p1">
+        {params.page > 1 && (
+          <button
+            className="page mx-1 rounded bg-gray-200 p-2"
+            onClick={() => handlePageChange(params.page - 1)}
           >
-            {index + 1}
+            Trước
+          </button>
+        )}
+        {[...Array(endPage - startPage + 1)].map((_, index) => (
+          <a
+            key={startPage + index}
+            data-page={startPage + index}
+            className={`page ${
+              params.page === startPage + index
+                ? "active bg-[#006532] text-white"
+                : "bg-gray-200"
+            } mx-1 rounded p-2`}
+            onClick={() => handlePageChange(startPage + index)}
+          >
+            {startPage + index}
           </a>
         ))}
+        {params.page < totalPages && (
+          <button
+            className="page mx-1 rounded bg-gray-200 p-2"
+            onClick={() => handlePageChange(params.page + 1)}
+          >
+            Tiếp
+          </button>
+        )}
       </div>
     );
   };

@@ -3,8 +3,9 @@ import axios from "axios";
 import Header from "../Header/header";
 import Footer from "../Footer/footer";
 import { useCart } from "../../Context/CartContext";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getOrderDetails } from "../../services/order-service";
+import { getUserId } from "../../util/auth-local";
 
 const OrderDetails = () => {
   const location = useLocation();
@@ -14,6 +15,10 @@ const OrderDetails = () => {
   const [orderDetails, setOrderDetails] = useState([]);
 
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
+
+  const userId = getUserId();
 
   const {
     carts,
@@ -69,11 +74,13 @@ const OrderDetails = () => {
           {/* Thông tin đơn hàng */}
           <div className="mb-8">
             <p className="text-lg text-gray-700">
-              Mã đặt hàng: <span className="font-semibold">OR35273</span>
+              Mã đơn hàng: <span className="font-semibold">OR35273</span>
             </p>
             <p className="text-lg text-gray-700">
               Ngày đặt hàng:{" "}
-              <span className="font-semibold">{orderDetails.createdAt}</span>
+              <span className="font-semibold">
+                {new Date(orderDetails.createdAt).toLocaleDateString()}
+              </span>
             </p>
             <p className="text-lg text-gray-700">
               Họ và tên:{" "}
@@ -118,21 +125,28 @@ const OrderDetails = () => {
                 <img
                   // src={product.imgSrc}
                   src="Image"
-                  // alt={product.name}
-                  alt="Cám cá rô"
+                  alt={product.product.name}
                   className="h-24 w-24 rounded-lg"
                 />
                 <div>
                   <h4 className="text-lg font-semibold text-[#006532]">
-                    {/* {product.name} */}
-                    Cám cá rô
+                    {product.product.name}
+                    {/* Cám cá rô */}
                   </h4>
                   <p className="text-sm text-gray-500">
                     Số lượng: {product.quantity}
                   </p>
                   <p className="text-sm text-gray-500">Bao: 30kg</p>
                   <p className="text-sm font-medium text-gray-700">
-                    Số tiền: {product.priceout}đ
+                    <div className="flex gap-1">
+                      <div>Số tiền:</div>
+                      <h4 className="flex gap-1">
+                        <p className="underline">đ</p>
+                        {new Intl.NumberFormat("vi-VN").format(
+                          product.priceout,
+                        )}
+                      </h4>
+                    </div>
                   </p>
                 </div>
               </div>
@@ -143,16 +157,37 @@ const OrderDetails = () => {
           <div className="shadow-lg mt-6 rounded-lg border border-gray-200 bg-white p-4">
             <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
               <span>Tổng phụ</span>
-              <span>{calculateTotal(orderDetails.orderProducts)}đ</span>
+
+              <span>
+                <span className="underline">đ</span>{" "}
+                {new Intl.NumberFormat("vi-VN").format(
+                  calculateTotal(orderDetails.orderProducts),
+                )}
+              </span>
             </div>
             <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
               <span>Phí giao hàng</span>
-              <span>0đ</span>
+              <span>
+                <span className="underline">đ</span> 0
+              </span>
             </div>
             <div className="flex items-center justify-between text-lg font-semibold text-[#006532]">
               <span>Tổng cộng</span>
-              <span>{calculateTotal(orderDetails.orderProducts)}đ</span>
+              <span>
+                <span className="underline">đ</span>{" "}
+                {new Intl.NumberFormat("vi-VN").format(
+                  calculateTotal(orderDetails.orderProducts),
+                )}
+              </span>
             </div>
+          </div>
+          <div className="mt-8 flex justify-center">
+            <button
+              onClick={() => navigate(`/order-history/${userId}`)}
+              className="w-full rounded-lg bg-[#006532] px-4 py-2 text-center text-white hover:bg-[#004721] md:w-auto"
+            >
+              Lịch sử đơn hàng
+            </button>
           </div>
         </div>
       </div>

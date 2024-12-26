@@ -161,8 +161,10 @@ const ProductDetail = () => {
           <h4 className="py-5 text-4xl font-bold text-[#006532]">
             {product.name}
           </h4>
-          <h2 className="text-2xl font-semibold text-[#006532]">
-            {product.priceout}đ
+          <h2 className="flex text-2xl font-semibold text-[#006532]">
+            {/* {product.priceout}đ */}
+            <p className="mr-1 mt-[2px] text-lg font-normal underline">đ</p>
+            {new Intl.NumberFormat("vi-VN").format(product.priceout)}
           </h2>
           <div className="mt-4 flex">
             <div className="product__details__quantity">

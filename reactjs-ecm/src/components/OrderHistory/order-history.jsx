@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getUserOrders, getDetailOrder } from "../../services/order-service";
-import Header from '../Header/header';
-import Footer from '../Footer/footer';
+import Header from "../Header/header";
+import Footer from "../Footer/footer";
 
 const OrderHistory = () => {
   const { userId } = useParams();
@@ -14,11 +14,19 @@ const OrderHistory = () => {
   const [detailLoading, setDetailLoading] = useState(false); // Trạng thái tải chi tiết
   const limit = 5; // Số đơn hàng mỗi trang
 
+  const [total, setTotal] = useState(0);
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        const data = await getUserOrders(userId, page, limit); // Gọi API với page và limit
+        const res = await getUserOrders(userId, page, limit); // Gọi API với page và limit
+
+        setTotal(res.data.total);
+        const data = res.data.list;
+
         setOrders(data || []); // Gán danh sách đơn hàng trả về
       } catch (err) {
         console.error(err);
@@ -33,34 +41,89 @@ const OrderHistory = () => {
 
   const fetchOrderDetail = async (orderId) => {
     try {
-      setDetailLoading(true);
-      const data = await getDetailOrder(orderId); // Gọi API lấy chi tiết đơn hàng
-      setSelectedOrder(data); // Lưu chi tiết đơn hàng vào state
+      console.log("orderIID", orderId);
+      // setDetailLoading(true);
+      navigate("/order-details", {
+        state: { orderId: orderId },
+      });
+      // const data = await getDetailOrder(orderId); // Gọi API lấy chi tiết đơn hàng
+      // setSelectedOrder(data); // Lưu chi tiết đơn hàng vào state
     } catch (err) {
       console.error("Lỗi khi lấy chi tiết đơn hàng:", err);
       setError("Không thể lấy chi tiết đơn hàng.");
-    } finally {
-      setDetailLoading(false);
     }
   };
 
-  const handleNextPage = () => setPage((prev) => prev + 1);
-  const handlePrevPage = () => setPage((prev) => (prev > 1 ? prev - 1 : 1));
+  // const handleNextPage = () => setPage((prev) => prev + 1);
+  // const handlePrevPage = () => setPage((prev) => (prev > 1 ? prev - 1 : 1));
+  // const handlePageChange = (page) => {
+  //   setPage((prev) => ({ ...prev, page: page }));
+  // };
+  const handlePageChange = (page) => {
+    setPage(page);
+  };
+
   const closeOrderDetail = () => setSelectedOrder(null);
 
   if (loading) {
-    return <div className="text-center mt-10">Đang tải...</div>;
+    return <div className="mt-10 text-center">Đang tải...</div>;
   }
 
   if (error) {
-    return <div className="text-red-500 text-center mt-10">{error}</div>;
+    return <div className="mt-10 text-center text-red-500">{error}</div>;
   }
+
+  const renderPagination = () => {
+    if (total < limit) return null;
+
+    const totalPages = Math.ceil(total / limit);
+
+    const visiblePages = 5; // Hiển thị tối đa 5 trang
+
+    const startPage = Math.max(1, page - Math.floor(visiblePages / 2));
+    const endPage = Math.min(totalPages, startPage + visiblePages - 1);
+
+    return (
+      <div id="pagination" className="section-p1">
+        {page > 1 && (
+          <button
+            className="page mx-1 rounded bg-gray-200 p-2"
+            onClick={() => handlePageChange(page - 1)}
+          >
+            Trước
+          </button>
+        )}
+        {[...Array(endPage - startPage + 1)].map((_, index) => (
+          <a
+            key={startPage + index}
+            data-page={startPage + index}
+            className={`page ${
+              page === startPage + index
+                ? "active bg-[#006532] text-white"
+                : "bg-gray-200"
+            } mx-1 rounded p-2`}
+            onClick={() => handlePageChange(startPage + index)}
+          >
+            {startPage + index}
+          </a>
+        ))}
+        {page < totalPages && (
+          <button
+            className="page mx-1 rounded bg-gray-200 p-2"
+            onClick={() => handlePageChange(page + 1)}
+          >
+            Tiếp
+          </button>
+        )}
+      </div>
+    );
+  };
 
   return (
     <>
       <Header />
-      <div className="p-6 max-w-4xl mx-auto mt-12">
-        <h1 className="text-2xl font-semibold mb-4 text-[#006532]">
+      <div className="mx-auto mt-12 max-w-4xl p-6">
+        <h1 className="mb-4 text-2xl font-semibold text-[#006532]">
           Lịch sử đơn hàng
         </h1>
         {orders.length === 0 ? (
@@ -70,22 +133,32 @@ const OrderHistory = () => {
             {orders.map((order) => (
               <div
                 key={order.id}
-                className="border border-[#006532] rounded-lg p-4 shadow-sm hover:shadow-md"
+                className="shadow-sm hover:shadow-md rounded-lg border border-[#006532] p-4"
               >
                 <p className="text-lg font-medium text-[#006532]">
                   Mã đơn hàng: <span className="font-bold">{order.id}</span>
                 </p>
-                <p>Ngày đặt: {new Date(order.createdAt).toLocaleDateString()}</p>
-                <p>Trạng thái: {order.orderStatus}</p>
                 <p>
-                  Tổng tiền:{" "}
+                  Ngày đặt hàng:{" "}
+                  {new Date(order.createdAt).toLocaleDateString()}
+                </p>
+                <p>Trạng thái giao hàng: {order.orderStatus}</p>
+                <p>
+                  {/* Tổng tiền:{" "}
                   <span className="font-semibold text-[#006532]">
-                    {order.total_price.toLocaleString()} VNĐ
-                  </span>
+                    {order.total_price} VNĐ
+                  </span> */}
+                  <div className="flex gap-1">
+                    <div>Tổng tiền:</div>
+                    <h4 className="flex gap-1 font-semibold text-[#006532]">
+                      <p className="underline">đ</p>
+                      {new Intl.NumberFormat("vi-VN").format(order.total_price)}
+                    </h4>
+                  </div>
                 </p>
                 <button
                   onClick={() => fetchOrderDetail(order.id)}
-                  className="mt-2 px-4 py-2 bg-[#006532] text-white rounded-md hover:bg-opacity-90"
+                  className="mt-2 rounded-md bg-[#006532] px-4 py-2 text-white hover:bg-opacity-90"
                 >
                   Xem chi tiết
                 </button>
@@ -93,9 +166,9 @@ const OrderHistory = () => {
             ))}
           </div>
         )}
-    
+
         {/* Pagination */}
-        <div className="flex justify-between items-center mt-16">
+        {/* <div className="flex justify-between items-center mt-16">
           <button
             className="px-4 py-2 bg-[#006532] text-white rounded-md hover:bg-opacity-90"
             onClick={handlePrevPage}
@@ -111,35 +184,46 @@ const OrderHistory = () => {
           >
             Trang sau
           </button>
-        </div>
-    
+        </div> */}
+
+        <section
+          id="pagination"
+          className="section-p1 flex justify-center space-x-2"
+        >
+          <div className="mb-4 mt-2 flex justify-center">
+            {renderPagination()}
+          </div>
+        </section>
+
         {/* Order Detail Modal */}
         {selectedOrder && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full border-2 border-[#006532]">
-              <h2 className="text-xl font-semibold mb-4 text-[#006532]">
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="shadow-lg w-full max-w-lg rounded-lg border-2 border-[#006532] bg-white p-6">
+              <h2 className="mb-4 text-xl font-semibold text-[#006532]">
                 Chi tiết đơn hàng {selectedOrder.id}
               </h2>
-              <p>Ngày đặt: {new Date(selectedOrder.createdAt).toLocaleString()}</p>
+              <p>Ngày đặt: {new Date(selectedOrder.createdAt)}</p>
               <p>Trạng thái: {selectedOrder.orderStatus}</p>
               <p>
                 Tổng tiền:{" "}
                 <span className="font-semibold text-[#006532]">
-                  {selectedOrder.total_price.toLocaleString()} VNĐ
+                  {selectedOrder.total_price} VNĐ
                 </span>
               </p>
-              <h3 className="mt-4 font-medium text-[#006532]">Danh sách sản phẩm:</h3>
+              <h3 className="mt-4 font-medium text-[#006532]">
+                Danh sách sản phẩm:
+              </h3>
               <ul className="list-disc pl-5">
                 {selectedOrder.items.map((item) => (
                   <li key={item.product_id}>
-                    {item.product_name} - {item.quantity} x{" "}
-                    {item.unit_price.toLocaleString()} VNĐ
+                    {item.product_name} - {item.quantity} x {item.unit_price}{" "}
+                    VNĐ
                   </li>
                 ))}
               </ul>
               <button
                 onClick={closeOrderDetail}
-                className="mt-4 px-4 py-2 bg-[#006532] text-white rounded-md hover:bg-opacity-90"
+                className="mt-4 rounded-md bg-[#006532] px-4 py-2 text-white hover:bg-opacity-90"
               >
                 Đóng
               </button>

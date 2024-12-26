@@ -17,7 +17,7 @@ export const getUserOrders = async (userId, page = 1, limit = 10) => {
         },
       },
     );
-    return res.data.data.list;
+    return res.data;
   } catch (error) {
     console.error("Error fetching user orders:", error);
     throw error;

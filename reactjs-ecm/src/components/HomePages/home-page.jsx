@@ -290,17 +290,17 @@ function HomePage() {
 
       <section className="hero mobile:bg-custom h-[90vh] w-full bg-[url('/images/hero4.jpg')] bg-cover bg-[top_25%_right_0] tablet:h-[70vh] tablet:bg-[top_30%_right_30%] tablet:px-[80px] mobile:px-[20px] mobile:py-[0px]">
         <div className="flex h-full w-full flex-col items-start justify-center bg-[rgba(8,28,14,0.38)] px-[80px]">
-          <h4 className="pb-[15px] text-[20px] text-white">
-            Khuyến mãi đổi hàng
-          </h4>
+          {/* <h4 className="pb-[15px] text-[20px] text-white">
+            
+          </h4> */}
           <h2 className="text-[46px] leading-[54px] text-white mobile:text-[32px]">
-            SIÊU ƯU ĐÃI
+            THỨC ĂN CHĂN NUÔI
           </h2>
-          <h1 className="text-[50px] leading-[64px] text-white mobile:text-[38px]">
+          {/* <h1 className="text-[50px] leading-[64px] text-white mobile:text-[38px]">
             CHO TẤT CẢ SẢN PHẨM
-          </h1>
+          </h1> */}
           <p className="my-[15px] mb-[20px] text-[16px] text-white">
-            Giảm giá lên đến 70%
+            Chuyên gia thức ăn chăn nuôi qua nhiều thế hệ
           </p>
           <button className="cursor-pointer border-0 bg-transparent bg-[url('/images/button.png')] bg-no-repeat px-[80px] py-[14px] pl-[65px] pr-[80px] text-[15px] font-bold text-white">
             Mua ngay!!!

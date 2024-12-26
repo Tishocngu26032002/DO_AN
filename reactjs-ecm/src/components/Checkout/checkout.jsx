@@ -239,7 +239,15 @@ const Checkout = () => {
                       Bao: {cart.product.weight}kg
                     </p>
                     <p className="text-sm font-medium text-gray-700">
-                      Số tiền: {cart.product.priceout * cart.quantity}đ
+                      <div className="flex gap-1">
+                        <div>Số tiền:</div>
+                        <h4 className="flex gap-1">
+                          <p className="underline">đ</p>
+                          {new Intl.NumberFormat("vi-VN").format(
+                            cart.product.priceout * cart.quantity,
+                          )}
+                        </h4>
+                      </div>
                     </p>
                   </div>
                 </div>
@@ -249,15 +257,23 @@ const Checkout = () => {
             <div className="shadow-lg mt-6 rounded-lg border border-gray-200 bg-white p-4">
               <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
                 <span>Tổng phụ</span>
-                <span>{totalCost}đ</span>
+                <span>
+                  <span className="underline">đ</span>{" "}
+                  {new Intl.NumberFormat("vi-VN").format(totalCost)}
+                </span>
               </div>
               <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
                 <span>Phí giao hàng</span>
-                <span>0đ</span>
+                <span>
+                  <span className="underline">đ</span> 0
+                </span>
               </div>
               <div className="flex items-center justify-between text-lg font-semibold text-[#006532]">
                 <span>Tổng cộng</span>
-                <span>{totalCost}đ</span>
+                <span>
+                  <span className="underline">đ</span>{" "}
+                  {new Intl.NumberFormat("vi-VN").format(totalCost)}
+                </span>
               </div>
             </div>
           </div>
@@ -334,7 +350,7 @@ const Checkout = () => {
                     >
                       {method === "Thanh toán khi nhận hàng"
                         ? "Thanh toán khi nhận hàng"
-                        : "Chuyển khoản ngân hàng"}
+                        : "Thanh toán bằng MOMO"}
                     </button>
                   ),
                 )}
