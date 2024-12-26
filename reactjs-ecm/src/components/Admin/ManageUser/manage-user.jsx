@@ -756,4 +756,3 @@ const handleRoleChange = (event) => {
 };
 
 export default ManageUser;
-

@@ -10,6 +10,7 @@ import {
 } from "../../../services/category-service.js";
 
 import { PER_PAGE } from "../../../constants/per-page.js";
+import { uploadImage } from "../../../services/image-service.js";
 
 const Modal = ({ children, showModal, setShowModal }) =>
   showModal ? (
@@ -30,7 +31,7 @@ const ManageCategory = () => {
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState({
     name: "",
-    image: "",
+    url_image: "",
     banner: "",
     description: "",
     status: "Áp dụng",
@@ -42,8 +43,10 @@ const ManageCategory = () => {
   const [filterStatus, setFilterStatus] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
 
+  const [loading, setLoading] = useState(false);
+
   const [params, setParams] = useState({
-    limit: PER_PAGE,
+    limit: 2,
     page: 1,
     total: 0,
     name: "",
@@ -103,16 +106,41 @@ const ManageCategory = () => {
     setNewCategory({ ...newCategory, [name]: value });
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const { name, files } = e.target;
+    setLoading(true);
     if (files.length > 0) {
-      setNewCategory({ ...newCategory, [name]: URL.createObjectURL(files[0]) });
+      try {
+        const response = await uploadImage(files[0]);
+        if (response && Array.isArray(response) && response.length > 0) {
+          response[0] = JSON.stringify(response[0]);
+          if (response[0].startsWith('"') && response[0].endsWith('"')) {
+            response[0] = response[0].slice(1, -1); // Loại bỏ dấu ngoặc kép
+          }
+          setNewCategory({ ...newCategory, [name]: response[0] });
+          console.log("Uploaded image URL:", response[0]);
+        } else {
+          console.error("No URL returned from the server.");
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        sessionStorage.setItem(
+          "notification",
+          JSON.stringify({
+            message: "Lỗi trong quá trình thêm ảnh. Vui lòng thử lại",
+            type: notificationTypes.ERROR,
+          }),
+        );
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   const addCategory = async (categoryData) => {
     categoryData.status = "Áp dụng";
     const response = await createCategory(categoryData);
+    console.log("responsese", response);
     if (response.success) {
       setCategories([...categories, response.data]);
       setShowModal(false);
@@ -120,10 +148,11 @@ const ManageCategory = () => {
   };
 
   const handleAddCategory = () => {
+    console.log("newCategory", newCategory);
     addCategory(newCategory);
     setNewCategory({
       name: "",
-      image: "",
+      url_image: "",
       banner: "",
       description: "",
       status: "Áp dụng",
@@ -167,7 +196,7 @@ const ManageCategory = () => {
     updateOneCategory(newCategory);
     setNewCategory({
       name: "",
-      image: "",
+      url_image: "",
       banner: "",
       description: "",
       status: "Áp dụng",
@@ -223,25 +252,70 @@ const ManageCategory = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // const renderPagination = () => {
+  //   if (params.total < PER_PAGE) return null;
+  //   const totalPages = Math.ceil(params.total / PER_PAGE);
+  //   return (
+  //     <div>
+  //       {[...Array(totalPages)].map((_, index) => (
+  //         <a
+  //           key={index + 1}
+  //           data-page={index + 1}
+  //           className={`mx-1 rounded px-3 py-1 ${
+  //             index + 1 === params.page
+  //               ? "bg-[#006532] text-white"
+  //               : "bg-gray-200 text-gray-800 hover:bg-blue-200"
+  //           }`}
+  //           onClick={() => handlePageChange(index + 1)}
+  //         >
+  //           {index + 1}
+  //         </a>
+  //       ))}
+  //     </div>
+  //   );
+  // };
+
   const renderPagination = () => {
-    if (params.total < PER_PAGE) return null;
-    const totalPages = Math.ceil(params.total / PER_PAGE);
+    if (params.total < 2) return null;
+
+    const totalPages = Math.ceil(params.total / 2);
+    const visiblePages = 5; // Hiển thị tối đa 5 trang
+
+    const startPage = Math.max(1, params.page - Math.floor(visiblePages / 2));
+    const endPage = Math.min(totalPages, startPage + visiblePages - 1);
+
     return (
-      <div>
-        {[...Array(totalPages)].map((_, index) => (
-          <a
-            key={index + 1}
-            data-page={index + 1}
-            className={`mx-1 rounded px-3 py-1 ${
-              index + 1 === params.page
-                ? "bg-[#006532] text-white"
-                : "bg-gray-200 text-gray-800 hover:bg-blue-200"
-            }`}
-            onClick={() => handlePageChange(index + 1)}
+      <div id="pagination" className="section-p1">
+        {params.page > 1 && (
+          <button
+            className="page mx-1 rounded bg-gray-200 p-2"
+            onClick={() => handlePageChange(params.page - 1)}
           >
-            {index + 1}
+            Trước
+          </button>
+        )}
+        {[...Array(endPage - startPage + 1)].map((_, index) => (
+          <a
+            key={startPage + index}
+            data-page={startPage + index}
+            className={`page ${
+              params.page === startPage + index
+                ? "active bg-[#006532] text-white"
+                : "bg-gray-200"
+            } mx-1 rounded p-2`}
+            onClick={() => handlePageChange(startPage + index)}
+          >
+            {startPage + index}
           </a>
         ))}
+        {params.page < totalPages && (
+          <button
+            className="page mx-1 rounded bg-gray-200 p-2"
+            onClick={() => handlePageChange(params.page + 1)}
+          >
+            Tiếp
+          </button>
+        )}
       </div>
     );
   };
@@ -251,7 +325,7 @@ const ManageCategory = () => {
       <AdminHeader />
       <div className="p-4 lg:mx-12">
         <h1 className="mb-8 mt-4 text-center text-4xl font-bold text-[#006532]">
-          Manage Categories
+          Quản lý danh mục
         </h1>
 
         <Modal showModal={showModal} setShowModal={setShowModal}>
@@ -269,7 +343,7 @@ const ManageCategory = () => {
             />
             <input
               type="file"
-              name="image"
+              name="url_image"
               onChange={handleFileChange}
               className="rounded border p-2"
             />
@@ -369,7 +443,7 @@ const ManageCategory = () => {
                 <p className="mb-2 text-gray-600">
                   <strong>Avatar:</strong>{" "}
                   <img
-                    src={category.image}
+                    src={category.url_image}
                     alt={category.name}
                     className="h-16 w-16 rounded"
                   />
@@ -430,7 +504,7 @@ const ManageCategory = () => {
           onClick={() => {
             setNewCategory({
               name: "",
-              image: "",
+              url_image: "",
               banner: "",
               description: "",
               status: "Áp dụng",

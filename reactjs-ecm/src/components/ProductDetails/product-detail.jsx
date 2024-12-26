@@ -1,12 +1,16 @@
-import { useState, useEffect } from "react"; 
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Header from "../Header/header.jsx";
 import { PiShoppingCart } from "react-icons/pi";
-import { fetchProductDetail } from '../../services/product-service.js';
+import { fetchProductDetail } from "../../services/product-service.js";
 import Footer from "../Footer/footer.jsx";
 import { PiMinusBold, PiPlusBold } from "react-icons/pi";
-import { authLocal, userIdLocal, getToken } from '../../util/auth-local.js';  // Import the auth methods
-import { getCarts, createCart, updateCart } from '../../services/cart-service.js'; // Assuming you have a cart service to handle API calls
+import { authLocal, userIdLocal, getToken } from "../../util/auth-local.js"; // Import the auth methods
+import {
+  getCarts,
+  createCart,
+  updateCart,
+} from "../../services/cart-service.js"; // Assuming you have a cart service to handle API calls
 
 // Tách Image component
 const Image = ({ mainImage, setMainImage, productImages }) => (
@@ -68,7 +72,7 @@ const ProductDetail = () => {
           userId = userId.replace(/^"|"$/g, "");
 
           if (userId) {
-            const cartsData = await getCarts(userId, token);  // Lấy giỏ hàng từ API
+            const cartsData = await getCarts(userId, token); // Lấy giỏ hàng từ API
             setCarts(cartsData.data.data.cart); // Cập nhật giỏ hàng
           }
         }
@@ -88,7 +92,9 @@ const ProductDetail = () => {
         userId = userId.replace(/^"|"$/g, "");
 
         if (userId) {
-          const cartIndex = carts.findIndex((cart) => cart.product_id === productId);
+          const cartIndex = carts.findIndex(
+            (cart) => cart.product_id === productId,
+          );
 
           const cartData = {
             quantity: quantity,
@@ -97,7 +103,13 @@ const ProductDetail = () => {
           };
 
           if (cartIndex !== -1) {
-            await updateCart({ ...carts[cartIndex], quantity: carts[cartIndex].quantity + quantity }, token);
+            await updateCart(
+              {
+                ...carts[cartIndex],
+                quantity: carts[cartIndex].quantity + quantity,
+              },
+              token,
+            );
           } else {
             await createCart(cartData, token);
           }
@@ -129,21 +141,36 @@ const ProductDetail = () => {
         className="h-52 bg-cover bg-center"
         style={{ backgroundImage: `url("/images/banner/chk1.jpg")` }}
       >
-        <div className="bg-[rgba(8,28,14,0.79)] w-full h-full flex items-center justify-center text-center">
-          <p className="text-white">HOME / Category {product.category_id} / {product.name}</p>
+        <div className="flex h-full w-full items-center justify-center bg-[rgba(8,28,14,0.79)] text-center">
+          <p className="text-white">
+            HOME / Category {product.category_id} / {product.name}
+          </p>
         </div>
       </section>
 
-      <section id="prodetails" className="mx-10 mt-5 flex flex-col md:flex-row xl:mx-28">
-        <Image mainImage={mainImage} setMainImage={setMainImage} productImages={productImages} />
+      <section
+        id="prodetails"
+        className="mx-10 mt-5 flex flex-col md:flex-row xl:mx-28"
+      >
+        <Image
+          mainImage={mainImage}
+          setMainImage={setMainImage}
+          productImages={productImages}
+        />
         <div className="single-pro-details pt-8 md:w-2/3 xl:w-full">
-          <h4 className="py-5 text-4xl font-bold text-[#006532]">{product.name}</h4>
-          <h2 className="text-2xl font-semibold text-[#006532]">${product.priceout}</h2>
+          <h4 className="py-5 text-4xl font-bold text-[#006532]">
+            {product.name}
+          </h4>
+          <h2 className="flex text-2xl font-semibold text-[#006532]">
+            {/* {product.priceout}đ */}
+            <p className="mr-1 mt-[2px] text-lg font-normal underline">đ</p>
+            {new Intl.NumberFormat("vi-VN").format(product.priceout)}
+          </h2>
           <div className="mt-4 flex">
             <div className="product__details__quantity">
-              <div className="flex items-center border-2 border-[#00653265] bg-white w-[140px] h-[48px] rounded">
+              <div className="flex h-[48px] w-[140px] items-center rounded border-2 border-[#00653265] bg-white">
                 <button
-                  className="ml-[18px] mr-1  text-base font-normal text-gray-600  hover:bg-gray-300 focus:outline-none"
+                  className="ml-[18px] mr-1 text-base font-normal text-gray-600 hover:bg-gray-300 focus:outline-none"
                   onClick={handleDecrease}
                 >
                   <PiMinusBold />
@@ -152,10 +179,10 @@ const ProductDetail = () => {
                   type="text"
                   value={quantity}
                   readOnly
-                  className="w-16 mr-1 text-base font-normal text-gray-600 text-center  border-0 focus:outline-none"
+                  className="mr-1 w-16 border-0 text-center text-base font-normal text-gray-600 focus:outline-none"
                 />
                 <button
-                  className=" text-base font-normal text-gray-600  hover:bg-gray-300 focus:outline-none"
+                  className="text-base font-normal text-gray-600 hover:bg-gray-300 focus:outline-none"
                   onClick={handleIncrease}
                 >
                   <PiPlusBold />
@@ -166,23 +193,36 @@ const ProductDetail = () => {
               className="ml-4 h-12 rounded bg-[#006532] px-4 py-2 text-white"
               onClick={handleAddToCart}
             >
-              Add to cart
+              Thêm vào giỏ hàng
             </button>
           </div>
-          <h4 className="pb-5 pt-10 text-2xl font-semibold text-[#777777]">Product Details</h4>
-          <p className="text-l leading-[25px] text-[#777777]">{product.description}</p>
-          <p className="text-l leading-[25px] text-[#777777]">In Stock: {product.stockQuantity} units</p>
-          <p className="text-l leading-[25px] text-[#777777]">Weight: {product.weight} grams</p>
+          <h4 className="pb-5 pt-10 text-2xl font-semibold text-[#777777]">
+            Chi tiết sản phẩm
+          </h4>
+          <p className="text-l leading-[25px] text-[#777777]">
+            {product.description}
+          </p>
+          <p className="text-l leading-[25px] text-[#777777]">
+            Số lượng: {product.stockQuantity}{" "}
+          </p>
+          <p className="text-l leading-[25px] text-[#777777]">
+            Bao: {product.weight}kg
+          </p>
         </div>
       </section>
 
-      <section id="product1" className="py-10 text-center bg-[#f9f9f9] mt-10 pt-10">
-        <div className="text-[46px] font-semibold leading-[54px] text-[#006532]">Newest Products</div>
+      <section
+        id="product1"
+        className="mt-10 bg-[#f9f9f9] py-10 pt-10 text-center"
+      >
+        <div className="text-[46px] font-semibold leading-[54px] text-[#006532]">
+          Newest Products
+        </div>
         <div className="pro-container flex flex-wrap justify-evenly pt-5">
           {[...Array(4)].map((_, index) => (
             <div
               key={index}
-              className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] p-3 shadow-lg transition duration-200 hover:shadow-xl bg-white"
+              className="pro ease shadow-lg hover:shadow-xl relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] bg-white p-3 transition duration-200"
             >
               <img
                 src="/images/products/262.png"
@@ -191,10 +231,15 @@ const ProductDetail = () => {
               />
               <div className="des pt-3 text-start">
                 <span className="text-sm text-[#006532]">Adidas</span>
-                <h5 className="pt-2 text-sm text-[#1a1a1a]">Cotton shirts pure cotton</h5>
+                <h5 className="pt-2 text-sm text-[#1a1a1a]">
+                  Cotton shirts pure cotton
+                </h5>
                 <div className="star mt-2 flex">
                   {[...Array(5)].map((_, starIndex) => (
-                    <i key={starIndex} className="fas fa-star mr-1 text-xs text-yellow-500"></i>
+                    <i
+                      key={starIndex}
+                      className="fas fa-star mr-1 text-xs text-yellow-500"
+                    ></i>
                   ))}
                 </div>
                 <h4 className="pt-2 text-lg font-bold text-[#006532]">$78</h4>
