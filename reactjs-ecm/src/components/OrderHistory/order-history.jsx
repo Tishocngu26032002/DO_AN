@@ -165,14 +165,22 @@ const OrderHistory = () => {
                   Mã đơn hàng: <span className="font-bold">{order.id}</span>
                 </p>
                 <p>
-                  Ngày đặt: {new Date(order.createdAt).toLocaleDateString()}
+                  Ngày đặt hàng:{" "}
+                  {new Date(order.createdAt).toLocaleDateString()}
                 </p>
-                <p>Trạng thái: {order.orderStatus}</p>
+                <p>Trạng thái giao hàng: {order.orderStatus}</p>
                 <p>
-                  Tổng tiền:{" "}
+                  {/* Tổng tiền:{" "}
                   <span className="font-semibold text-[#006532]">
-                    {order.total_price.toLocaleString()} VNĐ
-                  </span>
+                    {order.total_price} VNĐ
+                  </span> */}
+                  <div className="flex gap-1">
+                    <div>Tổng tiền:</div>
+                    <h4 className="flex gap-1 font-semibold text-[#006532]">
+                      <p className="underline">đ</p>
+                      {new Intl.NumberFormat("vi-VN").format(order.total_price)}
+                    </h4>
+                  </div>
                 </p>
                 <button
                   onClick={() => fetchOrderDetail(order.id)}
@@ -186,9 +194,9 @@ const OrderHistory = () => {
         )}
 
         {/* Pagination */}
-        <div className="mt-16 flex items-center justify-between">
+        {/* <div className="flex justify-between items-center mt-16">
           <button
-            className="rounded-md bg-[#006532] px-4 py-2 text-white hover:bg-opacity-90"
+            className="px-4 py-2 bg-[#006532] text-white rounded-md hover:bg-opacity-90"
             onClick={handlePrevPage}
             disabled={page === 1}
           >
@@ -196,13 +204,22 @@ const OrderHistory = () => {
           </button>
           <span>Trang {page}</span>
           <button
-            className="rounded-md bg-[#006532] px-4 py-2 text-white hover:bg-opacity-90"
+            className="px-4 py-2 bg-[#006532] text-white rounded-md hover:bg-opacity-90"
             onClick={handleNextPage}
             disabled={orders.length < limit}
           >
             Trang sau
           </button>
-        </div>
+        </div> */}
+
+        <section
+          id="pagination"
+          className="section-p1 flex justify-center space-x-2"
+        >
+          <div className="mb-4 mt-2 flex justify-center">
+            {renderPagination()}
+          </div>
+        </section>
 
         {/* Order Detail Modal */}
         {selectedOrder && (

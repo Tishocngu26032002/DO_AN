@@ -46,7 +46,7 @@ const ManageCategory = () => {
   const [loading, setLoading] = useState(false);
 
   const [params, setParams] = useState({
-    limit: PER_PAGE,
+    limit: 2,
     page: 1,
     total: 0,
     name: "",
@@ -276,9 +276,9 @@ const ManageCategory = () => {
   // };
 
   const renderPagination = () => {
-    if (params.total < PER_PAGE) return null;
+    if (params.total < 2) return null;
 
-    const totalPages = Math.ceil(params.total / PER_PAGE);
+    const totalPages = Math.ceil(params.total / 2);
     const visiblePages = 5; // Hiển thị tối đa 5 trang
 
     const startPage = Math.max(1, params.page - Math.floor(visiblePages / 2));
