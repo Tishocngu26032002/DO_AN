@@ -405,7 +405,7 @@ const ManageSupplier = () => {
           <a
             key={startPage + index}
             data-page={startPage + index}
-            className={`page ${
+            className={`page px-3 ${
               page === startPage + index
                 ? "active bg-[#006532] text-white"
                 : "bg-gray-200"
@@ -436,12 +436,12 @@ const ManageSupplier = () => {
       <AdminHeader />
       <div className="w-5/6 p-4 ml-[260px]">
       <h1 className="mb-8 mt-4 text-center text-4xl font-bold text-[#006532]">
-          Manage Suppliers
+          Quản lý nhà cung cấp
         </h1>
 
         <Modal showModal={showModal} setShowModal={setShowModal}>
           <h2 className="mb-4 text-2xl font-semibold text-[#006532]">
-            {editingSupplier ? "Update Supplier" : "Add New Supplier"}
+            {editingSupplier ? "Cập nhật nhà cung cấp" : "Thêm nhà cung cấp"}
           </h2>
           {loading && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
@@ -454,7 +454,7 @@ const ManageSupplier = () => {
               name="name"
               value={newSupplier.name}
               onChange={handleInputChange}
-              placeholder="Supplier Name"
+              placeholder="Tên nhà cung cấp"
               className="rounded border p-2"
             />
             <input
@@ -469,7 +469,7 @@ const ManageSupplier = () => {
               name="phone"
               value={newSupplier.phone}
               onChange={handleInputChange}
-              placeholder="Supplier Phone"
+              placeholder="Số điện thoại"
               className="rounded border p-2"
             />
 
@@ -478,7 +478,7 @@ const ManageSupplier = () => {
               name="address"
               value={newSupplier.address}
               onChange={handleInputChange}
-              placeholder="Supplier Address"
+              placeholder="Địa chỉ"
               className="rounded border p-2"
             />
           </div>
@@ -541,7 +541,7 @@ const ManageSupplier = () => {
                   {supplier.name}
                 </h3>
                 <p className="mb-2 text-gray-600">
-                  <strong>Avatar:</strong>{" "}
+                  <strong>Ảnh:</strong>{" "}
                   <img
                     src={supplier.url_image}
                     alt={supplier.name}
@@ -549,10 +549,10 @@ const ManageSupplier = () => {
                   />
                 </p>
                 <p className="mb-2 text-gray-600">
-                  <strong>Phone:</strong> {supplier.phone}
+                  <strong>Điện thoại:</strong> {supplier.phone}
                 </p>
                 <p className="mb-2 text-gray-600">
-                  <strong>Address:</strong>
+                  <strong>Địa chỉ:</strong>
                   {supplier.address}
                 </p>
 
@@ -645,7 +645,7 @@ const ManageSupplier = () => {
         {/* </div> */}
         <section
           id="pagination"
-          className="section-p1 flex justify-center space-x-2"
+          className="section-p1 flex justify-center space-x-2 mt-5"
         >
           <div className="mb-4 mt-2 flex justify-center">
             {renderPagination()}

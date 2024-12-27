@@ -589,7 +589,7 @@ const ManageOrder = () => {
           <a
             key={startPage + index}
             data-page={startPage + index}
-            className={`page ${
+            className={`page px-3 ${
               currentPage === startPage + index
                 ? "active bg-[#006532] text-white"
                 : "bg-gray-200"
@@ -619,7 +619,8 @@ const ManageOrder = () => {
       <NotificationHandler setNotifications={setNotifications} />
       <AdminHeader />
       <div className="w-5/6 p-4 ml-[260px]">
-        <h1 className="text-4xl font-bold mb-8 mt-4 text-[#006532] text-center">Quản lý đơn hàng</h1>
+      
+        <h1 className="text-4xl font-bold mb-8 mt-4 text-[#222222] text-start">Đơn hàng đang xử lý</h1>
        
           <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4 ">
               <div

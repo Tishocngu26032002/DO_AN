@@ -14,7 +14,7 @@ const Modal = ({ children, showModal, setShowModal }) => (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-1/2">
         {children}
-        <button onClick={() => setShowModal(false)} className="mt-4 ml-3 bg-red-600 text-white px-4 py-2 rounded">Close</button>
+        <button onClick={() => setShowModal(false)} className="mt-4 ml-3 bg-red-600 text-white px-4 py-2 rounded">Đóng</button>
       </div>
 
     </div>
@@ -391,14 +391,14 @@ const handleRoleChange = (event) => {
       <AdminHeader />
 
       <div className="w-5/6 p-4 ml-[260px]">
-        <h1 className="text-4xl font-bold mb-8 mt-4 text-[#006532] text-start">Quản lý người dùng</h1>
+        <h1 className="text-4xl font-bold mb-8 mt-4 text-[#222222]  text-start">Quản lý người dùng</h1>
 
         <Modal showModal={showModal} setShowModal={setShowModal}>
-          <h2 className="text-2xl font-semibold mb-4 text-gray-600">{currentUser?.id ? 'Update User' : 'Add User'}</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-gray-600">{currentUser?.id ? 'Sửa người dùng' : 'Thêm người dùng'}</h2>
          
           <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-gray-700">First Name:</label>
+              <label className="block text-gray-700">Họ:</label>
               <input 
                 type="text" 
                 value={currentUser?.firstName} 
@@ -408,7 +408,7 @@ const handleRoleChange = (event) => {
               />
             </div>
             <div>
-              <label className="block text-gray-700">Last Name:</label>
+              <label className="block text-gray-700">Tên:</label>
               <input 
                 type="text" 
                 value={currentUser?.lastName} 
@@ -428,7 +428,7 @@ const handleRoleChange = (event) => {
               />
             </div>
             <div>
-            <label className="block text-gray-700">Location efault:</label>
+            <label className="block text-gray-700">Địa chỉ mặc định:</label>
               <select 
                 value={currentUser?.locationdefault ? '1' : '0'} 
                 onChange={(e) => setCurrentUser({ ...currentUser, locationdefault: e.target.value === '1' })} 
@@ -440,7 +440,7 @@ const handleRoleChange = (event) => {
               </select>
             </div>
             <div>
-              <label className="block text-gray-700">Phone:</label>
+              <label className="block text-gray-700">Số điện thoại:</label>
               <input 
                 type="text" 
                 value={currentUser?.phone} 
@@ -450,7 +450,7 @@ const handleRoleChange = (event) => {
               />
             </div>
             <div>
-              <label className="block text-gray-700">Address:</label>
+              <label className="block text-gray-700">Địa chỉ:</label>
               <input 
                 type="text" 
                 value={currentUser?.address} 
@@ -460,32 +460,32 @@ const handleRoleChange = (event) => {
               />
             </div>
             <div>
-              <label className="block text-gray-700">Role:</label>
+              <label className="block text-gray-700">Chức vụ:</label>
               <select 
                 value={currentUser?.role} 
                 onChange={(e) => setCurrentUser({ ...currentUser, role: e.target.value })} 
                 className="border border-[#006532] p-2 rounded w-full"
               >
-                <option value="employee">Employee</option>
-                <option value="admin">Admin</option>
-                <option value="customer">Customer</option>
+                <option value="employee">Nhân viên</option>
+                <option value="admin">Quản lý</option>
+                <option value="customer">Khách hàng</option>
               </select>
             </div>
             <div>
-              <label className="block text-gray-700">Status:</label>
+              <label className="block text-gray-700">Trạng thái:</label>
               <select 
                 value={currentUser?.isActive ? '1' : '0'} 
                 onChange={(e) => setCurrentUser({ ...currentUser, isActive: e.target.value === '1' })} 
                 className="border border-[#006532] p-2 rounded w-full"
               >
-                <option value="1">Active</option>
-                <option value="0">Inactive</option>
+                <option value="1">Hoạt động</option>
+                <option value="0">Ngưng hoạt động</option>
               </select>
             </div>
 
             {!currentUser?.id && (
               <div>
-                <label className="block text-gray-700">Password:</label>
+                <label className="block text-gray-700">Mật khẩu:</label>
                 <input 
                   type="text" 
                   value={currentUser?.password || ''} 
@@ -498,33 +498,15 @@ const handleRoleChange = (event) => {
             onClick={handleSaveUser} 
             className="bg-[#006532] hover:bg-[#005a2f] text-white px-4 py-2 mt-4 rounded shadow"
           >
-            {currentUser?.id ? 'Save Changes' : 'Add User'}
+            {currentUser?.id ? 'Lưu thay đổi' : 'Thêm người dùng'}
           </button>
         </Modal>
         
-        <div className="mb-8">
-          {/* Chọn thời gian */}
-          <div className="mb-6 flex space-x-4">
-            {["Tuần", "Tháng", "Quý", "Năm"].map((filter) => (
-              <button
-                key={filter}
-                className={`shadow-md rounded-lg border p-2 text-white ${
-                  timeFilter === filter ? "bg-[#004d26]" : "bg-[#006532]"
-                } hover:bg-[#004d26]`}
-                onClick={() => {
-                  setTimeFilter(filter);
-                }}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-        </div>
 
         <div className="mb-8 grid grid-cols-2 gap-6 md:grid-cols-4">
           <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
-            <h4 className="text-xl font-semibold text-[#006532]">Tổng số khách hàng</h4>
-            <p className="text-3xl font-bold text-[#006532]">
+            <h4 className="text-xl font-semibold text-[#222222] ">Tổng số khách hàng</h4>
+            <p className="text-2xl font-semibold text-[#006532]">
               50
             </p>
             <p className="text-sm text-gray-500">
@@ -532,8 +514,8 @@ const handleRoleChange = (event) => {
             </p>
           </div>
           <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
-            <h4 className="text-xl font-semibold text-[#006532]">Số khách hàng mới</h4>
-            <p className="text-3xl font-bold text-[#006532]">
+            <h4 className="text-xl font-semibold text-[#222222] ">Số khách hàng mới</h4>
+            <p className="text-2xl font-semibold text-[#006532]">
               15
             </p>
             <p className="text-sm text-gray-500">
@@ -572,7 +554,7 @@ const handleRoleChange = (event) => {
             <div className="relative w-full ">
               <input 
                 type="text" 
-                placeholder="Search by name" 
+                placeholder="Tìm kiếm bằng tên" 
                 value={searchTerm}
                 onChange={handleSearchChange} 
                 className="border border-[#006532] p-2 rounded pl-3 w-full"
@@ -586,10 +568,10 @@ const handleRoleChange = (event) => {
               onChange={handleRoleChange} 
               className="border border-[#006532] p-2 rounded"
             >
-              <option value="">All Roles</option>
-              <option value="employee">Employee</option>
-              <option value="admin">Admin</option>
-              <option value="customer">Customer</option>
+              <option value="">Tất cả chức vụ</option>
+              <option value="employee">Nhân viên</option>
+              <option value="admin">Quản lý</option>
+              <option value="customer">Khách hàng</option>
             </select>
            
             <select 
@@ -597,9 +579,9 @@ const handleRoleChange = (event) => {
               onChange={handleStatusChange} 
               className="border border-[#006532] p-2 rounded"
             >
-              <option value="">All Status</option>
-              <option value="1">Active</option>
-              <option value="0">Inactive</option>
+              <option value="">Tất cả trạng thái</option>
+              <option value="1">Hoạt động</option>
+              <option value="0">Ngưng hoạt động</option>
             </select>
           </div>
         </div>
@@ -613,7 +595,7 @@ const handleRoleChange = (event) => {
                   <MdOutlineInbox />
                 </th>
                 <th className="py-3 text-left">STT </th> 
-                <th className="py-3  px-6 w-1/6 text-left  hidden xl:table-cell">Created At <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('createdAt')}/></th>
+                <th className="py-3  px-6 w-1/6 text-left  hidden xl:table-cell">Ngày tạo <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('createdAt')}/></th>
                 <th className="py-3 px-6 text-left hidden sm:table-cell">Họ Tên<FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('firstName')}/></th>
                 <th className="py-3 px-6 text-left">Điện thoại<FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('phone')}/></th>
                 <th className="py-3 px-6 text-left hidden md:table-cell ">Email <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('email')}/></th>
@@ -679,20 +661,20 @@ const handleRoleChange = (event) => {
               {/* <h2 className="text-2xl font-semibold mb-4 text-[#006532]">User: {currentUser.id}</h2>
               <p className="text-black"><strong className="text-[#006532]">firstname:</strong> {currentUser.firstName}</p>
               <p className="text-black"><strong className="text-[#006532]">lastname:</strong> {currentUser.lastName}</p> */}
-              <h2 className="text-2xl font-semibold mb-4 text-[#006532]">User: {currentUser.firstName} {currentUser.lastName}</h2>
+              <h2 className="text-2xl font-semibold mb-4 text-[#006532]">Họ Tên: {currentUser.firstName} {currentUser.lastName}</h2>
               <p className="text-black"><strong className="text-[#006532]">Email:</strong> {currentUser.email}</p>
-              <p className="text-black"><strong className="text-[#006532]">Phone:</strong> {currentUser.phone}</p>
-              <p className="text-black"><strong className="text-[#006532]">Address:</strong> {currentUser.address}</p>
-              <p className="text-black"><strong className="text-[#006532]">Role:</strong> {currentUser.role}</p>
-              <p className="text-black"><strong className="text-[#006532]">Status:</strong> {currentUser.isActive ? 'Active' : 'Inactive'}</p>
-              <p className="text-black"><strong className="text-[#006532]">Create Date:</strong> {currentUser.createdAt}</p>
-              <p className="text-black"><strong className="text-[#006532]">Update Date:</strong> {currentUser.updatedAt}</p>
+              <p className="text-black"><strong className="text-[#006532]">Số điện thoại:</strong> {currentUser.phone}</p>
+              <p className="text-black"><strong className="text-[#006532]">Địa chỉ:</strong> {currentUser.address}</p>
+              <p className="text-black"><strong className="text-[#006532]">Chức vụ:</strong> {currentUser.role}</p>
+              <p className="text-black"><strong className="text-[#006532]">Trạng thái:</strong> {currentUser.isActive ? 'Active' : 'Inactive'}</p>
+              <p className="text-black"><strong className="text-[#006532]">Ngày tạo:</strong> {currentUser.createdAt}</p>
+              <p className="text-black"><strong className="text-[#006532]">Ngày cập nhật:</strong> {currentUser.updatedAt}</p>
        
               <button 
                 onClick={() => setShowViewPopup(false)} 
                 className="mt-4 bg-[#006532] text-white py-2 px-4 rounded hover:bg-green-700"
               >
-                Close
+                Đóng
               </button>
             </div>
           </div>
