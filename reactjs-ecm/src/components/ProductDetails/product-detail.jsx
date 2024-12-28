@@ -3,36 +3,40 @@ import { useParams } from "react-router-dom";
 import Header from "../Header/header.jsx";
 import { PiShoppingCart } from "react-icons/pi";
 import { fetchProductDetail } from "../../services/product-service.js";
+import { getCategory } from "../../services/category-service.js";
 import Footer from "../Footer/footer.jsx";
 import { PiMinusBold, PiPlusBold } from "react-icons/pi";
 import { authLocal, userIdLocal, getToken } from "../../util/auth-local.js"; // Import the auth methods
-import {
-  getCarts,
-  createCart,
-  updateCart,
-} from "../../services/cart-service.js"; // Assuming you have a cart service to handle API calls
+import { getCarts,createCart,updateCart } from "../../services/cart-service.js"; // Assuming you have a cart service to handle API calls
 
 // Tách Image component
-const Image = ({ mainImage, setMainImage, productImages }) => (
-  <div className="single-pro-image md:mr-12 md:w-1/3 xl:mr-12 xl:w-2/3">
-    <img src={mainImage} className="w-full" alt="Main Product" />
-    <div className="small-img-group mt-1 flex justify-between">
-      {productImages.map((img, index) => (
-        <div
-          key={index}
-          className="small-img-col w-24p cursor-pointer"
-          onClick={() => setMainImage(img)}
-        >
-          <img src={img} className="w-full" alt={`Thumbnail ${index + 1}`} />
-        </div>
-      ))}
+const Image = ({ mainImage, setMainImage, productImages }) => {
+  return (
+    <div className="single-pro-image md:mr-12 md:w-1/3 xl:mr-12 xl:w-2/3">
+      {/* Ảnh chính */}
+      <img src={mainImage} className="w-full mb-2" alt="Main Product" />
+      {/* Nhóm ảnh nhỏ */}
+      <div className="small-img-group mt-1 flex justify-between">
+        {productImages.map((img, index) => (
+          <div
+            key={index}
+            className={`small-img-col w-24p cursor-pointer ${
+              img === mainImage ? "border-2 border-blue-500" : ""
+            }`}
+            onClick={() => setMainImage(img)}
+          >
+            <img src={img} className="w-full" alt={`Thumbnail ${index + 1}`} />
+          </div>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ProductDetail = () => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
+  const [category, setCategory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mainImage, setMainImage] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -47,9 +51,21 @@ const ProductDetail = () => {
   };
 
   useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await getCategory(1, 20);
+        setCategory(response.data.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const data = await fetchProductDetail(productId); // Gọi hàm từ service
+        const data = await fetchProductDetail(productId);
         if (data) {
           setProduct(data);
           setMainImage(data.url_images || "");
@@ -131,7 +147,8 @@ const ProductDetail = () => {
   if (loading) return <div>Loading...</div>;
   if (!product) return <div>Product not found.</div>;
 
-  const productImages = product.images || [product.url_images];
+  // const productImages = product.images || [product.url_images];
+  const productImages = Array(3).fill(product.url_images);
 
   return (
     <>
@@ -143,7 +160,7 @@ const ProductDetail = () => {
       >
         <div className="flex h-full w-full items-center justify-center bg-[rgba(8,28,14,0.79)] text-center">
           <p className="text-white">
-            HOME / Category {product.category_id} / {product.name}
+            HOME / {category.find((category) => category.id === product.category_id,)?.name || "Không rõ"} / {product.name}
           </p>
         </div>
       </section>
@@ -216,7 +233,7 @@ const ProductDetail = () => {
         className="mt-10 bg-[#f9f9f9] py-10 pt-10 text-center"
       >
         <div className="text-[46px] font-semibold leading-[54px] text-[#006532]">
-          Newest Products
+          Sản phẩm mới nhất
         </div>
         <div className="pro-container flex flex-wrap justify-evenly pt-5">
           {[...Array(4)].map((_, index) => (
