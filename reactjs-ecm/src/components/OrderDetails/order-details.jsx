@@ -74,7 +74,8 @@ const OrderDetails = () => {
           {/* Thông tin đơn hàng */}
           <div className="mb-8">
             <p className="text-lg text-gray-700">
-              Mã đơn hàng: <span className="font-semibold">OR35273</span>
+              Mã đơn hàng:{" "}
+              <span className="font-semibold">{orderDetails.order_code}</span>
             </p>
             <p className="text-lg text-gray-700">
               Ngày đặt hàng:{" "}
@@ -123,8 +124,7 @@ const OrderDetails = () => {
                 className="shadow-lg flex items-center space-x-4 rounded-lg border border-gray-200 bg-white p-4"
               >
                 <img
-                  // src={product.imgSrc}
-                  src="Image"
+                  src={product.product.url_images}
                   alt={product.product.name}
                   className="h-24 w-24 rounded-lg"
                 />
@@ -139,7 +139,7 @@ const OrderDetails = () => {
                   <p className="text-sm text-gray-500">Bao: 30kg</p>
                   <p className="text-sm font-medium text-gray-700">
                     <div className="flex gap-1">
-                      <div>Số tiền:</div>
+                      <div>Đơn giá:</div>
                       <h4 className="flex gap-1">
                         <p className="underline">đ</p>
                         {new Intl.NumberFormat("vi-VN").format(

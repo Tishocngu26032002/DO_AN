@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import AdminHeader from "../AdminHeader/admin-header.jsx";
-import {
-  FaPlus,
-  FaTrash,
-  FaEye,
-  FaSort,
-} from "react-icons/fa";
+import { FaPlus, FaTrash, FaEye, FaSort } from "react-icons/fa";
 import { MdOutlineInbox } from "react-icons/md";
 import {
   getImportPrs,
@@ -20,8 +15,11 @@ import {
 } from "../../Notification/NotificationService.jsx";
 import NotificationHandler from "../../Notification/notification-handle.jsx";
 import { getUserId, getToken } from "../../../util/auth-local.js";
-import { fetchProducts,fetchProductDetail } from "../../../services/product-service.js";
-import {getUserByAdmin} from "../../../services/user-service.js"
+import {
+  fetchProducts,
+  fetchProductDetail,
+} from "../../../services/product-service.js";
+import { getUserByAdmin } from "../../../services/user-service.js";
 
 const Modal = ({ children, showModal, setShowModal }) =>
   showModal ? (
@@ -69,7 +67,6 @@ const ManageImport = () => {
   const [showConfirmPopupMulti, setShowConfirmPopupMulti] = useState(false);
   const [productList, setProductList] = useState([]);
 
- 
   // useEffect(() => {
   //   const fetchImportPrs = async () => {
   //     const fetchedImportPrs = [];
@@ -87,7 +84,7 @@ const ManageImport = () => {
   //               employeeName: `${user.data.firstName} ${user.data.lastName}`,
   //             };
   //           });
-  
+
   //           const importPrsWithUserDetails = await Promise.all(userDetailPromises);
   //           fetchedImportPrs.push(...importPrsWithUserDetails);
   //           totalImportPrs = result.data.total;
@@ -116,10 +113,10 @@ const ManageImport = () => {
   //       );
   //     }
   //   };
-  
+
   //   fetchImportPrs();
   // }, [currentPage, importPrsPerPage]);
-  
+
   useEffect(() => {
     const fetchImportPrs = async () => {
       const fetchedImportPrs = [];
@@ -129,27 +126,48 @@ const ManageImport = () => {
         do {
           const result = await getImportPrs(page, importPrsPerPage);
           if (result.success) {
-            const userDetailPromises = result.data.list.map(async (importPr) => {
-              const user = await getUserByAdmin(importPr.employee_id);
-              
-              // Fetch product details for each product in importProducts
-              const productDetailPromises = importPr.importProducts.map(async (product) => {
-                const productDetail = await fetchProductDetail(product.product_id);
-                console.log('pr',productDetail.products.name)
+            const userDetailPromises = result.data.list.map(
+              async (importPr) => {
+                const user = await getUserByAdmin(importPr.employee_id);
+
+                // Fetch product details for each product in importProducts
+                const productDetailPromises = importPr.importProducts.map(
+                  async (product) => {
+                    const productDetail = await fetchProductDetail(
+                      product.product_id,
+                    );
+                    console.log("pr", productDetail);
+
+                    // Check if productDetail and productDetail.products are defined
+                    if (productDetail) {
+                      return {
+                        ...product,
+                        productName: productDetail.name,
+                      };
+                    } else {
+                      console.error(
+                        "Product detail or product name not found for product_id:",
+                        product.product_id,
+                      );
+                      return {
+                        ...product,
+                        productName: "Unknown Product", // or handle this case as needed
+                      };
+                    }
+                  },
+                );
+
+                const importProductsWithDetails = await Promise.all(
+                  productDetailPromises,
+                );
                 return {
-                  ...product,
-                  productName: productDetail.products.name,
+                  ...importPr,
+                  employeeName: `${user.data.firstName} ${user.data.lastName}`,
+                  importProducts: importProductsWithDetails,
                 };
-              });
-              
-              const importProductsWithDetails = await Promise.all(productDetailPromises);
-              return {
-                ...importPr,
-                employeeName: `${user.data.firstName} ${user.data.lastName}`,
-                importProducts: importProductsWithDetails,
-              };
-            });
-  
+              },
+            );
+
             const importPrsWithDetails = await Promise.all(userDetailPromises);
             fetchedImportPrs.push(...importPrsWithDetails);
             totalImportPrs = result.data.total;
@@ -158,7 +176,7 @@ const ManageImport = () => {
             throw new Error(result.message);
           }
         } while (fetchedImportPrs.length < totalImportPrs);
-        console.log('1',fetchedImportPrs)
+        console.log("1", fetchedImportPrs);
         setAllImportPrs(fetchedImportPrs);
         setTotalPages(Math.ceil(totalImportPrs / importPrsPerPage));
         setImportPrs(
@@ -178,10 +196,10 @@ const ManageImport = () => {
         );
       }
     };
-  
+
     fetchImportPrs();
   }, [currentPage, importPrsPerPage]);
-  
+
   const sortedImportPrs = React.useMemo(() => {
     let sortableImportPrs = [...importPrs];
     if (sortConfig.key) {
@@ -546,31 +564,33 @@ const ManageImport = () => {
               </div>
             ))}
 
-      <button
-        onClick={handleAddProductField}
-        className="bg-[#006532] text-white px-4 py-2 rounded-lg hover:bg-[#004f29] mb-4"
-      >
-        Thêm sản phẩm
-      </button>
-      <div className="flex justify-end space-x-4">
-        <button
-          onClick={ handleSaveImportPr}
-          className="bg-[#006532] text-white px-4 py-2 rounded-lg hover:bg-[#004f29]"
-        >
-          Lưu
-        </button>
-        <button
-          onClick={() => setShowAddPopup(false)}
-          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700"
-        >
-          Hủy
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-      <div className="w-5/6 p-4 ml-[260px]">
-        <h1 className="text-4xl font-bold mb-8 mt-4 text-[#222222] text-start">Quản lý đơn nhập hàng</h1>
+            <button
+              onClick={handleAddProductField}
+              className="mb-4 rounded-lg bg-[#006532] px-4 py-2 text-white hover:bg-[#004f29]"
+            >
+              Thêm sản phẩm
+            </button>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={handleSaveImportPr}
+                className="rounded-lg bg-[#006532] px-4 py-2 text-white hover:bg-[#004f29]"
+              >
+                Lưu
+              </button>
+              <button
+                onClick={() => setShowAddPopup(false)}
+                className="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-700"
+              >
+                Hủy
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="ml-[260px] w-5/6 p-4">
+        <h1 className="mb-8 mt-4 text-start text-4xl font-bold text-[#222222]">
+          Quản lý đơn nhập hàng
+        </h1>
 
         {/* Thanh tìm kiếm và bộ lọc */}
         <div className="mb-3 mt-4 flex flex-col items-center rounded-lg border-2 bg-white px-6 py-3 shadow-custom-slate md:flex-row">
@@ -608,46 +628,73 @@ const ManageImport = () => {
                   {/*  */}
                   <MdOutlineInbox />
                 </th>
-                <th className="py-3 text-left">STT </th> 
-                <th className="py-3  px-6 text-left">Mã đơn</th> 
-                <th className="py-3 px-6 text-left">Ngày tạo <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('createdAt')}/></th>
-                <th className="py-3 px-6 text-left">Tổng số tiền <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('total_amount')}/></th>
-                <th className="py-3 px-6 text-left">Tên nhân viên <FaSort className="inline ml-1 cursor-pointer" onClick={() => requestSort('employee_id')}/></th>
-                <th className="py-3 px-6 text-left">Hành động</th>
+                <th className="py-3 text-left">STT </th>
+                <th className="px-6 py-3 text-left">Mã đơn</th>
+                <th className="px-6 py-3 text-left">
+                  Ngày tạo{" "}
+                  <FaSort
+                    className="ml-1 inline cursor-pointer"
+                    onClick={() => requestSort("createdAt")}
+                  />
+                </th>
+                <th className="px-6 py-3 text-left">
+                  Tổng số tiền{" "}
+                  <FaSort
+                    className="ml-1 inline cursor-pointer"
+                    onClick={() => requestSort("total_amount")}
+                  />
+                </th>
+                <th className="px-6 py-3 text-left">
+                  Tên nhân viên{" "}
+                  <FaSort
+                    className="ml-1 inline cursor-pointer"
+                    onClick={() => requestSort("employee_id")}
+                  />
+                </th>
+                <th className="px-6 py-3 text-left">Hành động</th>
               </tr>
             </thead>
             <tbody>
-            {sortedImportPrs.length === 0 ? (
-            <tr>
-              <td colSpan="11" className="py-4 text-center">No importPrs found.</td>
-            </tr>
-          ) : (
-            sortedImportPrs.map((importPr, index) => (
-              <tr key={importPr.id} className="border-b hover:bg-[#e0f7e0]">
-                <td className="py-4 pl-6 pr-3">
-                  <input
-                    type="checkbox"
-                    checked={selectedImportPrs.includes(importPr.id)}
-                    // onChange={() => handleSelectImportPr(importPr.id)}
-                  />
-                </td>
-                <td className="py-3">{(currentPage - 1) * importPrsPerPage + index + 1}</td>
-                <td className="py-3 px-6">{importPr.import_code}</td>
-                <td className="py-3 px-6 w-1/6  ">  {" "}
-                {formatDateTime(importPr.createdAt)}{" "}</td>
-                  <td className="py-4 px-6">{importPr.total_amount}</td>
-                  <td className="py-4 px-6">{importPr.employeeName}</td>
-                <td className="py-3 px-6">
-                  <div className="flex space-x-4">
-                    <button onClick={() => handleViewImportPr(importPr)} className="text-blue-600 hover:text-blue-700 hover:underline">
-                      {/* <FaEye size={18} /> */} Xem chi tiết
-                    </button>
-                    {/* <button onClick={() => openUpdateModal(importPr)} className="text-[#006532] hover:text-[#005a2f]">
+              {sortedImportPrs.length === 0 ? (
+                <tr>
+                  <td colSpan="11" className="py-4 text-center">
+                    No importPrs found.
+                  </td>
+                </tr>
+              ) : (
+                sortedImportPrs.map((importPr, index) => (
+                  <tr key={importPr.id} className="border-b hover:bg-[#e0f7e0]">
+                    <td className="py-4 pl-6 pr-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedImportPrs.includes(importPr.id)}
+                        // onChange={() => handleSelectImportPr(importPr.id)}
+                      />
+                    </td>
+                    <td className="py-3">
+                      {(currentPage - 1) * importPrsPerPage + index + 1}
+                    </td>
+                    <td className="px-6 py-3">{importPr.import_code}</td>
+                    <td className="w-1/6 px-6 py-3">
+                      {" "}
+                      {formatDateTime(importPr.createdAt)}{" "}
+                    </td>
+                    <td className="px-6 py-4">{importPr.total_amount}</td>
+                    <td className="px-6 py-4">{importPr.employeeName}</td>
+                    <td className="px-6 py-3">
+                      <div className="flex space-x-4">
+                        <button
+                          onClick={() => handleViewImportPr(importPr)}
+                          className="text-blue-600 hover:text-blue-700 hover:underline"
+                        >
+                          <FaEye size={18} />
+                        </button>
+                        {/* <button onClick={() => openUpdateModal(importPr)} className="text-[#006532] hover:text-[#005a2f]">
                       <FaEdit />
                     </button> */}
-                        {/* <button onClick={() => handleDeleteClick(importPr.id)} className="text-gray-400 hover:text-red-500">
-                      <FaTrash />
-                    </button> */}
+                        <button className="text-gray-400 hover:text-red-500">
+                          <FaTrash />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -668,8 +715,7 @@ const ManageImport = () => {
                   <strong>Tổng số tiền:</strong> {currentImportPr.total_amount}
                 </p>
                 <p>
-                  <strong>Tên nhân viên:</strong>{" "}
-                  {currentImportPr.employeeName}
+                  <strong>Tên nhân viên:</strong> {currentImportPr.employeeName}
                 </p>
                 <p>
                   <strong>Ngày tạo:</strong>{" "}
@@ -697,7 +743,7 @@ const ManageImport = () => {
               </div>
               <button
                 onClick={() => setShowViewPopup(false)}
-                className="rounded-lg bg-[#006532] px-4 py-2 text-white hover:bg-red-700"
+                className="rounded-lg bg-[#006532] px-4 py-2 text-white hover:bg-[#19442e]"
               >
                 Đóng
               </button>
@@ -765,9 +811,9 @@ const ManageImport = () => {
         {/* </div> */}
         <section
           id="pagination"
-          className="section-p1 mt-5  flex justify-center space-x-2"
+          className="section-p1 mt-5 flex justify-center space-x-2"
         >
-          <div className="mb-4 px- mt-2 flex justify-center">
+          <div className="px- mb-4 mt-2 flex justify-center">
             {renderPagination()}
           </div>
         </section>

@@ -257,18 +257,16 @@ const ManageProduct = () => {
   const totalPages = Math.ceil(totalProducts / productsPerPage);
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="min-h-screen bg-gray-100">
       <AdminHeader />
-      <div className="w-5/6 p-4 ml-[260px] ">
+      <div className="ml-[260px] w-5/6 p-4">
         <h1 className="mb-4 mt-4 text-4xl font-bold text-[#222222]">
           Quản lý sản phẩm
         </h1>
 
         <div className="shadow-md mb-4 rounded-md bg-white p-4">
-          
           <div className="grid grid-cols-2 gap-4">
             <div>
-             
               <input
                 type="text"
                 value={searchQuery.name}
@@ -280,7 +278,6 @@ const ManageProduct = () => {
               />
             </div>
             <div>
-       
               <select
                 value={filterCategory}
                 onChange={(e) => handleFilter(e.target.value)}
@@ -298,8 +295,7 @@ const ManageProduct = () => {
         </div>
         {/* Product List */}
         <div>
-          
-          <table className="min-w-full bg-white shadow-lg rounded-lg overflow-hidden">
+          <table className="shadow-lg min-w-full overflow-hidden rounded-lg bg-white">
             <thead className="bg-[#006532] text-white">
               <tr>
                 <th className="border-y px-4 py-2">STT</th>
@@ -332,7 +328,9 @@ const ManageProduct = () => {
                         (supplier) => supplier.id === product.supplier_id,
                       )?.name || "Không rõ"}
                     </td>
-                    <td className="border-y px-4 py-2">{product.description}</td>
+                    <td className="border-y px-4 py-2">
+                      {product.description}
+                    </td>
                     <td className="border-y px-4 py-2">
                       {product.stockQuantity}
                     </td>
@@ -367,7 +365,7 @@ const ManageProduct = () => {
                         },
                       )}
                     </td>
-                    <td className="flex justify-center space-x-2 px-4 mt-4 py-2">
+                    <td className="mt-4 flex justify-center space-x-2 px-4 py-2">
                       <button
                         onClick={() => handleEdit(product.id)}
                         className="text-[#225a3e] hover:text-green-700"
@@ -489,39 +487,39 @@ const ManageProduct = () => {
 
                 {/* Input for image upload */}
                 <div className="flex flex-wrap">
-                <div className="mb-4 w-[48%] mr-5">
-                  <label className="block text-gray-700">Hình ảnh 1</label>
-                  <input
-                    type="file"
-                    name="url_images"
-                    multiple // cho phép chọn nhiều file
-                    // accept="image/*"
-                    onChange={handleImageChange}
-                    className="w-full rounded-md border border-gray-300 p-2"
-                  />
-                </div>
-                <div className="mb-4 w-[48%]">
-                  <label className="block text-gray-700">Hình ảnh 2</label>
-                  <input
-                    type="file"
-                    name="url_images"
-                    multiple // cho phép chọn nhiều file
-                    // accept="image/*"
-                    onChange={handleImageChange}
-                    className="w-full rounded-md border border-gray-300 p-2"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-700">Hình ảnh 3</label>
-                  <input
-                    type="file"
-                    name="url_images"
-                    multiple // cho phép chọn nhiều file
-                    // accept="image/*"
-                    onChange={handleImageChange}
-                    className="w-full rounded-md border border-gray-300 p-2"
-                  />
-                </div>
+                  <div className="mb-4 mr-5 w-[48%]">
+                    <label className="block text-gray-700">Hình ảnh 1</label>
+                    <input
+                      type="file"
+                      name="url_images"
+                      multiple // cho phép chọn nhiều file
+                      // accept="image/*"
+                      onChange={handleImageChange}
+                      className="w-full rounded-md border border-gray-300 p-2"
+                    />
+                  </div>
+                  <div className="mb-4 w-[48%]">
+                    <label className="block text-gray-700">Hình ảnh 2</label>
+                    <input
+                      type="file"
+                      name="url_images"
+                      multiple // cho phép chọn nhiều file
+                      // accept="image/*"
+                      onChange={handleImageChange}
+                      className="w-full rounded-md border border-gray-300 p-2"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Hình ảnh 3</label>
+                    <input
+                      type="file"
+                      name="url_images"
+                      multiple // cho phép chọn nhiều file
+                      // accept="image/*"
+                      onChange={handleImageChange}
+                      className="w-full rounded-md border border-gray-300 p-2"
+                    />
+                  </div>
                 </div>
                 {/* Buttons */}
                 <div className="flex justify-end">
@@ -560,7 +558,6 @@ const ManageProduct = () => {
           {Array.from({ length: totalPages }, (_, index) => (
             <button
               key={index + 1}
-          
               className={`mx-1 rounded px-3 py-1 ${
                 index + 1 === currentPage
                   ? "bg-[#006532] text-white"

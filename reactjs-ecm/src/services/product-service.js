@@ -1,8 +1,10 @@
 import axios from "axios";
 import { format } from "date-fns";
-import { getToken, userIdLocal } from "../util/auth-local";
+import { getToken, getUserId, userIdLocal } from "../util/auth-local";
 
 const BASE_URL = "http://localhost:6006";
+
+const userId = getUserId();
 
 export async function getProducts(page, limit) {
   try {
@@ -169,11 +171,15 @@ export const addProduct = async (formData) => {
 export const editProduct = async (id, formData) => {
   try {
     const token = getToken();
-    const response = await axios.patch(`${BASE_URL}/product/${userIdLocal}`, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const response = await axios.patch(
+      `${BASE_URL}/product/${userIdLocal}`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
     if (response.status === 200 && response.data) {
       return response.data;
     } else {
@@ -191,7 +197,7 @@ export const deleteProduct = async (id) => {
   try {
     const token = getToken();
     if (!token) throw new Error("No token found in localStorage");
-    const response = await axios.delete(`${BASE_URL}/product/${id}`, {
+    const response = await axios.delete(`${BASE_URL}/product/${userId}/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
