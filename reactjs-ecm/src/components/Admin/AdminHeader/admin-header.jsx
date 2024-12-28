@@ -4,6 +4,7 @@ import {  IoNotificationsOutline } from "react-icons/io5";
 import { RiArrowDropUpLine,RiArrowDropDownLine } from "react-icons/ri";
 import { LuUsers,LuBox } from "react-icons/lu";
 import { PiChartLineBold } from "react-icons/pi";
+import { FiLogOut } from "react-icons/fi";
 import { TbCategory,TbInvoice ,TbBuildingWarehouse,TbClipboardList } from "react-icons/tb";
 import img from "../../../../public/images/user.png";
 import { NotificationContext } from "../../Notification/NotificationProvider.jsx";
@@ -97,21 +98,28 @@ function HeaderAdmin() {
   }, [activeIndex]);
   
   return (
-    <div className="shadow-lg sticky top-0 z-50 flex bg-[#225a3e] px-12 py-3 shadow-custom-dark">
+    <div className="shadow-lg sticky top-0 z-50 flex bg-white px-12 py-3 shadow-custom-dark">
       
 
       <button
         className="relative ml-auto mt-1 flex items-center"
         onClick={togglePopup}
       >
-        <IoNotificationsOutline className="h-[25px] w-[25px] text-[#006532] text-white" />
+        <IoNotificationsOutline className="h-[25px] w-[25px] text-[#006532] " />
         {unreadCount > 0 && (
           <span className="absolute bottom-1 left-3.5 right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-semibold text-white">
             {unreadCount}
           </span>
         )}
       </button>
-
+      <button id="lg-bag" className="mt-1 ml-8">
+                  <NavLink to="/home-page" >
+                    <FiLogOut
+                      aria-hidden="true"
+                      className="h-[23px] w-[23px] text-[#006532] transition duration-300 hover:text-[#80c9a4]"
+                    />
+                  </NavLink>
+                </button>
       {/* Popup Notification */}
       {isPopupOpen && (
         <div
@@ -206,11 +214,12 @@ function HeaderAdmin() {
 
     
       <div
-        className={`shadow-lg fixed left-0 top-[54px] z-50 h-full w-[250px] px-4 transform border-r-1   bg-white transition-transform duration-300 ease-in-out`}
+        className={`shadow-lg fixed left-0 top-0 z-50 h-full w-[250px] px-4 transform border-r-1   bg-white transition-transform duration-300 ease-in-out`}
       >
+      <div className=" h-[54px] border-[1px] -mx-4 "></div>
        <div className="flex flex-col items-center mt-6 pb-6  border-b ">
         <img src={img} className="size-28  border-[10px] border-solid border-[#006532] rounded-full"/>
-        <div className="absolute left-0 right-0 mx-auto top-[115px] flex justify-center">
+        <div className="absolute left-0 right-0 mx-auto top-[168px] flex justify-center">
           <span className="text-center text-[12px] text-white font-bold bg-[#24695c] px-[6px] pt-[4px] pb-[3px] rounded-lg">Admin</span>
         </div>
         <p className="mt-3 font-semibold text-[#006532]">Thành Lê</p>

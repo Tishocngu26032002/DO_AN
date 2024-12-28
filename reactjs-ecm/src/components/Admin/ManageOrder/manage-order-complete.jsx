@@ -207,7 +207,7 @@ const ManageOrderComplete = () => {
           <a
             key={startPage + index}
             data-page={startPage + index}
-            className={`page ${
+            className={`page px-3 ${
               currentPage === startPage + index
                 ? "active bg-[#006532] text-white"
                 : "bg-gray-200"
@@ -233,7 +233,7 @@ const ManageOrderComplete = () => {
     <div className="min-h-screen bg-gray-100">
       <AdminHeader />
       <div className="w-5/6 p-4 ml-[260px]">
-        <h1 className="text-4xl font-bold mb-8 mt-4 text-[#006532] text-center">Đơn hàng đã hoàn thành</h1>
+        <h1 className="text-4xl font-bold mb-8 mt-4 text-[#222222] text-start">Đơn hàng đã hoàn thành</h1>
     
         {/* Tìm kiếm và lọc */}
         <div className="mb-3 mt-4 flex flex-col items-center rounded-lg bg-white px-6 py-3 md:flex-row tablet:h-28">
