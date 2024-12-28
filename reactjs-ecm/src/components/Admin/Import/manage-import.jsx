@@ -1,19 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import AdminHeader from "../AdminHeader/admin-header.jsx";
-import {
-  FaPlus,
-  FaEdit,
-  FaTrash,
-  FaSearch,
-  FaEye,
-  FaSort,
-} from "react-icons/fa";
+import { FaPlus, FaTrash, FaEye, FaSort } from "react-icons/fa";
 import { MdOutlineInbox } from "react-icons/md";
 import {
   getImportPrs,
   deleteImportPr,
-  updateImportPr,
   createImportPr,
 } from "../../../services/import-product-service.js";
 import {
@@ -23,7 +15,11 @@ import {
 } from "../../Notification/NotificationService.jsx";
 import NotificationHandler from "../../Notification/notification-handle.jsx";
 import { getUserId, getToken } from "../../../util/auth-local.js";
-import { fetchProducts } from "../../../services/product-service.js";
+import {
+  fetchProducts,
+  fetchProductDetail,
+} from "../../../services/product-service.js";
+import { getUserByAdmin } from "../../../services/user-service.js";
 
 const Modal = ({ children, showModal, setShowModal }) =>
   showModal ? (
@@ -32,9 +28,9 @@ const Modal = ({ children, showModal, setShowModal }) =>
         {children}
         <button
           onClick={() => setShowModal(false)}
-          className="ml-3 mt-4 rounded bg-red-600 px-4 py-2 text-white"
+          className="ml-3 mt-4 rounded bg-[#006532] px-4 py-2 text-white"
         >
-          Close
+          Đóng
         </button>
       </div>
     </div>
@@ -71,6 +67,56 @@ const ManageImport = () => {
   const [showConfirmPopupMulti, setShowConfirmPopupMulti] = useState(false);
   const [productList, setProductList] = useState([]);
 
+  // useEffect(() => {
+  //   const fetchImportPrs = async () => {
+  //     const fetchedImportPrs = [];
+  //     let page = 1;
+  //     let totalImportPrs = 0;
+  //     try {
+  //       do {
+  //         const result = await getImportPrs(page, importPrsPerPage);
+  //         if (result.success) {
+  //           // Fetch user details for each employee_id
+  //           const userDetailPromises = result.data.list.map(async (importPr) => {
+  //             const user = await getUserByAdmin(importPr.employee_id);
+  //             return {
+  //               ...importPr,
+  //               employeeName: `${user.data.firstName} ${user.data.lastName}`,
+  //             };
+  //           });
+
+  //           const importPrsWithUserDetails = await Promise.all(userDetailPromises);
+  //           fetchedImportPrs.push(...importPrsWithUserDetails);
+  //           totalImportPrs = result.data.total;
+  //           page++;
+  //         } else {
+  //           throw new Error(result.message);
+  //         }
+  //       } while (fetchedImportPrs.length < totalImportPrs);
+  //       console.log('1',fetchedImportPrs)
+  //       setAllImportPrs(fetchedImportPrs);
+  //       setTotalPages(Math.ceil(totalImportPrs / importPrsPerPage));
+  //       setImportPrs(
+  //         fetchedImportPrs.slice(
+  //           (currentPage - 1) * importPrsPerPage,
+  //           currentPage * importPrsPerPage,
+  //         ),
+  //       );
+  //     } catch (error) {
+  //       console.error("Failed to fetch importPrs:", error);
+  //       sessionStorage.setItem(
+  //         "notification",
+  //         JSON.stringify({
+  //           message: "Lỗi trong quá trình xử lý!",
+  //           type: notificationTypes.ERROR,
+  //         }),
+  //       );
+  //     }
+  //   };
+
+  //   fetchImportPrs();
+  // }, [currentPage, importPrsPerPage]);
+
   useEffect(() => {
     const fetchImportPrs = async () => {
       const fetchedImportPrs = [];
@@ -80,14 +126,44 @@ const ManageImport = () => {
         do {
           const result = await getImportPrs(page, importPrsPerPage);
           if (result.success) {
-            fetchedImportPrs.push(...result.data.list);
+            const userDetailPromises = result.data.list.map(
+              async (importPr) => {
+                const user = await getUserByAdmin(importPr.employee_id);
+
+                // Fetch product details for each product in importProducts
+                const productDetailPromises = importPr.importProducts.map(
+                  async (product) => {
+                    const productDetail = await fetchProductDetail(
+                      product.product_id,
+                    );
+                    console.log("pr", productDetail.products.name);
+                    return {
+                      ...product,
+                      productName: productDetail.products.name,
+                    };
+                  },
+                );
+
+                const importProductsWithDetails = await Promise.all(
+                  productDetailPromises,
+                );
+                return {
+                  ...importPr,
+                  employeeName: `${user.data.firstName} ${user.data.lastName}`,
+                  importProducts: importProductsWithDetails,
+                };
+              },
+            );
+
+            const importPrsWithDetails = await Promise.all(userDetailPromises);
+            fetchedImportPrs.push(...importPrsWithDetails);
             totalImportPrs = result.data.total;
             page++;
           } else {
             throw new Error(result.message);
           }
         } while (fetchedImportPrs.length < totalImportPrs);
-
+        console.log("1", fetchedImportPrs);
         setAllImportPrs(fetchedImportPrs);
         setTotalPages(Math.ceil(totalImportPrs / importPrsPerPage));
         setImportPrs(
@@ -341,7 +417,7 @@ const ManageImport = () => {
           <a
             key={startPage + index}
             data-page={startPage + index}
-            className={`page ${
+            className={`page px-3 ${
               currentPage === startPage + index
                 ? "active bg-[#006532] text-white"
                 : "bg-gray-200"
@@ -361,6 +437,12 @@ const ManageImport = () => {
         )}
       </div>
     );
+  };
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    const time = date.toLocaleTimeString("vi-VN", { hour12: false });
+    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    return `${formattedDate} ${time}`;
   };
   return (
     <div className="min-h-screen bg-gray-100">
@@ -492,8 +574,8 @@ const ManageImport = () => {
           </div>
         </div>
       )}
-      <div className="p-4 lg:mx-12">
-        <h1 className="mb-8 mt-4 text-start text-4xl font-bold text-[#006532]">
+      <div className="ml-[260px] w-5/6 p-4">
+        <h1 className="mb-8 mt-4 text-start text-4xl font-bold text-[#222222]">
           Quản lý đơn nhập hàng
         </h1>
 
@@ -534,6 +616,7 @@ const ManageImport = () => {
                   <MdOutlineInbox />
                 </th>
                 <th className="py-3 text-left">STT </th>
+                <th className="px-6 py-3 text-left">Mã đơn</th>
                 <th className="px-6 py-3 text-left">
                   Ngày tạo{" "}
                   <FaSort
@@ -578,33 +661,27 @@ const ManageImport = () => {
                     <td className="py-3">
                       {(currentPage - 1) * importPrsPerPage + index + 1}
                     </td>
-                    <td className="hidden w-1/6 px-6 py-3 xl:table-cell">
+                    <td className="px-6 py-3">{importPr.import_code}</td>
+                    <td className="w-1/6 px-6 py-3">
                       {" "}
-                      {(() => {
-                        const date = new Date(importPr.createdAt);
-                        const time = date.toLocaleTimeString("vi-VN", {
-                          hour12: false,
-                        });
-                        const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-                        return `${time} ${formattedDate}`;
-                      })()}
+                      {formatDateTime(importPr.createdAt)}{" "}
                     </td>
                     <td className="px-6 py-4">{importPr.total_amount}</td>
-                    <td className="px-6 py-4">{importPr.employee_id}</td>
+                    <td className="px-6 py-4">{importPr.employeeName}</td>
                     <td className="px-6 py-3">
                       <div className="flex space-x-4">
                         <button
                           onClick={() => handleViewImportPr(importPr)}
-                          className="text-blue-600 hover:text-blue-700"
+                          className="text-blue-600 hover:text-blue-700 hover:underline"
                         >
                           <FaEye size={18} />
                         </button>
                         {/* <button onClick={() => openUpdateModal(importPr)} className="text-[#006532] hover:text-[#005a2f]">
                       <FaEdit />
                     </button> */}
-                        {/* <button onClick={() => handleDeleteClick(importPr.id)} className="text-gray-400 hover:text-red-500">
-                      <FaTrash />
-                    </button> */}
+                        <button className="text-gray-400 hover:text-red-500">
+                          <FaTrash />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -619,17 +696,17 @@ const ManageImport = () => {
               <h2 className="mb-4 text-2xl font-bold">Chi tiết đơn nhập</h2>
               <div className="mb-4">
                 <p>
-                  <strong>ID:</strong> {currentImportPr.id}
+                  <strong>ID:</strong> {currentImportPr.import_code}
                 </p>
                 <p>
                   <strong>Tổng số tiền:</strong> {currentImportPr.total_amount}
                 </p>
                 <p>
-                  <strong>Tên nhân viên:</strong>{" "}
-                  {currentImportPr.employee_name}
+                  <strong>Tên nhân viên:</strong> {currentImportPr.employeeName}
                 </p>
                 <p>
-                  <strong>Ngày tạo:</strong> {currentImportPr.createdAt}
+                  <strong>Ngày tạo:</strong>{" "}
+                  {formatDateTime(currentImportPr.createdAt)}{" "}
                 </p>
                 <h3 className="mt-4 text-xl font-bold">Sản phẩm</h3>
                 <table className="shadow-lg mt-4 min-w-full overflow-hidden rounded-lg bg-white">
@@ -643,7 +720,7 @@ const ManageImport = () => {
                   <tbody>
                     {currentImportPr.importProducts.map((product, index) => (
                       <tr key={index} className="border-b">
-                        <td className="px-4 py-2">{product.id}</td>
+                        <td className="px-4 py-2">{product.productName}</td>
                         <td className="px-4 py-2">{product.quantity}</td>
                         <td className="px-4 py-2">{product.price_in}</td>
                       </tr>
@@ -653,7 +730,7 @@ const ManageImport = () => {
               </div>
               <button
                 onClick={() => setShowViewPopup(false)}
-                className="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-700"
+                className="rounded-lg bg-[#006532] px-4 py-2 text-white hover:bg-[#19442e]"
               >
                 Đóng
               </button>
@@ -721,9 +798,9 @@ const ManageImport = () => {
         {/* </div> */}
         <section
           id="pagination"
-          className="section-p1 flex justify-center space-x-2"
+          className="section-p1 mt-5 flex justify-center space-x-2"
         >
-          <div className="mb-4 mt-2 flex justify-center">
+          <div className="px- mb-4 mt-2 flex justify-center">
             {renderPagination()}
           </div>
         </section>

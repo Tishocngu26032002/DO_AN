@@ -12,6 +12,7 @@ import {
 } from "../../../services/product-service.js";
 import { getCategory } from "../../../services/category-service.js";
 import { getSupplier } from "../../../services/supplier-service.js";
+import { notificationTypes } from "../../Notification/NotificationService.jsx";
 
 const ManageProduct = () => {
   const { currentPage: pageParam, productsPerPage: perPageParam } = useParams();
@@ -19,9 +20,9 @@ const ManageProduct = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [form, setForm] = useState({
-    id: "",
     name: "",
     priceout: "",
+    banner: "",
     category_id: "",
     supplier_id: "",
     url_image: "",
@@ -79,6 +80,7 @@ const ManageProduct = () => {
             productsPerPage,
           );
           setProducts(productsData || []);
+          console.log("productsDataa", productsData);
           setFilteredProducts(productsData || []);
           setTotalProducts(totalProducts);
         }
@@ -91,6 +93,7 @@ const ManageProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const formattedForm = {
         ...form,
@@ -99,43 +102,17 @@ const ManageProduct = () => {
           : "",
       };
 
-      if (form.url_image) {
-        setLoading(true); // Bắt đầu trạng thái tải
-        try {
-          const uploadResult = await uploadImage(form.url_image); // Gọi service upload
-          if (
-            uploadResult &&
-            Array.isArray(uploadResult) &&
-            uploadResult.length > 0
-          ) {
-            let imageUrl = JSON.stringify(uploadResult[0]);
-            // Loại bỏ dấu ngoặc kép nếu có
-            if (imageUrl.startsWith('"') && imageUrl.endsWith('"')) {
-              imageUrl = imageUrl.slice(1, -1);
-            }
-            formattedForm.url_image = imageUrl; // Gán URL vào form
-          } else {
-            console.error("No URL returned from the server.");
-            throw new Error("Upload image failed.");
-          }
-        } catch (error) {
-          console.error("Error uploading image:", error);
-          sessionStorage.setItem(
-            "notification",
-            JSON.stringify({
-              message: "Lỗi trong quá trình thêm ảnh. Vui lòng thử lại",
-              type: notificationTypes.ERROR,
-            }),
-          );
-          return; // Kết thúc sớm nếu lỗi
-        } finally {
-          setLoading(false); // Kết thúc trạng thái tải
-        }
-      }
+      // Nếu có ảnh (url_image) trong form thì sử dụng trực tiếp, không cần gọi API upload ảnh nữa
+      // if (!form.url_images) {
+      // Nếu không có ảnh thì có thể xử lý các công việc khác như thông báo hoặc xử lý lỗi
+      // Bạn có thể thêm mã xử lý logic nếu cần
+      // console.warn("No image provided.");
+      // }
 
+      // Tiến hành thêm hoặc chỉnh sửa sản phẩm
       if (editMode) {
         await editProduct(editId, formattedForm);
-        window.location.reload();
+        window.location.reload(); // Reload lại trang sau khi cập nhật
         setProducts(
           products.map((product) =>
             product.id === editId ? { ...formattedForm, id: editId } : product,
@@ -145,14 +122,15 @@ const ManageProduct = () => {
         setEditId(null);
       } else {
         const newProduct = await addProduct(formattedForm);
-        window.location.reload();
+        window.location.reload(); // Reload lại trang sau khi thêm mới sản phẩm
         setProducts([...products, newProduct]);
       }
 
+      // Reset form sau khi hoàn tất thao tác
       setForm({
-        id: "",
         name: "",
         priceout: "",
+        banner: "",
         category_id: "",
         supplier_id: "",
         url_image: "",
@@ -162,19 +140,49 @@ const ManageProduct = () => {
         expire_date: "",
       });
       setIsModalOpen(false);
-      handleFilter(filterCategory);
+      handleFilter(filterCategory); // Giữ nguyên tính năng lọc sau khi thao tác
     } catch (error) {
       console.error("Error saving product:", error);
+      sessionStorage.setItem(
+        "notification",
+        JSON.stringify({
+          message: "Có lỗi xảy ra khi gửi thông tin. Vui lòng thử lại",
+          type: notificationTypes.ERROR,
+        }),
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleImageChange = (e) => {
-    const { files } = e.target;
-    if (files && files.length > 0) {
-      setForm((prevForm) => ({
-        ...prevForm,
-        url_image: files[0], // Lưu file vào state
-      }));
+  const handleImageChange = async (e) => {
+    const { name, files } = e.target;
+    setLoading(true);
+    if (files.length > 0) {
+      try {
+        const response = await uploadImage(files[0]);
+        if (response && Array.isArray(response) && response.length > 0) {
+          response[0] = JSON.stringify(response[0]);
+          if (response[0].startsWith('"') && response[0].endsWith('"')) {
+            response[0] = response[0].slice(1, -1); // Loại bỏ dấu ngoặc kép
+          }
+          setForm({ ...form, [name]: response[0] });
+          console.log("Uploaded image URL:", response[0]);
+        } else {
+          console.error("No URL returned from the server.");
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        sessionStorage.setItem(
+          "notification",
+          JSON.stringify({
+            message: "Lỗi trong quá trình thêm ảnh. Vui lòng thử lại",
+            type: notificationTypes.ERROR,
+          }),
+        );
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -212,8 +220,9 @@ const ManageProduct = () => {
 
   const handleDelete = async (id) => {
     try {
-      await deleteProduct(id);
-      window.location.reload();
+      const res = await deleteProduct(id);
+      console.log("res delete", res);
+      // window.location.reload();
       setProducts(products.filter((product) => product.id !== id));
       handleFilter(filterCategory);
     } catch (error) {
@@ -223,13 +232,14 @@ const ManageProduct = () => {
 
   const handleEdit = (id) => {
     const product = products.find((product) => product.id === id);
+    console.log("pờ rô đắc", product);
     setForm({
-      id: product.id,
       name: product.name,
       priceout: product.priceout,
+      banner: "",
       category_id: product.category_id,
       supplier_id: product.supplier_id,
-      url_image: product.url_image,
+      url_image: product.url_images,
       description: product.description,
       stockQuantity: product.stockQuantity,
       weight: product.weight,
@@ -329,13 +339,26 @@ const ManageProduct = () => {
                       {product.stockQuantity}
                     </td>
                     <td className="border px-4 py-2">{product.weight}</td>
-                    <td className="border px-4 py-2 text-center">
+                    {/* <td className="border px-4 py-2 text-center">
                       <img
                         src={product.url_image}
                         alt={product.name}
                         className="mx-auto h-12"
                       />
+                    </td> */}
+
+                    <td className="border px-4 py-2 text-center">
+                      {product.url_images ? (
+                        <img
+                          src={product.url_images}
+                          alt={product.name}
+                          className="mx-auto h-12"
+                        />
+                      ) : (
+                        <p>Không có ảnh</p> // Hiển thị nếu không có ảnh
+                      )}
                     </td>
+
                     <td className="border px-4 py-2">
                       {new Date(product.expire_date).toLocaleDateString(
                         "vi-VN",
@@ -471,9 +494,11 @@ const ManageProduct = () => {
                   <label className="block text-gray-700">Hình ảnh</label>
                   <input
                     type="file"
-                    name="url_image"
-                    onChange={handleImageChange} // Xử lý sự kiện chọn ảnh
-                    className="w-full rounded border border-gray-300 p-2 focus:border-[#225a3e]"
+                    name="url_images"
+                    multiple // cho phép chọn nhiều file
+                    // accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full rounded-md border border-gray-300 p-2"
                   />
                 </div>
 
@@ -497,7 +522,7 @@ const ManageProduct = () => {
                         stockQuantity: "",
                         weight: "",
                         expire_date: "",
-                        url_image: "",
+                        url_images: "",
                       });
                     }}
                     className="ml-2 rounded bg-gray-500 p-2 text-white"

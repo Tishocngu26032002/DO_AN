@@ -347,14 +347,14 @@ const ManageCategory = () => {
               onChange={handleFileChange}
               className="rounded border p-2"
             />
-            <input
+            {/* <input
               type="text"
               name="banner"
               value={newCategory.banner}
               onChange={handleInputChange}
               placeholder="Category Banner"
               className="rounded border p-2"
-            />
+            /> */}
             <input
               type="text"
               name="description"
@@ -441,31 +441,32 @@ const ManageCategory = () => {
                   {category.name}
                 </h3>
                 <p className="mb-2 text-gray-600">
-                  <strong>Avatar:</strong>{" "}
+                  {/* <strong>Avatar:</strong>{" "} */}
                   <img
                     src={category.url_image}
                     alt={category.name}
                     className="h-16 w-16 rounded"
                   />
                 </p>
-                <p className="mb-2 text-gray-600">
+                {/* <p className="mb-2 text-gray-600">
                   <strong>Banner:</strong> {category.banner}
-                </p>
+                </p> */}
                 <p className="mb-2 text-gray-600">
                   <strong>Description:</strong>
                   <span className="block">
-                    {expandedDescription[category.id]
+                    {/* {expandedDescription[category.id]
                       ? category.description
-                      : `${category.description.substring(0, 100)}...`}
+                      : `${category.description.substring(0, 100)}...`} */}
+                    {category.description}
                   </span>
-                  <button
+                  {/* <button
                     onClick={() => toggleDescription(category.id)}
                     className="text-[#006532] transition-colors duration-300 hover:text-[#005a2f]"
                   >
                     {expandedDescription[category.id]
                       ? "Show Less"
                       : "Show More"}
-                  </button>
+                  </button> */}
                 </p>
 
                 <p className="mb-2 text-gray-600">

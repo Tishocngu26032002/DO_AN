@@ -240,11 +240,11 @@ const Checkout = () => {
                     </p>
                     <p className="text-sm font-medium text-gray-700">
                       <div className="flex gap-1">
-                        <div>Số tiền:</div>
+                        <div>Đơn giá:</div>
                         <h4 className="flex gap-1">
                           <p className="underline">đ</p>
                           {new Intl.NumberFormat("vi-VN").format(
-                            cart.product.priceout * cart.quantity,
+                            cart.product.priceout,
                           )}
                         </h4>
                       </div>
