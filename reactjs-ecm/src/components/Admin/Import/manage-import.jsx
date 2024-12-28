@@ -136,11 +136,24 @@ const ManageImport = () => {
                     const productDetail = await fetchProductDetail(
                       product.product_id,
                     );
-                    console.log("pr", productDetail.products.name);
-                    return {
-                      ...product,
-                      productName: productDetail.products.name,
-                    };
+                    console.log("pr", productDetail);
+
+                    // Check if productDetail and productDetail.products are defined
+                    if (productDetail) {
+                      return {
+                        ...product,
+                        productName: productDetail.name,
+                      };
+                    } else {
+                      console.error(
+                        "Product detail or product name not found for product_id:",
+                        product.product_id,
+                      );
+                      return {
+                        ...product,
+                        productName: "Unknown Product", // or handle this case as needed
+                      };
+                    }
                   },
                 );
 

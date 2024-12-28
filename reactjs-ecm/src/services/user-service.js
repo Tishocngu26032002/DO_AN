@@ -151,8 +151,8 @@ export async function getSearchUsers(page, limit, searchData) {
 export async function getUserByAdmin(userId) {
   try {
     const token = getToken();
-    const adminId = getUserId();
-    const res = await axios.get(`${BASE_URL}/users/${adminId}/${userId}`, {
+
+    const res = await axios.get(`${BASE_URL}/users/${userId}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },

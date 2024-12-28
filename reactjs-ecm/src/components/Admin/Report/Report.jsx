@@ -1,5 +1,6 @@
 import AdminHeader from "../AdminHeader/admin-header.jsx";
 import React, { useEffect, useState } from "react";
+import banner from '../../../../public/images/banner-admin.png'
 import {
   LineChart,
   AreaChart,
@@ -174,19 +175,31 @@ const Report = () => {
     }
   };
 
+  const formatYAxis = (tickItem) => {
+    const absValue = Math.abs(tickItem);
+    if (absValue >= 1000000) {
+      return (tickItem / 1000000).toFixed(1) + 'M';
+    } else if (absValue >= 1000) {
+      return (tickItem / 1000).toFixed(1) + 'K';
+    } else {
+      return tickItem;
+    }
+  };
+  
   return (
     <div>
       <AdminHeader />
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="mb-8">
+      <div className="min-h-screen bg-gray-100 px-8 py-4">
+      <div className="w-5/6 p-4 ml-[250px]">
+        <div className="mb-4 ">
           {/* Chọn thời gian */}
-          <div className="mb-6 flex space-x-4">
+          <div className="mb-6 flex justify-start ">
             {["Tuần", "Tháng", "Quý", "Năm"].map((filter) => (
               <button
                 key={filter}
-                className={`shadow-md rounded-lg border p-2 text-white ${
-                  timeFilter === filter ? "bg-[#004d26]" : "bg-[#006532]"
-                } hover:bg-[#004d26]`}
+                className={`shadow-md border px-3 py-2 text-[#222222] ${
+                  timeFilter === filter ? "bg-[#006532] text-white" : "bg-white "
+                } hover:bg-[#004d26] hover:text-white`}
                 onClick={() => {
                   setTimeFilter(filter);
                 }}
@@ -196,12 +209,30 @@ const Report = () => {
             ))}
           </div>
         </div>
-
+      <div className=" flex md:flex-wrap">
+      <div className="mb-8 mr-6 w-[45%] h-1/2">
         {/* Các thẻ thông tin */}
-        <div className="mb-8 grid grid-cols-2 gap-6 md:grid-cols-4">
-          <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
-            <h4 className="text-xl font-semibold text-[#006532]">Doanh thu</h4>
-            <p className="text-3xl font-bold text-[#006532]">
+        <div>
+          <div
+          id="page-header"
+          className="h-48 mb-4"
+          style={{
+            backgroundImage: `url(${banner})`,
+            backgroundPosition: "center",
+            backgroundSize: "cover",
+          
+          }}
+        >
+          <div className="flex flex-col h-full w-full  items-start justify-center bg-[rgba(8,28,14,0.4)] text-center">
+            <h2 className="ml-5 text-2xl font-bold w-2/4 text-white">Chào mừng bạn trở lại, Thành !!</h2>
+            
+          </div>
+        </div>
+      </div>
+        <div className=" grid grid-cols-2 gap-6 md:grid-cols-2">
+          <div className="shadow-lg border border-gray-200 bg-white p-6">
+            <h4 className="text-xl font-semibold text-[#222222]">Doanh thu</h4>
+            <p className="text-2xl font-bold text-[#006532]">
               {dashboardData?.thisTime?.revenue || 0} VND
             </p>
             <p className="text-sm text-gray-500">
@@ -212,8 +243,8 @@ const Report = () => {
             </p>
           </div>
           <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
-            <h4 className="text-xl font-semibold text-[#006532]">Sản phẩm</h4>
-            <p className="text-3xl font-bold text-[#006532]">
+            <h4 className="text-xl font-semibold text-[#222222]">Sản phẩm</h4>
+            <p className="text-2xl font-bold text-[#006532]">
               {dashboardData?.thisTime?.product || 0}
             </p>
             <p className="text-sm text-gray-500">
@@ -224,8 +255,8 @@ const Report = () => {
             </p>
           </div>
           <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
-            <h4 className="text-xl font-semibold text-[#006532]">Khách hàng</h4>
-            <p className="text-3xl font-bold text-[#006532]">
+            <h4 className="text-xl font-semibold text-[#222222]">Khách hàng</h4>
+            <p className="text-2xl font-bold text-[#006532]">
               {dashboardData?.thisTime?.customer || 0}
             </p>
             <p className="text-sm text-gray-500">
@@ -236,8 +267,8 @@ const Report = () => {
             </p>
           </div>
           <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
-            <h4 className="text-xl font-semibold text-[#006532]">Đơn hàng</h4>
-            <p className="text-3xl font-bold text-[#006532]">
+            <h4 className="text-xl font-semibold text-[#222222]">Đơn hàng</h4>
+            <p className="text-2xl font-bold text-[#006532]">
               {dashboardData?.thisTime?.order || 0}
             </p>
             <p className="text-sm text-gray-500">
@@ -248,12 +279,12 @@ const Report = () => {
             </p>
           </div>
         </div>
-
+        </div>
         {/* Biểu đồ Line */}
-        <div className="mb-8">
-          <div className="flex gap-4">
-            <h4 className="mb-4 text-2xl font-semibold text-[#006532]">
-              Doanh thu, Ngân sách, Lãi
+        <div className="mb-8 p-4 w-[53%]  bg-white rounded-lg shadow-md">
+          <div className="flex gap-4 items-center">
+            <h4 className="mb-4 text-2xl font-semibold text-[#222222]">
+            Doanh thu và Lợi nhuận
             </h4>
             <select
               className="mb-4 rounded border px-3 py-2 text-sm"
@@ -266,25 +297,40 @@ const Report = () => {
               <option value="Năm">Năm</option>
             </select>
           </div>
-          <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={dataLineChart}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time_period" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="total_revenue" stroke="#006532" />
-              <Line type="monotone" dataKey="total_cost" stroke="#82ca9d" />
-              <Line type="monotone" dataKey="profit" stroke="#ff7300" />
-            </LineChart>
-          </ResponsiveContainer>
+          <div>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart data={dataLineChart} margin={{ left: 30 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#ddd" vertical={false} />
+                <XAxis dataKey="time_period" tickLine={false} axisLine={false} />
+                <YAxis tickLine={false} axisLine={false} tickFormatter={formatYAxis} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '8px', backgroundColor: '#fff', borderColor: '#ddd' }} 
+                  itemStyle={{ color: '#333' }}
+                  formatter={(value) => {
+                    const absValue = Math.abs(value);
+                    if (absValue >= 1000000) {
+                      return (value / 1000000).toFixed(1) + 'M';
+                    } else if (absValue >= 1000) {
+                      return (value / 1000).toFixed(1) + 'K';
+                    } else {
+                      return value;
+                    }
+                  }}
+                />
+                <Legend iconType="circle" layout="horizontal" verticalAlign="top" align="center" />
+                <Line type="linear" dataKey="total_revenue" stroke="#427b70" strokeWidth={3} dot={{ r: 2 }} />
+                <Line type="linear" dataKey="total_cost" stroke="#c49a75" strokeWidth={3} dot={{ r: 2 }} />
+                <Line type="linear" dataKey="profit" stroke="#30476c" strokeWidth={3} dot={{ r: 2 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-
+        </div>
         {/* Biểu đồ Bar: Top5 sản phẩm */}
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
             <div className="flex items-center justify-between">
-              <h4 className="mb-4 text-xl font-semibold text-[#006532]">
+              <h4 className="mb-4 text-xl font-semibold text-[#222222]">
                 Top 5 sản phẩm có doanh thu cao nhất
               </h4>
               <select
@@ -311,7 +357,7 @@ const Report = () => {
           </div>
           <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
             <div className="flex items-center justify-between">
-              <h4 className="mb-4 text-xl font-semibold text-[#006532]">
+              <h4 className="mb-4 text-xl font-semibold text-[#222222]">
                 Top 5 khách hàng mua nhiều nhất
               </h4>
               <select
@@ -415,9 +461,13 @@ const Report = () => {
             </ResponsiveContainer>
           </div>
         </div>
+        </div>
       </div>
     </div>
   );
 };
 
 export default Report;
+
+
+

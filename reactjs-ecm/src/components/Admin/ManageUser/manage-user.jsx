@@ -35,7 +35,7 @@ const Modal = ({ children, showModal, setShowModal }) =>
           onClick={() => setShowModal(false)}
           className="ml-3 mt-4 rounded bg-red-600 px-4 py-2 text-white"
         >
-          Close
+          Đóng
         </button>
       </div>
     </div>
@@ -67,6 +67,7 @@ const ManageUser = () => {
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [showConfirmPopupMulti, setShowConfirmPopupMulti] = useState(false);
+  const [timeFilter, setTimeFilter] = useState("Tuần");
 
   // Cập nhật URL khi thay đổi filter
   useEffect(() => {
@@ -524,19 +525,19 @@ const ManageUser = () => {
       <NotificationHandler setNotifications={setNotifications} />
       <AdminHeader />
 
-      <div className="p-4 lg:mx-12">
-        <h1 className="mb-8 mt-4 text-start text-4xl font-bold text-[#006532]">
+      <div className="ml-[260px] w-5/6 p-4">
+        <h1 className="mb-8 mt-4 text-start text-4xl font-bold text-[#222222]">
           Quản lý người dùng
         </h1>
 
         <Modal showModal={showModal} setShowModal={setShowModal}>
           <h2 className="mb-4 text-2xl font-semibold text-gray-600">
-            {currentUser?.id ? "Update User" : "Add User"}
+            {currentUser?.id ? "Sửa người dùng" : "Thêm người dùng"}
           </h2>
 
           <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-gray-700">First Name:</label>
+              <label className="block text-gray-700">Họ:</label>
               <input
                 type="text"
                 value={currentUser?.firstName}
@@ -548,7 +549,7 @@ const ManageUser = () => {
               />
             </div>
             <div>
-              <label className="block text-gray-700">Last Name:</label>
+              <label className="block text-gray-700">Tên:</label>
               <input
                 type="text"
                 value={currentUser?.lastName}
@@ -572,7 +573,7 @@ const ManageUser = () => {
               />
             </div>
             <div>
-              <label className="block text-gray-700">Location efault:</label>
+              <label className="block text-gray-700">Địa chỉ mặc định:</label>
               <select
                 value={currentUser?.locationdefault ? "1" : "0"}
                 onChange={(e) =>
@@ -589,7 +590,7 @@ const ManageUser = () => {
               </select>
             </div>
             <div>
-              <label className="block text-gray-700">Phone:</label>
+              <label className="block text-gray-700">Số điện thoại:</label>
               <input
                 type="text"
                 value={currentUser?.phone}
@@ -601,7 +602,7 @@ const ManageUser = () => {
               />
             </div>
             <div>
-              <label className="block text-gray-700">Address:</label>
+              <label className="block text-gray-700">Địa chỉ:</label>
               <input
                 type="text"
                 value={currentUser?.address}
@@ -613,7 +614,7 @@ const ManageUser = () => {
               />
             </div>
             <div>
-              <label className="block text-gray-700">Role:</label>
+              <label className="block text-gray-700">Chức vụ:</label>
               <select
                 value={currentUser?.role}
                 onChange={(e) =>
@@ -621,13 +622,13 @@ const ManageUser = () => {
                 }
                 className="w-full rounded border border-[#006532] p-2"
               >
-                <option value="employee">Employee</option>
-                <option value="admin">Admin</option>
-                <option value="customer">Customer</option>
+                <option value="employee">Nhân viên</option>
+                <option value="admin">Quản lý</option>
+                <option value="customer">Khách hàng</option>
               </select>
             </div>
             <div>
-              <label className="block text-gray-700">Status:</label>
+              <label className="block text-gray-700">Trạng thái:</label>
               <select
                 value={currentUser?.isActive ? "1" : "0"}
                 onChange={(e) =>
@@ -638,14 +639,14 @@ const ManageUser = () => {
                 }
                 className="w-full rounded border border-[#006532] p-2"
               >
-                <option value="1">Active</option>
-                <option value="0">Inactive</option>
+                <option value="1">Hoạt động</option>
+                <option value="0">Ngưng hoạt động</option>
               </select>
             </div>
 
             {!currentUser?.id && (
               <div>
-                <label className="block text-gray-700">Password:</label>
+                <label className="block text-gray-700">Mật khẩu:</label>
                 <input
                   type="text"
                   value={currentUser?.password || ""}
@@ -661,9 +662,26 @@ const ManageUser = () => {
             onClick={handleSaveUser}
             className="shadow mt-4 rounded bg-[#006532] px-4 py-2 text-white hover:bg-[#005a2f]"
           >
-            {currentUser?.id ? "Save Changes" : "Add User"}
+            {currentUser?.id ? "Lưu thay đổi" : "Thêm người dùng"}
           </button>
         </Modal>
+
+        <div className="mb-8 grid grid-cols-2 gap-6 md:grid-cols-4">
+          <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
+            <h4 className="text-xl font-semibold text-[#222222]">
+              Tổng số khách hàng
+            </h4>
+            <p className="text-2xl font-semibold text-[#006532]">50</p>
+            <p className="text-sm text-gray-500">So với tuần trước: +5</p>
+          </div>
+          <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
+            <h4 className="text-xl font-semibold text-[#222222]">
+              Số khách hàng mới
+            </h4>
+            <p className="text-2xl font-semibold text-[#006532]">15</p>
+            <p className="text-sm text-gray-500">So với tuần trước: +2</p>
+          </div>
+        </div>
 
         {/* Thanh tìm kiếm và bộ lọc */}
         <div className="mb-3 mt-4 flex flex-col items-center rounded-lg border-2 bg-white px-6 py-3 shadow-custom-slate md:flex-row">
@@ -693,7 +711,7 @@ const ManageUser = () => {
             <div className="relative w-full">
               <input
                 type="text"
-                placeholder="Search by name"
+                placeholder="Tìm kiếm bằng tên"
                 value={searchTerm}
                 onChange={handleSearchChange}
                 className="w-full rounded border border-[#006532] p-2 pl-3"
@@ -707,10 +725,10 @@ const ManageUser = () => {
               onChange={handleRoleChange}
               className="rounded border border-[#006532] p-2"
             >
-              <option value="">All Roles</option>
-              <option value="employee">Employee</option>
-              <option value="admin">Admin</option>
-              <option value="customer">Customer</option>
+              <option value="">Tất cả chức vụ</option>
+              <option value="employee">Nhân viên</option>
+              <option value="admin">Quản lý</option>
+              <option value="customer">Khách hàng</option>
             </select>
 
             <select
@@ -718,9 +736,9 @@ const ManageUser = () => {
               onChange={handleStatusChange}
               className="rounded border border-[#006532] p-2"
             >
-              <option value="">All Status</option>
-              <option value="1">Active</option>
-              <option value="0">Inactive</option>
+              <option value="">Tất cả trạng thái</option>
+              <option value="1">Hoạt động</option>
+              <option value="0">Ngưng hoạt động</option>
             </select>
           </div>
         </div>
@@ -735,7 +753,7 @@ const ManageUser = () => {
                 </th>
                 <th className="py-3 text-left">STT </th>
                 <th className="hidden w-1/6 px-6 py-3 text-left xl:table-cell">
-                  Created At{" "}
+                  Ngày tạo{" "}
                   <FaSort
                     className="ml-1 inline cursor-pointer"
                     onClick={() => requestSort("createdAt")}
@@ -866,43 +884,38 @@ const ManageUser = () => {
         {showViewPopup && currentUser && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70">
             <div className="shadow-lg w-96 rounded-lg border border-gray-200 bg-white p-6">
+              {/* <h2 className="text-2xl font-semibold mb-4 text-[#006532]">User: {currentUser.id}</h2>
+              <p className="text-black"><strong className="text-[#006532]">firstname:</strong> {currentUser.firstName}</p>
+              <p className="text-black"><strong className="text-[#006532]">lastname:</strong> {currentUser.lastName}</p> */}
               <h2 className="mb-4 text-2xl font-semibold text-[#006532]">
-                User: {currentUser.id}
+                Họ Tên: {currentUser.firstName} {currentUser.lastName}
               </h2>
-              <p className="text-black">
-                <strong className="text-[#006532]">firstname:</strong>{" "}
-                {currentUser.firstName}
-              </p>
-              <p className="text-black">
-                <strong className="text-[#006532]">lastname:</strong>{" "}
-                {currentUser.lastName}
-              </p>
               <p className="text-black">
                 <strong className="text-[#006532]">Email:</strong>{" "}
                 {currentUser.email}
               </p>
               <p className="text-black">
-                <strong className="text-[#006532]">Phone:</strong>{" "}
+                <strong className="text-[#006532]">Số điện thoại:</strong>{" "}
                 {currentUser.phone}
               </p>
               <p className="text-black">
-                <strong className="text-[#006532]">Address:</strong>{" "}
+                <strong className="text-[#006532]">Địa chỉ:</strong>{" "}
                 {currentUser.address}
               </p>
               <p className="text-black">
-                <strong className="text-[#006532]">Role:</strong>{" "}
+                <strong className="text-[#006532]">Chức vụ:</strong>{" "}
                 {currentUser.role}
               </p>
               <p className="text-black">
-                <strong className="text-[#006532]">Status:</strong>{" "}
+                <strong className="text-[#006532]">Trạng thái:</strong>{" "}
                 {currentUser.isActive ? "Active" : "Inactive"}
               </p>
               <p className="text-black">
-                <strong className="text-[#006532]">Create Date:</strong>{" "}
+                <strong className="text-[#006532]">Ngày tạo:</strong>{" "}
                 {currentUser.createdAt}
               </p>
               <p className="text-black">
-                <strong className="text-[#006532]">Update Date:</strong>{" "}
+                <strong className="text-[#006532]">Ngày cập nhật:</strong>{" "}
                 {currentUser.updatedAt}
               </p>
 
@@ -910,7 +923,7 @@ const ManageUser = () => {
                 onClick={() => setShowViewPopup(false)}
                 className="mt-4 rounded bg-[#006532] px-4 py-2 text-white hover:bg-green-700"
               >
-                Close
+                Đóng
               </button>
             </div>
           </div>
@@ -961,19 +974,19 @@ const ManageUser = () => {
             </div>
           </div>
         )}
-        {/* <div className="flex justify-center mt-4"> */}
+        {/* <div className="mt-4 flex justify-center"> */}
         {/* Hiển thị các nút phân trang */}
         {/* {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index + 1}
-            onClick={() => handlePageChange(index + 1)}
-            className={`mx-1 px-3 py-1 rounded ${index + 1 === currentPage ? 'bg-[#006532] text-white' : 'bg-gray-200 text-gray-800 hover:bg-blue-200'}`}
-            disabled={index + 1 === currentPage} // Vô hiệu hóa nút hiện tại
-          >
-            {index + 1}
-          </button>
-        ))} */}
-        {/* </div>  */}
+            <button
+              key={index + 1}
+              onClick={() => handlePageChange(index + 1)}
+              className={`mx-1 rounded px-3 py-1 ${index + 1 === currentPage ? "bg-[#006532] text-white" : "bg-gray-200 text-gray-800 hover:bg-blue-200"}`}
+              disabled={index + 1 === currentPage} // Vô hiệu hóa nút hiện tại
+            >
+              {index + 1}
+            </button>
+          ))} */}
+        {/* </div> */}
         <section
           id="pagination"
           className="section-p1 flex justify-center space-x-2"

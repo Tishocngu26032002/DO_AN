@@ -33,6 +33,8 @@ export async function deleteSupplier(supplierId) {
         },
       }
     );
+    console.log(`Deleted supplier with id ${supplierId}:`, res.data);
+
     return res.data;
   } catch (error) {
     console.error("Error deleting supplier:", error.response ? error.response.data : error.message);
@@ -40,16 +42,6 @@ export async function deleteSupplier(supplierId) {
   }
 }
 
-export async function deleteSuppliers(supplierId) {
-    const token = getToken(); 
-    
-    await axios.delete(`${BASE_URL}/supplier/${supplierId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-  }
-  
 // Tạo nhà cung cấp mới
 export const createSupplier = async (supplierData) => {
   try {

@@ -251,24 +251,22 @@ const ManageProduct = () => {
   };
 
   const handlePageChange = (page) => {
-    navigate(`/manage-product/${page}/${productsPerPage}`);
+    navigate(`admin/manage-product/${page}/${productsPerPage}`);
   };
 
   const totalPages = Math.ceil(totalProducts / productsPerPage);
 
   return (
-    <>
+    <div className="min-h-screen bg-gray-100">
       <AdminHeader />
-      <div className="container mx-auto p-4">
-        <h1 className="mb-4 text-2xl font-bold text-[#225a3e]">
+      <div className="ml-[260px] w-5/6 p-4">
+        <h1 className="mb-4 mt-4 text-4xl font-bold text-[#222222]">
           Quản lý sản phẩm
         </h1>
 
         <div className="shadow-md mb-4 rounded-md bg-white p-4">
-          <h2 className="mb-4 text-xl font-bold">Tìm kiếm sản phẩm</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-2 block font-medium">Tên sản phẩm</label>
               <input
                 type="text"
                 value={searchQuery.name}
@@ -280,7 +278,6 @@ const ManageProduct = () => {
               />
             </div>
             <div>
-              <label className="mb-2 block font-medium">Danh mục</label>
               <select
                 value={filterCategory}
                 onChange={(e) => handleFilter(e.target.value)}
@@ -298,47 +295,46 @@ const ManageProduct = () => {
         </div>
         {/* Product List */}
         <div>
-          <h2 className="mb-4 text-xl font-bold text-[#225a3e]">
-            Danh sách sản phẩm
-          </h2>
-          <table className="w-full table-auto border-collapse border border-gray-300 text-left">
-            <thead className="bg-[#225a3e] text-white">
+          <table className="shadow-lg min-w-full overflow-hidden rounded-lg bg-white">
+            <thead className="bg-[#006532] text-white">
               <tr>
-                <th className="border px-4 py-2">STT</th>
-                <th className="border px-4 py-2">Tên sản phẩm</th>
-                <th className="border px-4 py-2">Giá</th>
-                <th className="border px-4 py-2">Danh mục</th>
-                <th className="border px-4 py-2">Nhà cung cấp</th>
-                <th className="border px-4 py-2">Mô tả</th>
-                <th className="border px-4 py-2">Số lượng trong kho</th>
-                <th className="border px-4 py-2">Khối lượng</th>
-                <th className="border px-4 py-2">Hình ảnh</th>
-                <th className="border px-4 py-2">Ngày hết hạn</th>
-                <th className="border px-4 py-2">Hành động</th>
+                <th className="border-y px-4 py-2">STT</th>
+                <th className="border-y px-4 py-2">Tên sản phẩm</th>
+                <th className="border-y px-4 py-2">Giá</th>
+                <th className="border-y px-4 py-2">Danh mục</th>
+                <th className="border-y px-4 py-2">Nhà cung cấp</th>
+                <th className="border-y px-4 py-2">Mô tả</th>
+                <th className="border-y px-4 py-2">Số lượng trong kho</th>
+                <th className="border-y px-4 py-2">Khối lượng</th>
+                <th className="border-y px-4 py-2">Hình ảnh</th>
+                <th className="border-y px-4 py-2">Ngày hết hạn</th>
+                <th className="border-y px-4 py-2">Hành động</th>
               </tr>
             </thead>
             <tbody>
               {filteredProducts.length > 0 ? (
                 filteredProducts.map((product, index) => (
                   <tr key={index} className="border-t">
-                    <td className="border px-4 py-2">{index + 1}</td>
-                    <td className="border px-4 py-2">{product.name}</td>
-                    <td className="border px-4 py-2">{product.priceout}</td>
-                    <td className="border px-4 py-2">
+                    <td className="border-y px-4 py-2">{index + 1}</td>
+                    <td className="border-y px-4 py-2">{product.name}</td>
+                    <td className="border-y px-4 py-2">{product.priceout}</td>
+                    <td className="border-y px-4 py-2">
                       {category.find(
                         (category) => category.id === product.category_id,
                       )?.name || "Không rõ"}
                     </td>
-                    <td className="border px-4 py-2">
+                    <td className="border-y px-4 py-2">
                       {supplier.find(
                         (supplier) => supplier.id === product.supplier_id,
                       )?.name || "Không rõ"}
                     </td>
-                    <td className="border px-4 py-2">{product.description}</td>
-                    <td className="border px-4 py-2">
+                    <td className="border-y px-4 py-2">
+                      {product.description}
+                    </td>
+                    <td className="border-y px-4 py-2">
                       {product.stockQuantity}
                     </td>
-                    <td className="border px-4 py-2">{product.weight}</td>
+                    <td className="border-y px-4 py-2">{product.weight}</td>
                     {/* <td className="border px-4 py-2 text-center">
                       <img
                         src={product.url_image}
@@ -347,7 +343,7 @@ const ManageProduct = () => {
                       />
                     </td> */}
 
-                    <td className="border px-4 py-2 text-center">
+                    <td className="border-y px-4 py-2 text-center">
                       {product.url_images ? (
                         <img
                           src={product.url_images}
@@ -359,7 +355,7 @@ const ManageProduct = () => {
                       )}
                     </td>
 
-                    <td className="border px-4 py-2">
+                    <td className="border-y px-4 py-2">
                       {new Date(product.expire_date).toLocaleDateString(
                         "vi-VN",
                         {
@@ -369,7 +365,7 @@ const ManageProduct = () => {
                         },
                       )}
                     </td>
-                    <td className="flex justify-center space-x-2 px-4 py-2">
+                    <td className="mt-4 flex justify-center space-x-2 px-4 py-2">
                       <button
                         onClick={() => handleEdit(product.id)}
                         className="text-[#225a3e] hover:text-green-700"
@@ -490,18 +486,41 @@ const ManageProduct = () => {
                 </div>
 
                 {/* Input for image upload */}
-                <div className="mb-4">
-                  <label className="block text-gray-700">Hình ảnh</label>
-                  <input
-                    type="file"
-                    name="url_images"
-                    multiple // cho phép chọn nhiều file
-                    // accept="image/*"
-                    onChange={handleImageChange}
-                    className="w-full rounded-md border border-gray-300 p-2"
-                  />
+                <div className="flex flex-wrap">
+                  <div className="mb-4 mr-5 w-[48%]">
+                    <label className="block text-gray-700">Hình ảnh 1</label>
+                    <input
+                      type="file"
+                      name="url_images"
+                      multiple // cho phép chọn nhiều file
+                      // accept="image/*"
+                      onChange={handleImageChange}
+                      className="w-full rounded-md border border-gray-300 p-2"
+                    />
+                  </div>
+                  <div className="mb-4 w-[48%]">
+                    <label className="block text-gray-700">Hình ảnh 2</label>
+                    <input
+                      type="file"
+                      name="url_images"
+                      multiple // cho phép chọn nhiều file
+                      // accept="image/*"
+                      onChange={handleImageChange}
+                      className="w-full rounded-md border border-gray-300 p-2"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Hình ảnh 3</label>
+                    <input
+                      type="file"
+                      name="url_images"
+                      multiple // cho phép chọn nhiều file
+                      // accept="image/*"
+                      onChange={handleImageChange}
+                      className="w-full rounded-md border border-gray-300 p-2"
+                    />
+                  </div>
                 </div>
-
                 {/* Buttons */}
                 <div className="flex justify-end">
                   <button
@@ -539,7 +558,6 @@ const ManageProduct = () => {
           {Array.from({ length: totalPages }, (_, index) => (
             <button
               key={index + 1}
-              onClick={() => handlePageChange(index + 1)}
               className={`mx-1 rounded px-3 py-1 ${
                 index + 1 === currentPage
                   ? "bg-[#006532] text-white"
@@ -552,7 +570,7 @@ const ManageProduct = () => {
           ))}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

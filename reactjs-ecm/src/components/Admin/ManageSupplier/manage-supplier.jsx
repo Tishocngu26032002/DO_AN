@@ -2,14 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import AdminHeader from "../AdminHeader/admin-header.jsx";
 import { FaPlus, FaEdit, FaTrash, FaSearch } from "react-icons/fa";
-import {
-  createSupplier,
-  deleteSuppliers,
-  deleteSupplier,
-  getSupplier,
-  updateSupplier,
-  getSearchSuppliers,
-} from "../../../services/supplier-service.js";
+import { createSupplier,deleteSupplier, getSupplier,updateSupplier,getSearchSuppliers} from "../../../services/supplier-service.js";
 import { uploadImage } from "../../../services/image-service.js";
 import { ClipLoader } from "react-spinners";
 import {
@@ -63,12 +56,8 @@ const ManageSupplier = () => {
 
   useEffect(() => {
     const queryParams = new URLSearchParams();
-    if (searchTerm) queryParams.set("search", searchTerm);
-    window.history.replaceState(
-      null,
-      "",
-      `/manage-supplier/${page}/${limit}?${queryParams.toString()}`,
-    );
+    if (searchTerm) queryParams.set('search', searchTerm);
+    window.history.replaceState(null, '', `/admin/manage-supplier/${page}/${limit}?${queryParams.toString()}`);
   }, [searchTerm, page, limit]);
 
   useEffect(() => {
@@ -345,32 +334,42 @@ const ManageSupplier = () => {
 
   const deleteSelectedSuppliers = async () => {
     try {
-      await Promise.all(selectedSuppliers.map((id) => deleteSuppliers(id)));
+      console.log("Selected suppliers to delete:", selectedSuppliers);
+  
+      await Promise.all(
+        selectedSuppliers.map(async (id) => {
+          const response = await deleteSupplier(id);
+          if (!response.success) {
+            throw new Error(`Failed to delete supplier with id ${id}`);
+          }
+          return response;
+        }),
+      );
+  
       setSuppliers(
         suppliers.filter(
           (supplier) => !selectedSuppliers.includes(supplier.id),
         ),
       );
+  
       setSelectedSuppliers([]);
-      sessionStorage.setItem(
-        "notification",
-        JSON.stringify({
-          message: "Xóa nhà cung cấp thành công!",
-          type: notificationTypes.SUCCESS,
-        }),
-      );
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xóa nhà cung cấp thành công!',
+        type: notificationTypes.SUCCESS
+      }));
+  
+      console.log("Suppliers after deletion:", suppliers);
       window.location.reload();
+  
     } catch (error) {
       console.error("Error deleting selected suppliers:", error);
-      sessionStorage.setItem(
-        "notification",
-        JSON.stringify({
-          message: "Xóa không thành công. Vui long thử lại",
-          type: notificationTypes.ERROR,
-        }),
-      );
+      sessionStorage.setItem('notification', JSON.stringify({
+        message: 'Xóa không thành công. Vui lòng thử lại',
+        type: notificationTypes.ERROR
+      }));
     }
   };
+  
 
   const handleDeleteSelectedSuppliers = () => {
     setShowConfirmDeleteMultiple(true);
@@ -379,6 +378,7 @@ const ManageSupplier = () => {
   const confirmDeleteSelectedSuppliers = async () => {
     await deleteSelectedSuppliers();
     setShowConfirmDeleteMultiple(false);
+    window.location.reload();
   };
   // Hàm lọc danh sách suppliers
   const filteredSuppliers = suppliers.filter((supplier) =>
@@ -405,7 +405,7 @@ const ManageSupplier = () => {
           <a
             key={startPage + index}
             data-page={startPage + index}
-            className={`page ${
+            className={`page px-3 ${
               page === startPage + index
                 ? "active bg-[#006532] text-white"
                 : "bg-gray-200"
@@ -434,14 +434,14 @@ const ManageSupplier = () => {
       </div>
       <NotificationHandler setNotifications={setNotifications} />
       <AdminHeader />
-      <div className="p-4 lg:mx-12">
-        <h1 className="mb-8 mt-4 text-center text-4xl font-bold text-[#006532]">
-          Manage Suppliers
+      <div className="w-5/6 p-4 ml-[260px]">
+      <h1 className="mb-8 mt-4 text-center text-4xl font-bold text-[#006532]">
+          Quản lý nhà cung cấp
         </h1>
 
         <Modal showModal={showModal} setShowModal={setShowModal}>
           <h2 className="mb-4 text-2xl font-semibold text-[#006532]">
-            {editingSupplier ? "Update Supplier" : "Add New Supplier"}
+            {editingSupplier ? "Cập nhật nhà cung cấp" : "Thêm nhà cung cấp"}
           </h2>
           {loading && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
@@ -454,7 +454,7 @@ const ManageSupplier = () => {
               name="name"
               value={newSupplier.name}
               onChange={handleInputChange}
-              placeholder="Supplier Name"
+              placeholder="Tên nhà cung cấp"
               className="rounded border p-2"
             />
             <input
@@ -469,7 +469,7 @@ const ManageSupplier = () => {
               name="phone"
               value={newSupplier.phone}
               onChange={handleInputChange}
-              placeholder="Supplier Phone"
+              placeholder="Số điện thoại"
               className="rounded border p-2"
             />
 
@@ -478,7 +478,7 @@ const ManageSupplier = () => {
               name="address"
               value={newSupplier.address}
               onChange={handleInputChange}
-              placeholder="Supplier Address"
+              placeholder="Địa chỉ"
               className="rounded border p-2"
             />
           </div>
@@ -541,7 +541,7 @@ const ManageSupplier = () => {
                   {supplier.name}
                 </h3>
                 <p className="mb-2 text-gray-600">
-                  <strong>Avatar:</strong>{" "}
+                  <strong>Ảnh:</strong>{" "}
                   <img
                     src={supplier.url_image}
                     alt={supplier.name}
@@ -549,10 +549,10 @@ const ManageSupplier = () => {
                   />
                 </p>
                 <p className="mb-2 text-gray-600">
-                  <strong>Phone:</strong> {supplier.phone}
+                  <strong>Điện thoại:</strong> {supplier.phone}
                 </p>
                 <p className="mb-2 text-gray-600">
-                  <strong>Address:</strong>
+                  <strong>Địa chỉ:</strong>
                   {supplier.address}
                 </p>
 
@@ -645,7 +645,7 @@ const ManageSupplier = () => {
         {/* </div> */}
         <section
           id="pagination"
-          className="section-p1 flex justify-center space-x-2"
+          className="section-p1 flex justify-center space-x-2 mt-5"
         >
           <div className="mb-4 mt-2 flex justify-center">
             {renderPagination()}

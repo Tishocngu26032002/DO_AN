@@ -337,7 +337,7 @@ const Checkout = () => {
                 Phương thức thanh toán
               </h3>
               <div className="shadow-lg flex space-x-4 rounded-lg border border-gray-200 bg-white p-6">
-                {["Thanh toán khi nhận hàng", "Chuyển khoản ngân hàng"].map(
+                {["Thanh toán khi nhận hàng", "Thanh toán qua MOMO"].map(
                   (method) => (
                     <button
                       key={method}
@@ -350,7 +350,7 @@ const Checkout = () => {
                     >
                       {method === "Thanh toán khi nhận hàng"
                         ? "Thanh toán khi nhận hàng"
-                        : "Thanh toán bằng MOMO"}
+                        : "Thanh toán qua MOMO"}
                     </button>
                   ),
                 )}
@@ -454,7 +454,7 @@ const Checkout = () => {
         className="mt-10 bg-[#f9f9f9] py-10 pt-10 text-center"
       >
         <div className="text-[46px] font-semibold leading-[54px] text-[#006532]">
-          Newest Products
+          Sản phẩm mới nhất
         </div>
         <div className="container mx-auto flex flex-wrap justify-evenly pt-5">
           {[...Array(4)].map((_, index) => (

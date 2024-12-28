@@ -20,6 +20,13 @@ export default {
         'custom-dark': '0px 0px 7px 1px rgba(0, 0, 0, 0.55)', // tương đương với #0000008c
         'custom-slate': '0 4px 6px rgba(15, 23, 42, 0.1)',
       },
+      
+    // borderWidth: {
+    //     '10': '10px',
+    //   },
+    // borderColor: {
+    //     'custom-color': 'rgba(36, 105, 92, 0.2)',
+    //   },
   
   },
   plugins: [],

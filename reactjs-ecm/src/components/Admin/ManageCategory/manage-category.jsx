@@ -298,7 +298,7 @@ const ManageCategory = () => {
           <a
             key={startPage + index}
             data-page={startPage + index}
-            className={`page ${
+            className={`page px-3 ${
               params.page === startPage + index
                 ? "active bg-[#006532] text-white"
                 : "bg-gray-200"
@@ -323,8 +323,8 @@ const ManageCategory = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <AdminHeader />
-      <div className="p-4 lg:mx-12">
-        <h1 className="mb-8 mt-4 text-center text-4xl font-bold text-[#006532]">
+      <div className="w-5/6 p-4 ml-[260px]">
+        <h1 className="mb-8 mt-4 text-start text-4xl font-bold text-[#222222]">
           Quản lý danh mục
         </h1>
 
