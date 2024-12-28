@@ -162,7 +162,8 @@ const OrderHistory = () => {
                 className="shadow-sm hover:shadow-md rounded-lg border border-[#006532] p-4"
               >
                 <p className="text-lg font-medium text-[#006532]">
-                  Mã đơn hàng: <span className="font-bold">{order.id}</span>
+                  Mã đơn hàng:{" "}
+                  <span className="font-bold">{order.order_code}</span>
                 </p>
                 <p>
                   Ngày đặt hàng:{" "}

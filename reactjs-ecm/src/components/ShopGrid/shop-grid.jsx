@@ -8,7 +8,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { PiShoppingCart } from "react-icons/pi";
 import { getCategory } from "../../services/category-service";
 import { getUserId } from "../../util/auth-local";
-import img from "../../../public/images/banner/image-4.jpg";
+import img from "../../../public/images/de-heus-animal-nutrition_animals_poultry_hero.png";
 import {
   NotificationList,
   notificationTypes,
@@ -63,8 +63,28 @@ const ShopGrid = () => {
   const getProductsOnPage = async () => {
     try {
       const response = await getProducts(params.page, params.limit);
-      setProducts(response.data.products);
+     
+      const products = response.data.products.map(product => {
+        let urlImages = {};
 
+        if (product.url_images) {
+          const cleanedUrlImages = product.url_images.replace(/\\\"/g, '"');
+          try {
+            urlImages = JSON.parse(cleanedUrlImages);  
+          } catch (error) {
+            console.error("Error parsing url_images:", error);
+            urlImages = {};
+          }
+        }
+
+        return {
+          ...product,
+          url_image1: urlImages.url_images1 || "",  
+          url_image2: urlImages.url_images2 || "",  
+        };
+      });
+      setProducts(products);
+      console.log(products)
       if (response.data.total !== params.total) {
         setParams((prev) => ({
           ...prev,
@@ -85,7 +105,27 @@ const ShopGrid = () => {
         params.category_id,
       );
 
-      setProducts(response.data.products);
+      const products = response.data.products.map(product => {
+        let urlImages = {};
+
+        // Kiểm tra nếu url_images có giá trị hợp lệ
+        if (product.url_images) {
+          const cleanedUrlImages = product.url_images.replace(/\\\"/g, '"');
+          try {
+            urlImages = JSON.parse(cleanedUrlImages);  
+          } catch (error) {
+            console.error("Error parsing url_images:", error);
+            urlImages = {};
+          }
+        }
+
+        return {
+          ...product,
+          url_image1: urlImages.url_images1 || "",  
+          url_image2: urlImages.url_images2 || "",  
+        };
+      });
+      setProducts(products);
 
       if (response.data.total !== params.total) {
         setParams((prev) => ({
@@ -176,16 +216,17 @@ const ShopGrid = () => {
       <div
         key={product.id}
         onClick={() => navigate(`/product-detail/${product.id}`)}
-        className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
+        className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer  border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
       >
         <img
-          src={product.url_images}
+          src={product.url_image1}
           alt={product.name}
-          className="w-full rounded-xl"
+          className="w-full border-[1px]"
         />
         <div className="des pt-3 text-start">
           <span className="text-[13px] text-[#1a1a1a]">
             {product.category.name}
+
           </span>
           <h5 className="pt-2 text-[15px] font-semibold text-[#006532]">
             {product.name}
@@ -300,18 +341,18 @@ const ShopGrid = () => {
           backgroundSize: "cover",
         }}
       >
-        <div className="flex h-full w-full flex-col items-center justify-center bg-[rgba(8,28,14,0.50)] text-center">
-          <h2 className="text-2xl font-bold text-white">Cám........</h2>
-          <p className="text-white"></p>
-          <a href="#" className="to-top">
-            <i className="fas fa-chevron-up"></i>
-          </a>
+        <div className="flex h-full w-full flex-col items-start justify-end bg-[rgba(8,28,14,0.50)] text-center">
+          <div className="ml-28 pl-7 mb-10 border-l-[8px] border-[#39a56f]  flex flex-col items-start justify-start">
+            <h1 className="text-5xl font-extrabold leading-tight tracking-tight text-[#fff] mb-2">FIVEFEED</h1>
+          
+          <h2 className="text-xl font-extrabold text-[#fff] leading-tight tracking-tight">Nuôi dưỡng thành công, gặt hái mùa vàng !</h2>
+          </div>
         </div>
       </section>
 
       <section id="newsletter" className="section-p1 section-m1">
         <div className="flex flex-wrap items-center justify-between bg-[#006532] bg-[url(src/assets/images/b14.png)] bg-[20%_30%] bg-no-repeat p-4">
-          <div className="relative w-1/3">
+          <div className="relative w-1/3 ml-20">
             <select
               onChange={handleFilter}
               className="h-[3.125rem] w-full rounded border border-transparent px-5 text-[14px]"
@@ -325,7 +366,7 @@ const ShopGrid = () => {
             </select>
           </div>
 
-          <div className="form flex w-1/3">
+          <div className="form flex w-1/3 mr-20">
             <input
               type="text"
               placeholder="Tìm kiếm..."

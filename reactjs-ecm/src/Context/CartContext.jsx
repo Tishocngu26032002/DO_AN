@@ -24,9 +24,33 @@ export const CartProvider = ({ children }) => {
         const response = await getCarts();
         const cartData = response.data.data.cart;
         console.log("cartDATA", cartData);
-        setCarts(cartData);
-        calculateTotalCost(cartData);
-        calculateTotalQuantity(cartData);
+        const formattedCarts = cartData.map(item => {
+          let urlImages = {};
+  
+          // Kiểm tra nếu url_images có giá trị hợp lệ
+          if (item.product.url_images) {
+            const cleanedUrlImages = item.product.url_images.replace(/\\\"/g, '"');
+            try {
+              urlImages = JSON.parse(cleanedUrlImages);  
+            } catch (error) {
+              console.error("Error parsing url_images:", error);
+              urlImages = {};
+            }
+          }
+  
+          return {
+            ...item,
+            product: {
+              ...item.product,
+              url_image1: urlImages.url_images1 || "",  
+              url_image2: urlImages.url_images2 || "",  
+            },
+          };
+        });
+        console.log(formattedCarts)
+        setCarts(formattedCarts);
+        calculateTotalCost(formattedCarts);
+        calculateTotalQuantity(formattedCarts);
       }
     } catch (error) {
       console.error("Error fetching carts:", error);

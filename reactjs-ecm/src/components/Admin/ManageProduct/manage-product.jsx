@@ -13,7 +13,7 @@ import {
 import { getCategory } from "../../../services/category-service.js";
 import { getSupplier } from "../../../services/supplier-service.js";
 import { notificationTypes } from "../../Notification/NotificationService.jsx";
-
+import { ClipLoader } from "react-spinners";
 const ManageProduct = () => {
   const { currentPage: pageParam, productsPerPage: perPageParam } = useParams();
   const navigate = useNavigate();
@@ -71,25 +71,73 @@ const ManageProduct = () => {
     loadSupplier();
   }, []);
 
+  // useEffect(() => {
+  //   const loadProducts = async () => {
+  //     try {
+  //       if (!searchMode) {
+  //         const { products: productsData, totalProducts } = await fetchProducts(
+  //           currentPage,
+  //           productsPerPage,
+  //         );
+          
+  //         setProducts(productsData || []);
+  //         console.log("productsDataa", productsData);
+  //         setFilteredProducts(productsData || []);
+  //         setTotalProducts(totalProducts);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error loading products:", error);
+  //     }
+  //   };
+  //   loadProducts();
+  // }, [currentPage, productsPerPage, searchMode]);
+
   useEffect(() => {
     const loadProducts = async () => {
       try {
         if (!searchMode) {
           const { products: productsData, totalProducts } = await fetchProducts(
             currentPage,
-            productsPerPage,
+            productsPerPage
           );
-          setProducts(productsData || []);
-          console.log("productsDataa", productsData);
-          setFilteredProducts(productsData || []);
+  
+          // Tách các link ảnh từ url_images
+          const formattedProducts = productsData.map(product => {
+            let urlImages = {};
+  
+            // Kiểm tra nếu url_images có giá trị hợp lệ
+            if (product.url_images) {
+              const cleanedUrlImages = product.url_images.replace(/\\\"/g, '"');
+              try {
+                urlImages = JSON.parse(cleanedUrlImages);  
+              } catch (error) {
+                console.error("Error parsing url_images:", error);
+                urlImages = {};
+              }
+            }
+  
+            return {
+              ...product,
+              url_image1: urlImages.url_images1 || "",  
+              url_image2: urlImages.url_images2 || "",  
+            };
+          });
+  
+          setProducts(formattedProducts || []);
+          console.log("productsDataa", formattedProducts);
+          setFilteredProducts(formattedProducts || []);
+          console.log("Filtered Products", formattedProducts);
           setTotalProducts(totalProducts);
         }
       } catch (error) {
         console.error("Error loading products:", error);
       }
     };
+  
     loadProducts();
   }, [currentPage, productsPerPage, searchMode]);
+  
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -100,16 +148,14 @@ const ManageProduct = () => {
         expire_date: form.expire_date
           ? new Date(form.expire_date).toISOString().split("T")[0]
           : "",
-      };
 
-      // Nếu có ảnh (url_image) trong form thì sử dụng trực tiếp, không cần gọi API upload ảnh nữa
-      // if (!form.url_images) {
-      // Nếu không có ảnh thì có thể xử lý các công việc khác như thông báo hoặc xử lý lỗi
-      // Bạn có thể thêm mã xử lý logic nếu cần
-      // console.warn("No image provided.");
-      // }
-
-      // Tiến hành thêm hoặc chỉnh sửa sản phẩm
+       url_images: JSON.stringify({
+        url_images1: form.url_images1 || "",
+        url_images2: form.url_images2 || "",
+      }).replace(/"/g, '\\"'), 
+    };
+      console.log('data', formattedForm);
+  
       if (editMode) {
         await editProduct(editId, formattedForm);
         window.location.reload(); // Reload lại trang sau khi cập nhật
@@ -122,11 +168,10 @@ const ManageProduct = () => {
         setEditId(null);
       } else {
         const newProduct = await addProduct(formattedForm);
-        window.location.reload(); // Reload lại trang sau khi thêm mới sản phẩm
+        console.log('new',newProduct)
         setProducts([...products, newProduct]);
       }
-
-      // Reset form sau khi hoàn tất thao tác
+  
       setForm({
         name: "",
         priceout: "",
@@ -154,20 +199,23 @@ const ManageProduct = () => {
       setLoading(false);
     }
   };
-
   const handleImageChange = async (e) => {
     const { name, files } = e.target;
     setLoading(true);
     if (files.length > 0) {
       try {
         const response = await uploadImage(files[0]);
+        console.log('1', response);
         if (response && Array.isArray(response) && response.length > 0) {
-          response[0] = JSON.stringify(response[0]);
-          if (response[0].startsWith('"') && response[0].endsWith('"')) {
-            response[0] = response[0].slice(1, -1); // Loại bỏ dấu ngoặc kép
+          let imageUrl = response[0];
+          if (imageUrl.startsWith('"') && imageUrl.endsWith('"')) {
+            imageUrl = imageUrl.slice(1, -1); // Loại bỏ dấu ngoặc kép
           }
-          setForm({ ...form, [name]: response[0] });
-          console.log("Uploaded image URL:", response[0]);
+          setForm((prevForm) => ({
+            ...prevForm,
+            [name]: imageUrl
+          }));
+          console.log("Uploaded image URL:", imageUrl);
         } else {
           console.error("No URL returned from the server.");
         }
@@ -185,7 +233,6 @@ const ManageProduct = () => {
       }
     }
   };
-
   const handleFilter = (categoryId) => {
     setFilterCategory(categoryId);
     setSearchMode(false);
@@ -208,7 +255,27 @@ const ManageProduct = () => {
       try {
         const { products: searchedProducts, totalProducts } =
           await searchProducts(currentPage, productsPerPage, filters);
-        setFilteredProducts(searchedProducts || []);
+          const products = searchedProducts.map(product => {
+            let urlImages = {};
+  
+            // Kiểm tra nếu url_images có giá trị hợp lệ
+            if (product.url_images) {
+              const cleanedUrlImages = product.url_images.replace(/\\\"/g, '"');
+              try {
+                urlImages = JSON.parse(cleanedUrlImages);  
+              } catch (error) {
+                console.error("Error parsing url_images:", error);
+                urlImages = {};
+              }
+            }
+  
+            return {
+              ...product,
+              url_image1: urlImages.url_images1 || "",  
+              url_image2: urlImages.url_images2 || "",  
+            };
+          });
+        setFilteredProducts(products || []);
         setTotalProducts(totalProducts);
       } catch (error) {
         console.error("Error searching products:", error);
@@ -216,6 +283,7 @@ const ManageProduct = () => {
     };
 
     fetchFilteredProducts();
+
   }, [searchQuery.name, searchQuery.category, currentPage]);
 
   const handleDelete = async (id) => {
@@ -257,18 +325,16 @@ const ManageProduct = () => {
   const totalPages = Math.ceil(totalProducts / productsPerPage);
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="min-h-screen bg-gray-100">
       <AdminHeader />
-      <div className="w-5/6 p-4 ml-[260px] ">
+      <div className="ml-[260px] w-5/6 p-4">
         <h1 className="mb-4 mt-4 text-4xl font-bold text-[#222222]">
           Quản lý sản phẩm
         </h1>
 
         <div className="shadow-md mb-4 rounded-md bg-white p-4">
-          
           <div className="grid grid-cols-2 gap-4">
             <div>
-             
               <input
                 type="text"
                 value={searchQuery.name}
@@ -280,7 +346,6 @@ const ManageProduct = () => {
               />
             </div>
             <div>
-       
               <select
                 value={filterCategory}
                 onChange={(e) => handleFilter(e.target.value)}
@@ -298,8 +363,7 @@ const ManageProduct = () => {
         </div>
         {/* Product List */}
         <div>
-          
-          <table className="min-w-full bg-white shadow-lg rounded-lg overflow-hidden">
+          <table className="shadow-lg min-w-full overflow-hidden rounded-lg bg-white">
             <thead className="bg-[#006532] text-white">
               <tr>
                 <th className="border-y px-4 py-2">STT</th>
@@ -318,7 +382,9 @@ const ManageProduct = () => {
             <tbody>
               {filteredProducts.length > 0 ? (
                 filteredProducts.map((product, index) => (
+                  
                   <tr key={index} className="border-t">
+                  {console.log(filteredProducts)} 
                     <td className="border-y px-4 py-2">{index + 1}</td>
                     <td className="border-y px-4 py-2">{product.name}</td>
                     <td className="border-y px-4 py-2">{product.priceout}</td>
@@ -332,10 +398,13 @@ const ManageProduct = () => {
                         (supplier) => supplier.id === product.supplier_id,
                       )?.name || "Không rõ"}
                     </td>
-                    <td className="border-y px-4 py-2">{product.description}</td>
+                    <td className="border-y px-4 py-2">
+                      {product.description}
+                    </td>
                     <td className="border-y px-4 py-2">
                       {product.stockQuantity}
                     </td>
+                   
                     <td className="border-y px-4 py-2">{product.weight}</td>
                     {/* <td className="border px-4 py-2 text-center">
                       <img
@@ -346,16 +415,17 @@ const ManageProduct = () => {
                     </td> */}
 
                     <td className="border-y px-4 py-2 text-center">
-                      {product.url_images ? (
+                      {product.url_images && product.url_images.replace(/\\"/g, '"') !== "" ? (
                         <img
-                          src={product.url_images}
+                          src={product.url_image1}
                           alt={product.name}
                           className="mx-auto h-12"
                         />
                       ) : (
-                        <p>Không có ảnh</p> // Hiển thị nếu không có ảnh
+                        <p>No image available</p> // Nếu không có ảnh thì hiển thị "No image available"
                       )}
                     </td>
+
 
                     <td className="border-y px-4 py-2">
                       {new Date(product.expire_date).toLocaleDateString(
@@ -367,7 +437,7 @@ const ManageProduct = () => {
                         },
                       )}
                     </td>
-                    <td className="flex justify-center space-x-2 px-4 mt-4 py-2">
+                    <td className="mt-4 flex justify-center space-x-2 px-4 py-2">
                       <button
                         onClick={() => handleEdit(product.id)}
                         className="text-[#225a3e] hover:text-green-700"
@@ -406,6 +476,11 @@ const ManageProduct = () => {
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
             <div className="shadow-lg w-1/3 rounded bg-white p-6">
+            {loading && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+              <ClipLoader color="#006532" size={50} loading={loading} />
+            </div>
+          )}
               <h2 className="mb-4 text-xl font-bold">
                 {editMode ? "Cập nhật sản phẩm" : "Thêm sản phẩm"}
               </h2>
@@ -489,39 +564,25 @@ const ManageProduct = () => {
 
                 {/* Input for image upload */}
                 <div className="flex flex-wrap">
-                <div className="mb-4 w-[48%] mr-5">
-                  <label className="block text-gray-700">Hình ảnh 1</label>
-                  <input
-                    type="file"
-                    name="url_images"
-                    multiple // cho phép chọn nhiều file
-                    // accept="image/*"
-                    onChange={handleImageChange}
-                    className="w-full rounded-md border border-gray-300 p-2"
-                  />
-                </div>
-                <div className="mb-4 w-[48%]">
-                  <label className="block text-gray-700">Hình ảnh 2</label>
-                  <input
-                    type="file"
-                    name="url_images"
-                    multiple // cho phép chọn nhiều file
-                    // accept="image/*"
-                    onChange={handleImageChange}
-                    className="w-full rounded-md border border-gray-300 p-2"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-700">Hình ảnh 3</label>
-                  <input
-                    type="file"
-                    name="url_images"
-                    multiple // cho phép chọn nhiều file
-                    // accept="image/*"
-                    onChange={handleImageChange}
-                    className="w-full rounded-md border border-gray-300 p-2"
-                  />
-                </div>
+                  <div className="mb-4 mr-5 w-[48%]">
+                    <label className="block text-gray-700">Hình ảnh 1</label>
+                    <input
+                      type="file"
+                      name="url_images1"
+                      onChange={handleImageChange}
+                      className="w-full rounded-md border border-gray-300 p-2"
+                    />
+                  </div>
+                  <div className="mb-4 w-[48%]">
+                    <label className="block text-gray-700">Hình ảnh 2</label>
+                    <input
+                      type="file"
+                      name="url_images2"
+                      onChange={handleImageChange}
+                      className="w-full rounded-md border border-gray-300 p-2"
+                    />
+                  </div>
+                  
                 </div>
                 {/* Buttons */}
                 <div className="flex justify-end">
@@ -560,7 +621,6 @@ const ManageProduct = () => {
           {Array.from({ length: totalPages }, (_, index) => (
             <button
               key={index + 1}
-          
               className={`mx-1 rounded px-3 py-1 ${
                 index + 1 === currentPage
                   ? "bg-[#006532] text-white"

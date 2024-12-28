@@ -218,7 +218,7 @@ function HomePage() {
         className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
       >
         <img
-          src={product.productImage}
+          src={product.url_image1}
           alt={product.productName}
           className="w-full rounded-xl"
         />
@@ -268,7 +268,28 @@ function HomePage() {
   const getLatestProductsOnPage = async () => {
     try {
       const response = await getLatestProducts();
-      setLatestProducts(response.data);
+      const data = response.data.map(product => {
+        let urlImages = {};
+
+        // Kiểm tra nếu url_images có giá trị hợp lệ
+        if (product.productImages) {
+          const cleanedUrlImages = product.productImages.replace(/\\\"/g, '"');
+          try {
+            urlImages = JSON.parse(cleanedUrlImages);  
+          } catch (error) {
+            console.error("Error parsing url_images:", error);
+            urlImages = {};
+          }
+        }
+
+        return {
+          ...product,
+          url_image1: urlImages.url_images1 || "",  
+          url_image2: urlImages.url_images2 || "",  
+        };
+      });
+      console.log(data)
+      setLatestProducts(data);
     } catch (error) {
       console.log(error);
     }
@@ -293,14 +314,14 @@ function HomePage() {
           {/* <h4 className="pb-[15px] text-[20px] text-white">
             
           </h4> */}
-          <h2 className="text-[46px] leading-[54px] text-white mobile:text-[32px]">
+          <h2 className="text-[46px] leading-[54px] text-[#fff] font-bold tracking-tight mobile:text-[32px]">
             THỨC ĂN CHĂN NUÔI
           </h2>
           {/* <h1 className="text-[50px] leading-[64px] text-white mobile:text-[38px]">
             CHO TẤT CẢ SẢN PHẨM
           </h1> */}
-          <p className="my-[15px] mb-[20px] text-[16px] text-white">
-            Chuyên gia thức ăn chăn nuôi qua nhiều thế hệ
+          <p className="my-[15px] mb-[20px] text-[16px] text-[#fff]  tracking-tight">
+            Chất lượng vượt trội, dinh dưỡng vẹn toàn – Đồng hành cùng sự phát triển của đàn gia súc
           </p>
           <button className="cursor-pointer border-0 bg-transparent bg-[url('/images/button.png')] bg-no-repeat px-[80px] py-[14px] pl-[65px] pr-[80px] text-[15px] font-bold text-white">
             Mua ngay!!!
@@ -308,7 +329,7 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="feature section-p1 flex flex-wrap items-center justify-between px-[80px] py-[40px] tablet:justify-center tablet:p-[40px] mobile:p-[20px]">
+      <section className="feature section-p1 flex flex-wrap items-center justify-evenly px-[80px] py-[40px] tablet:justify-center tablet:p-[40px] mobile:p-[20px]">
         <div className="fe-box my-[15px] w-[180px] rounded-[4px] border border-[#cce7d0] px-[15px] py-[25px] text-center shadow-[20px_20px_34px_rgba(0,0,0,0.03)] hover:shadow-[10px_10px_54px_rgba(70,62,221,0.1)] tablet:m-[15px]">
           <img
             src="images/features/duck.jpg"
@@ -369,11 +390,9 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="banner section-m1 my-[40px] flex h-[40vh] w-full flex-col items-center justify-center bg-[url('images/banner/banner-home.png')] bg-cover bg-center text-center tablet:h-[20vh]">
+      <section className="banner section-m1 my-[40px] flex h-[40vh] w-full flex-col items-center justify-center bg-[url('images/equipment-hero.webp')] bg-cover bg-center text-center tablet:h-[20vh]">
         <h2 className="py-[10px] text-[30px] leading-[54px] text-white mobile:text-[32px]">
-          Khuyến mãi lên tới{" "}
-          <span className="text-[rgb(255,240,107)]">70%</span> - Mua càng nhiều,
-          giá càng hời
+          Chọn ngay hôm nay – Thức ăn chăn nuôi chuẩn chất lượng, tăng năng suất vượt trội!
         </h2>
         <button className="normal cursor-pointer rounded-[4px] border-0 bg-white px-[30px] py-[15px] text-[14px] font-semibold text-[#000] outline-none transition duration-200 ease-in-out hover:bg-[rgb(255,240,107)] hover:text-white">
           Khám phá thêm
@@ -399,14 +418,13 @@ function HomePage() {
       </section>
 
       <section className="sm-banner section-p1 flex w-full flex-wrap justify-between px-[80px] py-[40px]">
-        <div className="banner-box h-[50vh] w-full min-w-[300px] bg-[url('images/banner/banner-pig.jpeg')] bg-cover bg-center text-center tablet:h-[30vh] tablet:w-full mobile:mb-[20px] mobile:h-[40vh]">
+        <div className="banner-box h-[50vh] w-full min-w-[300px] bg-[url('/images/GLOBADRY-banner.jpg')] bg-cover bg-center text-center tablet:h-[30vh] tablet:w-full mobile:mb-[20px] mobile:h-[40vh]">
           <div className="flex h-full w-full flex-col items-start justify-center bg-[rgba(8,28,14,0.45)] p-[30px]">
-            <h4 className="text-[20px] font-light text-white">Deals cực hời</h4>
             <h2 className="text-[28px] font-extrabold leading-[54px] text-white mobile:text-[32px]">
-              Mua 1 tặng 1
+              Đừng bỏ lỡ! Ưu đãi hấp dẫn mỗi ngày
             </h2>
             <span className="pb-[15px] text-[14px] font-medium text-white">
-              Bã đậu nành đang được bán
+              Mua nhiều, tiết kiệm lớn!
             </span>
             <button className="white cursor-pointer border border-white bg-transparent px-[18px] py-[11px] text-[13px] font-semibold text-white outline-none transition duration-200 ease-in-out hover:bg-[rgb(255,240,107)]">
               Xem thêm

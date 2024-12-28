@@ -48,7 +48,9 @@ const Cart = () => {
     }
 
     const response = await getCarts();
+    
     const cartData = response.data.data.cart;
+    
     setCarts(cartData);
 
     const cost = cartData.reduce(
@@ -195,18 +197,14 @@ const Cart = () => {
             className="h-52"
             style={{
               backgroundImage: `url("images/banner/chk1.jpg")`,
-              backgroundPosition: "center",
+              backgroundPosition: "center 20%",
               backgroundSize: "cover",
             }}
           >
-            <div className="flex h-full w-full flex-col items-center justify-center bg-[rgba(8,28,14,0.79)] text-center">
-              <h2 className="text-2xl font-bold text-white">
-                GIỎ HÀNG CỦA BẠN
-              </h2>
-              <p className="text-white"></p>
-              <a href="#" className="to-top">
-                <i className="fas fa-chevron-up"></i>
-              </a>
+            <div className="flex h-full w-full flex-col items-start justify-end bg-[rgba(8,28,14,0.60)] text-center">
+            <div className="ml-56 pl-7 mb-10 border-l-[8px] border-[#2c7c54]  flex flex-col items-start justify-start">
+              <h2 className="text-3xl font-extrabold text-[#fff] leading-tight tracking-tight">Giỏ hàng của bạn</h2>
+            </div>
             </div>
           </section>
 
@@ -215,7 +213,7 @@ const Cart = () => {
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
-                    <th className="w-1/6 rounded-tl-md bg-[#006532] p-2 pl-6 text-left font-normal text-white">
+                    <th className="w-1/12 rounded-tl-md bg-[#006532] p-2 pl-6 text-left font-normal text-white">
                       <input
                         type="checkbox"
                         checked={selectAll}
@@ -223,7 +221,7 @@ const Cart = () => {
                         className="h-5 w-5"
                       />
                     </th>
-                    <th className="w-2/5 bg-[#006532] p-2 text-left font-normal text-white">
+                    <th className="w-2/5 bg-[#006532] p-2 pl-6 text-left font-normal text-white">
                       Sản phẩm
                     </th>
                     <th className="w-1/6 bg-[#006532] p-2 text-center font-normal text-white">
@@ -237,7 +235,7 @@ const Cart = () => {
                 <tbody>
                   {carts.map((cart) => (
                     <tr key={cart.id} className="border-t-2 border-[#00653294]">
-                      <td className="w-1/6 p-2 pl-6">
+                      <td className="w-1/12 p-2 pl-6">
                         <input
                           type="checkbox"
                           checked={selectedItems.includes(cart.id)}
@@ -248,7 +246,7 @@ const Cart = () => {
                       <td className="w-2/5 p-2">
                         <div className="flex items-center">
                           <img
-                            src={cart.product.url_images}
+                            src={cart.product.url_image1}
                             alt="Image"
                             className="mr-3 h-[80px] w-[80px] object-cover md:h-[120px] md:w-[120px]"
                           />
@@ -367,7 +365,7 @@ const Cart = () => {
             className="mt-10 bg-[#f9f9f9] py-10 pt-10 text-center"
           >
             <div className="text-[46px] font-semibold leading-[54px] text-[#006532]">
-              Newest Products
+              Sản phẩm mới nhất
             </div>
             <div className="container mx-auto flex flex-wrap justify-evenly pt-5">
               {[...Array(4)].map((_, index) => (
