@@ -640,14 +640,14 @@ const ManageImport = () => {
                 <td className="py-3 px-6">
                   <div className="flex space-x-4">
                     <button onClick={() => handleViewImportPr(importPr)} className="text-blue-600 hover:text-blue-700 hover:underline">
-                      {/* <FaEye size={18} /> */} Xem chi tiết
+                       <FaEye size={18} /> 
                     </button>
                     {/* <button onClick={() => openUpdateModal(importPr)} className="text-[#006532] hover:text-[#005a2f]">
                       <FaEdit />
                     </button> */}
-                        {/* <button onClick={() => handleDeleteClick(importPr.id)} className="text-gray-400 hover:text-red-500">
+                        <button className="text-gray-400 hover:text-red-500">
                       <FaTrash />
-                    </button> */}
+                    </button>
                       </div>
                     </td>
                   </tr>
@@ -697,7 +697,7 @@ const ManageImport = () => {
               </div>
               <button
                 onClick={() => setShowViewPopup(false)}
-                className="rounded-lg bg-[#006532] px-4 py-2 text-white hover:bg-red-700"
+                className="rounded-lg bg-[#006532] px-4 py-2 text-white hover:bg-[#19442e]"
               >
                 Đóng
               </button>

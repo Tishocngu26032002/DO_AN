@@ -934,11 +934,13 @@ const ManageOrder = () => {
               </p>
               <p className="text-black">
                 <strong>Thời gian cập nhật:</strong>{" "}
-                {currentOrder.order.updatedAt}
+                {" "}
+                {formatDateTime(currentOrder.order.updatedAt)}?{" "}
               </p>
               <p className="text-black">
                 <strong>Thời gian đặt hàng:</strong>{" "}
-                {currentOrder.order.createdAt}
+                {" "}
+                {formatDateTime(currentOrder.order.createdAt)}{" "}
               </p>
               <h3 className="mt-4 text-xl font-bold">Sản phẩm</h3>
               <table className="shadow-lg mt-4 min-w-full overflow-hidden rounded-lg bg-white">
