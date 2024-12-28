@@ -63,11 +63,21 @@ const ProductDetail = () => {
   }, []);
 
   useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await getCategory(1, 20);
+        setCategory(response.data.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  useEffect(() => {
     const fetchProduct = async () => {
       try {
         const data = await fetchProductDetail(productId);
-        console.log('Product Data:', data);
-        
         if (data) {
           let urlImages = {};
           if (data.url_images) {
