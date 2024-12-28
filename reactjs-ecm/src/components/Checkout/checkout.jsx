@@ -454,7 +454,7 @@ const Checkout = () => {
         className="mt-10 bg-[#f9f9f9] py-10 pt-10 text-center"
       >
         <div className="text-[46px] font-semibold leading-[54px] text-[#006532]">
-          Newest Products
+          Sản phẩm mới nhất
         </div>
         <div className="container mx-auto flex flex-wrap justify-evenly pt-5">
           {[...Array(4)].map((_, index) => (

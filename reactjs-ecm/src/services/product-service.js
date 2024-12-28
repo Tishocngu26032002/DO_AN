@@ -47,7 +47,7 @@ export const fetchProductDetail = async (productId) => {
   try {
     const response = await axios.get(`${BASE_URL}/product/${productId}`);
     if (response.status === 200 && response.data && response.data.data) {
-      return response.data.data;
+      return response.data.data.products;
     } else {
       console.error("No data received from server.");
       return null;

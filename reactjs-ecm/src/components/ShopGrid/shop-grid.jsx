@@ -301,7 +301,7 @@ const ShopGrid = () => {
         }}
       >
         <div className="flex h-full w-full flex-col items-center justify-center bg-[rgba(8,28,14,0.50)] text-center">
-          <h2 className="text-2xl font-bold text-white">Cám........</h2>
+          <h2 className="text-2xl font-bold text-white">Sản phẩm</h2>
           <p className="text-white"></p>
           <a href="#" className="to-top">
             <i className="fas fa-chevron-up"></i>
