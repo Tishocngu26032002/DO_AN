@@ -336,6 +336,7 @@ const ShopGrid = () => {
         id="page-header"
         className="h-[47vh]"
         style={{
+          
           backgroundImage: `url(${img})`,
           backgroundPosition: "center",
           backgroundSize: "cover",
