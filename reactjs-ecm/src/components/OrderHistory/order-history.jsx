@@ -73,6 +73,13 @@ const OrderHistory = () => {
     return <div className="mt-10 text-center text-red-500">{error}</div>;
   }
 
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    const time = date.toLocaleTimeString("vi-VN", { hour12: false });
+    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    return `${formattedDate} ${time}`;
+  };
+
   const renderPagination = () => {
     if (total < limit) return null;
 
@@ -167,8 +174,10 @@ const OrderHistory = () => {
                 </p>
                 <p>
                   Ngày đặt hàng:{" "}
-                  {new Date(order.createdAt).toLocaleDateString()}
+                  {/* {new Date(order.createdAt).toLocaleDateString()} */}
+                  {formatDateTime(order.createdAt)}{" "}
                 </p>
+
                 <p>Trạng thái giao hàng: {order.orderStatus}</p>
                 <p>
                   {/* Tổng tiền:{" "}

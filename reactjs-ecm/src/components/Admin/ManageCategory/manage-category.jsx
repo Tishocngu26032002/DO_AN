@@ -323,7 +323,7 @@ const ManageCategory = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <AdminHeader />
-      <div className="w-5/6 p-4 ml-[260px]">
+      <div className="ml-[260px] w-5/6 p-4">
         <h1 className="mb-8 mt-4 text-start text-4xl font-bold text-[#222222]">
           Quản lý danh mục
         </h1>
@@ -411,7 +411,7 @@ const ManageCategory = () => {
             <div className="relative w-full">
               <input
                 type="text"
-                placeholder="Search by name"
+                placeholder="Tìm kiếm bằng tên"
                 onInput={handleSearch}
                 className="w-full rounded-lg border border-[#00653287] px-4 py-2"
               />
@@ -452,7 +452,7 @@ const ManageCategory = () => {
                   <strong>Banner:</strong> {category.banner}
                 </p> */}
                 <p className="mb-2 text-gray-600">
-                  <strong>Description:</strong>
+                  <strong>Mô tả:</strong>
                   <span className="block">
                     {/* {expandedDescription[category.id]
                       ? category.description
@@ -470,7 +470,7 @@ const ManageCategory = () => {
                 </p>
 
                 <p className="mb-2 text-gray-600">
-                  <strong>Status:</strong>{" "}
+                  <strong>Trạng thái:</strong>{" "}
                   {category.status === "Áp dụng" ? "Áp dụng" : "Không áp dụng"}
                 </p>
                 <div className="mt-4 flex items-center space-x-3">

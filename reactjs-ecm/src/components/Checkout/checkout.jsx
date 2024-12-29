@@ -256,20 +256,20 @@ const Checkout = () => {
 
             <div className="shadow-lg mt-6 rounded-lg border border-gray-200 bg-white p-4">
               <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
-                <span>Tổng phụ</span>
+                <span>Tổng tiền hàng</span>
                 <span>
                   <span className="underline">đ</span>{" "}
                   {new Intl.NumberFormat("vi-VN").format(totalCost)}
                 </span>
               </div>
               <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
-                <span>Phí giao hàng</span>
+                <span>Tổng tiền phí vận chuyển</span>
                 <span>
                   <span className="underline">đ</span> 0
                 </span>
               </div>
               <div className="flex items-center justify-between text-lg font-semibold text-[#006532]">
-                <span>Tổng cộng</span>
+                <span>Tổng thanh toán</span>
                 <span>
                   <span className="underline">đ</span>{" "}
                   {new Intl.NumberFormat("vi-VN").format(totalCost)}
