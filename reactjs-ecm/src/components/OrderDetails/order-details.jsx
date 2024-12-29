@@ -61,6 +61,12 @@ const OrderDetails = () => {
   {
     console.log("orderDetails", orderDetails);
   }
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    const time = date.toLocaleTimeString("vi-VN", { hour12: false });
+    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    return `${formattedDate} ${time}`;
+  };
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
@@ -80,7 +86,8 @@ const OrderDetails = () => {
             <p className="text-lg text-gray-700">
               Ngày đặt hàng:{" "}
               <span className="font-semibold">
-                {new Date(orderDetails.createdAt).toLocaleDateString()}
+                {/* {new Date(orderDetails.createdAt).toLocaleDateString()} */}
+                {formatDateTime(orderDetails.createdAt)}{" "}
               </span>
             </p>
             <p className="text-lg text-gray-700">
@@ -115,7 +122,7 @@ const OrderDetails = () => {
 
           {/* Danh sách sản phẩm */}
           <h3 className="mb-4 text-2xl font-semibold text-gray-800">
-            Products
+            Sản phẩm
           </h3>
           <div className="grid grid-cols-1 gap-4">
             {orderDetails.orderProducts.map((product) => (
@@ -156,7 +163,7 @@ const OrderDetails = () => {
           {/* Tóm tắt thanh toán */}
           <div className="shadow-lg mt-6 rounded-lg border border-gray-200 bg-white p-4">
             <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
-              <span>Tổng phụ</span>
+              <span>Tổng tiền hàng</span>
 
               <span>
                 <span className="underline">đ</span>{" "}
@@ -166,13 +173,13 @@ const OrderDetails = () => {
               </span>
             </div>
             <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
-              <span>Phí giao hàng</span>
+              <span>Tổng tiền phí vận chuyển</span>
               <span>
                 <span className="underline">đ</span> 0
               </span>
             </div>
             <div className="flex items-center justify-between text-lg font-semibold text-[#006532]">
-              <span>Tổng cộng</span>
+              <span>Tổng thanh toán</span>
               <span>
                 <span className="underline">đ</span>{" "}
                 {new Intl.NumberFormat("vi-VN").format(

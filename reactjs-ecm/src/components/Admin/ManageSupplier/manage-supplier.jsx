@@ -2,7 +2,13 @@ import { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import AdminHeader from "../AdminHeader/admin-header.jsx";
 import { FaPlus, FaEdit, FaTrash, FaSearch } from "react-icons/fa";
-import { createSupplier,deleteSupplier, getSupplier,updateSupplier,getSearchSuppliers} from "../../../services/supplier-service.js";
+import {
+  createSupplier,
+  deleteSupplier,
+  getSupplier,
+  updateSupplier,
+  getSearchSuppliers,
+} from "../../../services/supplier-service.js";
 import { uploadImage } from "../../../services/image-service.js";
 import { ClipLoader } from "react-spinners";
 import {
@@ -56,8 +62,12 @@ const ManageSupplier = () => {
 
   useEffect(() => {
     const queryParams = new URLSearchParams();
-    if (searchTerm) queryParams.set('search', searchTerm);
-    window.history.replaceState(null, '', `/admin/manage-supplier/${page}/${limit}?${queryParams.toString()}`);
+    if (searchTerm) queryParams.set("search", searchTerm);
+    window.history.replaceState(
+      null,
+      "",
+      `/admin/manage-supplier/${page}/${limit}?${queryParams.toString()}`,
+    );
   }, [searchTerm, page, limit]);
 
   useEffect(() => {
@@ -335,7 +345,7 @@ const ManageSupplier = () => {
   const deleteSelectedSuppliers = async () => {
     try {
       console.log("Selected suppliers to delete:", selectedSuppliers);
-  
+
       await Promise.all(
         selectedSuppliers.map(async (id) => {
           const response = await deleteSupplier(id);
@@ -345,31 +355,35 @@ const ManageSupplier = () => {
           return response;
         }),
       );
-  
+
       setSuppliers(
         suppliers.filter(
           (supplier) => !selectedSuppliers.includes(supplier.id),
         ),
       );
-  
+
       setSelectedSuppliers([]);
-      sessionStorage.setItem('notification', JSON.stringify({
-        message: 'Xóa nhà cung cấp thành công!',
-        type: notificationTypes.SUCCESS
-      }));
-  
+      sessionStorage.setItem(
+        "notification",
+        JSON.stringify({
+          message: "Xóa nhà cung cấp thành công!",
+          type: notificationTypes.SUCCESS,
+        }),
+      );
+
       console.log("Suppliers after deletion:", suppliers);
       window.location.reload();
-  
     } catch (error) {
       console.error("Error deleting selected suppliers:", error);
-      sessionStorage.setItem('notification', JSON.stringify({
-        message: 'Xóa không thành công. Vui lòng thử lại',
-        type: notificationTypes.ERROR
-      }));
+      sessionStorage.setItem(
+        "notification",
+        JSON.stringify({
+          message: "Xóa không thành công. Vui lòng thử lại",
+          type: notificationTypes.ERROR,
+        }),
+      );
     }
   };
-  
 
   const handleDeleteSelectedSuppliers = () => {
     setShowConfirmDeleteMultiple(true);
@@ -434,8 +448,8 @@ const ManageSupplier = () => {
       </div>
       <NotificationHandler setNotifications={setNotifications} />
       <AdminHeader />
-      <div className="w-5/6 p-4 ml-[260px]">
-      <h1 className="mb-8 mt-4 text-center text-4xl font-bold text-[#006532]">
+      <div className="ml-[260px] w-5/6 p-4">
+        <h1 className="mb-8 mt-4 text-center text-4xl font-bold text-[#006532]">
           Quản lý nhà cung cấp
         </h1>
 
@@ -520,7 +534,7 @@ const ManageSupplier = () => {
             <div className="relative w-full">
               <input
                 type="text"
-                placeholder="Search by name"
+                placeholder="Tìm kiếm bằng tên"
                 value={searchTerm}
                 onChange={handleSearchChange}
                 className="w-full rounded-lg border border-[#00653287] px-4 py-2"
@@ -541,7 +555,7 @@ const ManageSupplier = () => {
                   {supplier.name}
                 </h3>
                 <p className="mb-2 text-gray-600">
-                  <strong>Ảnh:</strong>{" "}
+                  {/* <strong>Ảnh:</strong>{" "} */}
                   <img
                     src={supplier.url_image}
                     alt={supplier.name}
@@ -645,7 +659,7 @@ const ManageSupplier = () => {
         {/* </div> */}
         <section
           id="pagination"
-          className="section-p1 flex justify-center space-x-2 mt-5"
+          className="section-p1 mt-5 flex justify-center space-x-2"
         >
           <div className="mb-4 mt-2 flex justify-center">
             {renderPagination()}

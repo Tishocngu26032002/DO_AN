@@ -17,14 +17,13 @@ import { useCart } from "../../Context/CartContext";
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState(null); 
+  const [user, setUser] = useState(null);
 
   const [cartItemsQuantity, setCartItemsQuantity] = useState(0);
 
   const [notifications, setNotifications] = useState([]);
 
   const { totalQuantity, isLoading } = useCart();
-
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -33,8 +32,8 @@ function Header() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await getUser(); 
-        setUser(response.data); 
+        const response = await getUser();
+        setUser(response.data);
       } catch (error) {
         console.error("Failed to fetch user", error);
       }
@@ -51,35 +50,35 @@ function Header() {
     ? user.lastName.substring(0, 4).toUpperCase()
     : "";
 
-    const handleLogoutUser = async () => {
-      try {
-        // Gọi hàm logoutUser với userId
-        await logoutUser();
-        
-        // Xóa token khỏi localStorage và đặt lại state user
-        localStorage.clear();
-        setUser(null); // Đặt lại user state sau khi đăng xuất
-    
-        // Hiển thị thông báo đăng xuất thành công
-        showNotification(
-          "Bạn đã đăng xuất thành công.",
-          notificationTypes.INFO,
-          setNotifications,
-        );
-      } catch (error) {
-        // Xử lý lỗi khi đăng xuất
-        console.error("Error logging out:", error);
-    
-        // Hiển thị thông báo lỗi
-        showNotification(
-          "Đăng xuất thất bại. Vui lòng thử lại.",
-          notificationTypes.ERROR,
-          setNotifications,
-        );
-      }
-    };
+  const handleLogoutUser = async () => {
+    try {
+      // Gọi hàm logoutUser với userId
+      await logoutUser();
 
-    const userId=getUserId();
+      // Xóa token khỏi localStorage và đặt lại state user
+      localStorage.clear();
+      setUser(null); // Đặt lại user state sau khi đăng xuất
+
+      // Hiển thị thông báo đăng xuất thành công
+      showNotification(
+        "Bạn đã đăng xuất thành công.",
+        notificationTypes.INFO,
+        setNotifications,
+      );
+    } catch (error) {
+      // Xử lý lỗi khi đăng xuất
+      console.error("Error logging out:", error);
+
+      // Hiển thị thông báo lỗi
+      showNotification(
+        "Đăng xuất thất bại. Vui lòng thử lại.",
+        notificationTypes.ERROR,
+        setNotifications,
+      );
+    }
+  };
+
+  const userId = getUserId();
   return (
     <>
       {/* Hiển thị các thông báo */}
@@ -139,7 +138,8 @@ function Header() {
               </li>
               <li className="px-4">
                 <NavLink
-                  to="/user/${userId}"
+                  // to="/user/${userId}"
+                  to={`/user/${userId}`}
                   className={({ isActive }) =>
                     isActive
                       ? "border-b-2 border-b-[#006532] text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out"
@@ -264,7 +264,7 @@ function Header() {
                   SẢN PHẨM
                 </NavLink>
               </li>
-             
+
               <li className="py-2">
                 <NavLink
                   to="/contact"
@@ -280,7 +280,8 @@ function Header() {
               {user && (
                 <li className="py-2">
                   <NavLink
-                     to="/home-page" onClick={handleLogoutUser}
+                    to="/home-page"
+                    onClick={handleLogoutUser}
                     className={({ isActive }) =>
                       isActive
                         ? "border-b-2 border-b-[#006532] text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out"

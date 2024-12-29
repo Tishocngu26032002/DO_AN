@@ -7,14 +7,18 @@ import { getCategory } from "../../services/category-service.js";
 import Footer from "../Footer/footer.jsx";
 import { PiMinusBold, PiPlusBold } from "react-icons/pi";
 import { authLocal, userIdLocal, getToken } from "../../util/auth-local.js"; // Import the auth methods
-import { getCarts,createCart,updateCart } from "../../services/cart-service.js"; // Assuming you have a cart service to handle API calls
+import {
+  getCarts,
+  createCart,
+  updateCart,
+} from "../../services/cart-service.js"; // Assuming you have a cart service to handle API calls
 
 // Tách Image component
 const Image = ({ mainImage, setMainImage, productImages }) => {
   return (
     <div className="single-pro-image md:mr-12 md:w-1/3 xl:mr-12 xl:w-2/3">
       {/* Ảnh chính */}
-      <img src={mainImage} className="w-full mb-2" alt="Main Product" />
+      <img src={mainImage} className="mb-2 w-full" alt="Main Product" />
       {/* Nhóm ảnh nhỏ */}
       <div className="small-img-group mt-1 flex justify-between">
         {productImages.map((img, index) => (
@@ -160,7 +164,10 @@ const ProductDetail = () => {
       >
         <div className="flex h-full w-full items-center justify-center bg-[rgba(8,28,14,0.79)] text-center">
           <p className="text-white">
-            HOME / {category.find((category) => category.id === product.category_id,)?.name || "Không rõ"} / {product.name}
+            HOME /{" "}
+            {category.find((category) => category.id === product.category_id)
+              ?.name || "Không rõ"}{" "}
+            / {product.name}
           </p>
         </div>
       </section>
@@ -220,7 +227,7 @@ const ProductDetail = () => {
             {product.description}
           </p>
           <p className="text-l leading-[25px] text-[#777777]">
-            Số lượng: {product.stockQuantity}{" "}
+            Kho: {product.stockQuantity}{" "}
           </p>
           <p className="text-l leading-[25px] text-[#777777]">
             Bao: {product.weight}kg
