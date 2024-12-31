@@ -12,24 +12,53 @@ import {
   createCart,
   updateCart,
 } from "../../services/cart-service.js"; // Assuming you have a cart service to handle API calls
-
+import img from "../../../public/images/checkout-banner.jpg";
 // Tách Image component
+// const Image = ({ mainImage, setMainImage, productImages }) => {
+//   return (
+//     <div className="single-pro-image md:mr-12 md:w-1/3 xl:mr-12 xl:w-2/3">
+//       {/* Ảnh chính */}
+//       <img src={mainImage} className="mb-2 w-full" alt="Main Product" />
+//       {/* Nhóm ảnh nhỏ */}
+//       <div className="small-img-group mt-1 flex justify-between">
+//         {productImages.map((img, index) => (
+//           <div
+//             key={index}
+//             className={`small-img-col w-24p cursor-pointer ${
+//               img === mainImage ? "border-2 border-[#0065322a]" : ""
+//             }`}
+//             onClick={() => setMainImage(img)}
+//           >
+//             <img src={img} className="w-full" alt={`Thumbnail ${index + 1}`} />
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// };
+
 const Image = ({ mainImage, setMainImage, productImages }) => {
   return (
     <div className="single-pro-image md:mr-12 md:w-1/3 xl:mr-12 xl:w-2/3">
       {/* Ảnh chính */}
-      <img src={mainImage} className="mb-2 w-full" alt="Main Product" />
+      <div className="flex h-[450px] justify-center">
+        <img src={mainImage} className="mb-2 h-full" alt="Main Product" />
+      </div>
       {/* Nhóm ảnh nhỏ */}
-      <div className="small-img-group mt-1 flex justify-between">
+      <div className="small-img-group mt-1 flex h-1/4 w-full justify-between">
         {productImages.map((img, index) => (
           <div
             key={index}
-            className={`small-img-col w-24p cursor-pointer ${
-              img === mainImage ? "border-2 border-blue-500" : ""
+            className={`small-img-col w-24p w-1/2 cursor-pointer ${
+              img === mainImage ? "border-2 border-[#0065322a]" : ""
             }`}
             onClick={() => setMainImage(img)}
           >
-            <img src={img} className="w-full" alt={`Thumbnail ${index + 1}`} />
+            <img
+              src={img}
+              className="h-full w-full"
+              alt={`Thumbnail ${index + 1}`}
+            />
           </div>
         ))}
       </div>
@@ -71,8 +100,23 @@ const ProductDetail = () => {
       try {
         const data = await fetchProductDetail(productId);
         if (data) {
-          setProduct(data);
-          setMainImage(data.url_images || "");
+          let urlImages = {};
+          if (data.url_images) {
+            const cleanedUrlImages = data.url_images.replace(/\\\"/g, '"');
+            try {
+              urlImages = JSON.parse(cleanedUrlImages);
+            } catch (error) {
+              console.error("Error parsing url_images:", error);
+              urlImages = {};
+            }
+          }
+
+          setProduct({
+            ...data,
+            url_image1: urlImages.url_images1 || "",
+            url_image2: urlImages.url_images2 || "",
+          });
+          setMainImage(urlImages.url_images1 || "");
         }
       } catch (error) {
         console.error("Error fetching product details:", error);
@@ -152,23 +196,35 @@ const ProductDetail = () => {
   if (!product) return <div>Product not found.</div>;
 
   // const productImages = product.images || [product.url_images];
-  const productImages = Array(3).fill(product.url_images);
+  const productImages = [product.url_image1, product.url_image2];
 
   return (
     <>
       <Header />
+      {/* <p className="text-white">
+            HOME / {category.find((category) => category.id === product.category_id,)?.name || "Không rõ"} / {product.name}
+          </p> */}
       <section
         id="page-header"
-        className="h-52 bg-cover bg-center"
-        style={{ backgroundImage: `url("/images/banner/chk1.jpg")` }}
+        className="h-56"
+        style={{
+          backgroundImage: `url(${img})`,
+          backgroundPosition: "center 20%",
+          backgroundSize: "cover",
+        }}
       >
-        <div className="flex h-full w-full items-center justify-center bg-[rgba(8,28,14,0.79)] text-center">
-          <p className="text-white">
-            HOME /{" "}
-            {category.find((category) => category.id === product.category_id)
-              ?.name || "Không rõ"}{" "}
-            / {product.name}
-          </p>
+        <div className="flex h-full w-full flex-col items-start justify-end bg-[rgba(8,28,14,0.50)] text-center">
+          <div className="mb-10 ml-60 flex flex-col items-start justify-start border-l-[8px] border-[#39a56f] pl-7">
+            <h1 className="mb-2 text-4xl font-extrabold leading-tight tracking-tight text-[#fff]">
+              {product.name}
+            </h1>
+
+            <h2 className="text-xl font-semibold leading-tight tracking-tight text-[#fff]">
+              Home /{" "}
+              {category.find((category) => category.id === product.category_id)
+                ?.name || "Không rõ"}
+            </h2>
+          </div>
         </div>
       </section>
 

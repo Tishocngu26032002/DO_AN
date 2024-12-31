@@ -48,8 +48,34 @@ const Cart = () => {
     }
 
     const response = await getCarts();
+
     const cartData = response.data.data.cart;
-    setCarts(cartData);
+    const formattedCarts = cartData.map((item) => {
+      let urlImages = {};
+
+      // Kiểm tra nếu url_images có giá trị hợp lệ
+      if (item.product.url_images) {
+        const cleanedUrlImages = item.product.url_images.replace(/\\\"/g, '"');
+        try {
+          urlImages = JSON.parse(cleanedUrlImages);
+        } catch (error) {
+          console.error("Error parsing url_images:", error);
+          urlImages = {};
+        }
+      }
+
+      return {
+        ...item,
+        product: {
+          ...item.product,
+          url_image1: urlImages.url_images1 || "",
+          url_image2: urlImages.url_images2 || "",
+        },
+      };
+    });
+    console.log(formattedCarts);
+    setCarts(formattedCarts);
+    // setCarts(cartData);
 
     const cost = cartData.reduce(
       (total, item) => total + item.quantity * item.product.priceout,
@@ -81,7 +107,35 @@ const Cart = () => {
 
       const response = await getCarts();
       const cartData = response.data.data.cart;
-      setCarts(cartData);
+      const formattedCarts = cartData.map((item) => {
+        let urlImages = {};
+
+        // Kiểm tra nếu url_images có giá trị hợp lệ
+        if (item.product.url_images) {
+          const cleanedUrlImages = item.product.url_images.replace(
+            /\\\"/g,
+            '"',
+          );
+          try {
+            urlImages = JSON.parse(cleanedUrlImages);
+          } catch (error) {
+            console.error("Error parsing url_images:", error);
+            urlImages = {};
+          }
+        }
+
+        return {
+          ...item,
+          product: {
+            ...item.product,
+            url_image1: urlImages.url_images1 || "",
+            url_image2: urlImages.url_images2 || "",
+          },
+        };
+      });
+      console.log(formattedCarts);
+      setCarts(formattedCarts);
+      // setCarts(cartData);
 
       const cost = cartData.reduce(
         (total, item) => total + item.quantity * item.product.priceout,
@@ -195,18 +249,16 @@ const Cart = () => {
             className="h-52"
             style={{
               backgroundImage: `url("images/banner/chk1.jpg")`,
-              backgroundPosition: "center",
+              backgroundPosition: "center 20%",
               backgroundSize: "cover",
             }}
           >
-            <div className="flex h-full w-full flex-col items-center justify-center bg-[rgba(8,28,14,0.79)] text-center">
-              <h2 className="text-2xl font-bold text-white">
-                GIỎ HÀNG CỦA BẠN
-              </h2>
-              <p className="text-white"></p>
-              <a href="#" className="to-top">
-                <i className="fas fa-chevron-up"></i>
-              </a>
+            <div className="flex h-full w-full flex-col items-start justify-end bg-[rgba(8,28,14,0.60)] text-center">
+              <div className="mb-10 ml-56 flex flex-col items-start justify-start border-l-[8px] border-[#2c7c54] pl-7">
+                <h2 className="text-3xl font-extrabold leading-tight tracking-tight text-[#fff]">
+                  Giỏ hàng của bạn
+                </h2>
+              </div>
             </div>
           </section>
 
@@ -215,7 +267,7 @@ const Cart = () => {
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
-                    <th className="w-1/6 rounded-tl-md bg-[#006532] p-2 pl-6 text-left font-normal text-white">
+                    <th className="w-1/12 rounded-tl-md bg-[#006532] p-2 pl-6 text-left font-normal text-white">
                       <input
                         type="checkbox"
                         checked={selectAll}
@@ -223,7 +275,7 @@ const Cart = () => {
                         className="h-5 w-5"
                       />
                     </th>
-                    <th className="w-2/5 bg-[#006532] p-2 text-left font-normal text-white">
+                    <th className="w-2/5 bg-[#006532] p-2 pl-6 text-left font-normal text-white">
                       Sản phẩm
                     </th>
                     <th className="w-1/6 bg-[#006532] p-2 text-center font-normal text-white">
@@ -237,7 +289,7 @@ const Cart = () => {
                 <tbody>
                   {carts.map((cart) => (
                     <tr key={cart.id} className="border-t-2 border-[#00653294]">
-                      <td className="w-1/6 p-2 pl-6">
+                      <td className="w-1/12 p-2 pl-6">
                         <input
                           type="checkbox"
                           checked={selectedItems.includes(cart.id)}
@@ -248,7 +300,7 @@ const Cart = () => {
                       <td className="w-2/5 p-2">
                         <div className="flex items-center">
                           <img
-                            src={cart.product.url_images}
+                            src={cart.product.url_image1}
                             alt="Image"
                             className="mr-3 h-[80px] w-[80px] object-cover md:h-[120px] md:w-[120px]"
                           />

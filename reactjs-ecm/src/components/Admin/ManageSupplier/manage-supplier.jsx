@@ -449,7 +449,7 @@ const ManageSupplier = () => {
       <NotificationHandler setNotifications={setNotifications} />
       <AdminHeader />
       <div className="ml-[260px] w-5/6 p-4">
-        <h1 className="mb-8 mt-4 text-center text-4xl font-bold text-[#006532]">
+        <h1 className="mb-8 mt-4 text-start text-4xl font-bold text-[#222222]">
           Quản lý nhà cung cấp
         </h1>
 
