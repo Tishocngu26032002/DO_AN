@@ -1,8 +1,12 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { IoMenu, IoClose, IoNotificationsOutline } from "react-icons/io5";
+import {  IoNotificationsOutline } from "react-icons/io5";
 import { RiArrowDropUpLine,RiArrowDropDownLine } from "react-icons/ri";
-import img from "../../../../public/images/Crops organic farm.png";
+import { LuUsers,LuBox } from "react-icons/lu";
+import { PiChartLineBold } from "react-icons/pi";
+import { FiLogOut } from "react-icons/fi";
+import { TbCategory,TbInvoice ,TbBuildingWarehouse,TbClipboardList } from "react-icons/tb";
+import img from "../../../../public/images/user.png";
 import { NotificationContext } from "../../Notification/NotificationProvider.jsx";
 import { ref, update } from "firebase/database";
 import { database } from "../../../services/firebase-config.js";
@@ -28,16 +32,22 @@ export const markAllNotificationsAsRead = async (notifications) => {
 
 function HeaderAdmin() {
   const { notifications } = useContext(NotificationContext);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(true);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [allRead, setAllRead] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(null); // Lưu trạng thái active của mục
+  const [isHovered, setIsHovered] = useState(false); // Trạng thái để kiểm tra hover
+  const [isOrderManagementOpen, setIsOrderManagementOpen] = useState(false);
+  const handleNavLinkClick = (index) => {
+    setActiveIndex(index); // Cập nhật trạng thái active khi người dùng click vào item
+  };
+
   const unreadCount = notifications.filter(
     ([key, notification]) => notification.isRead === false,
   ).length;
-  const [isHovered, setIsHovered] = useState(false); // Trạng thái để kiểm tra hover
-  
-  const [isOrderManagementOpen, setIsOrderManagementOpen] = useState(false);
+
+
 
   const toggleOrderManagement = () => {
     setIsOrderManagementOpen(!isOrderManagementOpen);
@@ -81,44 +91,35 @@ function HeaderAdmin() {
     setAllRead(checkAllRead());
   }, [notifications]);
 
+  useEffect(() => {
+    if (activeIndex === 0 || window.location.pathname.includes("/admin/manage-order")) {
+      setIsOrderManagementOpen(true);
+    }
+  }, [activeIndex]);
   
   return (
-    <div className="shadow-lg sticky top-0 z-50 flex bg-[#225a3e] px-12 py-3 shadow-custom-dark">
-      {/* Logo */}
-      {/*<a href="/home-page" className="absolute right-[70px] -mt-1">
-        <img
-          src={img}
-          className="fadeInUp h-[85px] w-20 rounded-[0_20px_20px_20px] border-2 border-[#006633] bg-white p-1 shadow-custom-dark transition-all duration-500 ease-in-out hover:rounded-[20px_20px_0_20px] md:h-[95px] md:w-[90px] md:border-0"
-          alt="Logo"
-        />
-      </a>*/}
-      <div className="left-10 -mt-5 flex items-center pt-6">
-        <button id="bar" className="px-4" onClick={toggleMenu}>
-          {isMenuOpen ? (
-            <IoClose
-              className="h-[35px] w-[35px] text-white"
-              aria-hidden="true"
-            />
-          ) : (
-            <IoMenu
-              className="h-[40px] w-[30px] text-white"
-              aria-hidden="true"
-            />
-          )}
-        </button>
-      </div>
+    <div className="shadow-lg sticky top-0 z-50 flex bg-white px-12 py-3 shadow-custom-dark">
+      
+
       <button
         className="relative ml-auto mt-1 flex items-center"
         onClick={togglePopup}
       >
-        <IoNotificationsOutline className="h-[25px] w-[25px] text-[#006532] text-white" />
+        <IoNotificationsOutline className="h-[25px] w-[25px] text-[#006532] " />
         {unreadCount > 0 && (
           <span className="absolute bottom-1 left-3.5 right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-semibold text-white">
             {unreadCount}
           </span>
         )}
       </button>
-
+      <button id="lg-bag" className="mt-1 ml-8">
+                  <NavLink to="/home-page" >
+                    <FiLogOut
+                      aria-hidden="true"
+                      className="h-[23px] w-[23px] text-[#006532] transition duration-300 hover:text-[#80c9a4]"
+                    />
+                  </NavLink>
+                </button>
       {/* Popup Notification */}
       {isPopupOpen && (
         <div
@@ -211,134 +212,172 @@ function HeaderAdmin() {
         </div>
       )}
 
-      {/* Sidebar Menu */}
-
+    
       <div
-        className={`shadow-lg fixed left-0 top-[63px] z-50 h-full w-[250px] transform border-r-2 border-[#006532] bg-white transition-transform duration-300 ease-in-out ${
-          isMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`shadow-lg fixed left-0 top-0 z-50 h-full w-[250px] px-4 transform border-r-1   bg-white transition-transform duration-300 ease-in-out`}
       >
-        {/* Logo in Sidebar */}
-        <a
-          href="/home-page"
-          className="block border-b-2 border-[#006532] bg-white p-6"
-        >
-          <img
-            src={img}
-            className="mx-auto h-auto w-24 rounded-[0_30px_30px_30px]"
-            alt="Logo"
-          />
-        </a>
+      <div className=" h-[54px] border-[1px] -mx-4 "></div>
+       <div className="flex flex-col items-center mt-6 pb-6  border-b ">
+        <img src={img} className="size-28  border-[10px] border-solid border-[#006532] rounded-full"/>
+        <div className="absolute left-0 right-0 mx-auto top-[168px] flex justify-center">
+          <span className="text-center text-[12px] text-white font-bold bg-[#24695c] px-[6px] pt-[4px] pb-[3px] rounded-lg">Admin</span>
+        </div>
+        <p className="mt-3 font-semibold text-[#006532]">Thành Lê</p>
+        
+       </div>
 
         {/* Navigation Links */}
-        <ul className="flex flex-col items-start font-semibold text-[#006532]">
-          <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
+        <ul className="flex flex-col items-start font-semibold text-white pt-2">
+          <li
+            className={` flex flex-wrap w-full px-6  py-[12px] transition-colors duration-700 group  hover:border-[#006532] hover:bg-[#006532] rounded-xl ${
+              activeIndex === 0 || window.location.pathname.includes("/admin/dashboard") ? "bg-[#006532] rounded-xl" : ""
+            }`}
+          >
+          <PiChartLineBold
+          className={` w-6 h-6 mr-5 ${
+              activeIndex === 0 || window.location.pathname.includes("/admin/dashboard") ? "text-white" : "text-[#222222] group-hover:text-white"
+            }`}
+           />
             <NavLink
               to="/admin/dashboard"
+              onClick={() => setActiveIndex(0)} // Cập nhật trạng thái khi click
               className={({ isActive }) =>
-                isActive
-                  ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
-                  : "text-[#006532] hover:text-white"
+                isActive || window.location.pathname.includes("/admin/dashboard")
+                  ? "border-l-4 border-[#006532] bg-[#006532] text-white"
+                  : "text-[#222222] group-hover:text-white"
               }
             >
               Thống Kê
             </NavLink>
           </li>
-          <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
+
+          <li className={`flex flex-wrap w-full px-6  py-[12px] transition-colors duration-700 group hover:border-[#006532] hover:bg-[#006532] rounded-xl ${
+              activeIndex === 0 || window.location.pathname.includes("/admin/manage-user") ? "bg-[#006532] rounded-xl" : ""
+            }`}>
+            <LuUsers className={` w-6 h-6 mr-5 ${
+              activeIndex === 0 || window.location.pathname.includes("/admin/manage-user") ? "text-white" : "text-[#222222]  group-hover:text-white"
+            }`} />
             <NavLink
               to="/admin/manage-user/1/8"
               className={({ isActive }) =>
-                isActive
-                  ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
-                  : "text-[#006532] hover:text-white"
+                isActive || window.location.pathname.includes("/admin/manage-user")
+                  ? "border-l-4 border-[#006532] bg-[#006532] text-white"
+                  : "text-[#222222]  group-hover:text-white"
               }
             >
-              Quản lý người dùng
+              Người dùng
             </NavLink>
           </li>
-          <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
+          <li className={ `flex flex-wrap w-full px-6  py-[12px] transition-colors duration-700 group hover:border-[#006532] hover:bg-[#006532] rounded-xl ${
+              activeIndex === 0 || window.location.pathname.includes("/admin/manage-category") ? "bg-[#006532] rounded-xl" : ""
+            }`}>
+            <TbCategory className={` w-6 h-6 mr-5 ${
+              activeIndex === 0 || window.location.pathname.includes("/admin/manage-category") ? "text-white" : "text-[#222222]  group-hover:text-white"
+            }`} />
             <NavLink
               to="/admin/manage-category"
               className={({ isActive }) =>
-                isActive
-                  ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
-                  : "text-[#006532] hover:text-white"
+                isActive || window.location.pathname.includes("/admin/manage-category")
+                   ? "border-l-4 border-[#006532] bg-[#006532] text-white"
+                  : "text-[#222222]  group-hover:text-white"
               }
             >
-              Quản lý danh mục
+              Danh mục
             </NavLink>
           </li>
-          <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
+          <li className={`flex flex-wrap w-full px-6  py-[12px] transition-colors duration-700 group hover:border-[#006532] hover:bg-[#006532] rounded-xl ${
+              activeIndex === 0 || window.location.pathname.includes("/admin/manage-product")? "bg-[#006532] rounded-xl" : ""
+            }`}>
+            <LuBox className={` w-6 h-6 mr-5 ${
+              activeIndex === 0 || window.location.pathname.includes("/admin/manage-product") ? "text-white" : "text-[#222222]  group-hover:text-white"
+            }`} />
             <NavLink
               to="/admin/manage-product/1/10"
               className={({ isActive }) =>
-                isActive
-                  ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
-                  : "text-[#006532] hover:text-white"
+                isActive || window.location.pathname.includes("/admin/manage-product")
+                  ? "border-l-4 border-[#006532] bg-[#006532] text-white"
+                  : "text-[#222222]  group-hover:text-white"
               }
             >
-              Quản lý sản phẩm
+              Sản phẩm
             </NavLink>
           </li>
-          <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
+          <li className={`flex flex-wrap w-full px-6  py-[12px] transition-colors duration-700 group hover:border-[#006532] hover:bg-[#006532] rounded-xl ${
+              activeIndex === 0 || window.location.pathname.includes("/admin/manage-import") ? "bg-[#006532] rounded-xl" : ""
+            }`}>
+            <TbInvoice className={` w-6 h-6 mr-5 ${
+              activeIndex === 0 || window.location.pathname.includes("/admin/manage-import") ? "text-white" : "text-[#222222]  group-hover:text-white"
+            }`} />
             <NavLink
               to="/admin/manage-import/1/4"
               className={({ isActive }) =>
-                isActive
-                  ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
-                  : "text-[#006532] hover:text-white"
+                isActive || window.location.pathname.includes("/admin/manage-import")
+                  ? "border-l-4 border-[#006532] bg-[#006532] text-white"
+                  : "text-[#222222]  group-hover:text-white"
               }
             >
-              Quản lý đơn nhập hàng
+              Đơn nhập hàng
             </NavLink>
           </li>
-          <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white cursor-pointer">
+          <li className={`w-full  px-6  py-[12px] transition-colors duration-700 hover:bg-[#006532] hover:rounded-xl cursor-pointer group ${
+              activeIndex === 0 || window.location.pathname.includes("/admin/manage-order") ? "bg-[#006532] rounded-xl" : ""
+            }`}>
         <div
           onClick={toggleOrderManagement}
           className="flex items-center justify-between"
-        >
-          <span>Quản lý đơn hàng</span>
-          <span>{isOrderManagementOpen ? <RiArrowDropDownLine className="text-3xl"/> : <RiArrowDropUpLine  className="text-3xl"/>}</span>
+        > 
+          <TbClipboardList className={` w-6 h-6 ${
+              activeIndex === 0 || window.location.pathname.includes("/admin/manage-order") ? "text-white" : "text-[#222222]  group-hover:text-white"
+            }`}/>
+          <span className={`${
+              activeIndex === 0 || window.location.pathname.includes("/admin/manage-order") ? "text-white" : "text-[#222222]  group-hover:text-white"
+            }`}>Đơn hàng</span>
+          <span>{isOrderManagementOpen ? <RiArrowDropDownLine className="text-3xl text-[#222222]"/> : <RiArrowDropUpLine  className="text-3xl text-[#222222]"/>}</span>
         </div>
         {isOrderManagementOpen && (
-          <ul className="pl-9 mt-2 bg-[#80c9a4] -mx-6 border-t border-[#006532]">
-            <li className="w-full border-b border-[#407259]  py-3 transition-colors duration-300 hover:underline ">
+          <ul className="pl-9 mt-2  -mx-6 border-t bg-white">
+            <li className="w-full ml-[30px]  py-3 transition-colors duration-700  ">
               <NavLink
                 to="/admin/manage-order/1/4?"
                 className={({ isActive }) =>
                   isActive
-                    ? "border-l-4 border-[#006532] pl-2 text-[#006532] font-semibold"
-                    : "text-[#006532]"
+                    ? " text-[#006532] font-semibold"
+                    : "text-[#222222] hover:text-[#006532] font-medium"
                 }
               >
-                Quản lý đơn đặt hàng
+                Đơn đặt hàng
               </NavLink>
             </li>
-            <li className="w-full py-3 -mb-4 transition-colors duration-300 hover:underline hover:text-[#006532]">
+            <li className="w-full ml-[30px] py-3 -mb-4 transition-colors duration-700 hover:text-[#006532]">
               <NavLink
                 to="/admin/manage-order-complete/1/2"
                 className={({ isActive }) =>
                   isActive
-                    ? "border-l-4 border-[#006532] pl-2 text-[#006532] font-semibold"
-                    : "text-[#006532] "
+                    ? " text-[#006532] font-semibold"
+                    : "text-[#222222] hover:text-[#006532] font-medium"
                 }
               >
-                Đơn hàng đã hoàn thành
+                Đã hoàn thành
               </NavLink>
             </li>
           </ul>
         )}
       </li>
-          <li className="w-full border-b border-[#006532] px-6 py-4 transition-colors duration-300 hover:bg-[#80c9a4] hover:text-white">
+          <li className={` flex flex-wrap w-full px-6 py-[12px] transition-colors duration-700 group hover:border-[#006532] hover:bg-[#006532] rounded-xl ${
+              activeIndex === 0 || window.location.pathname.includes("/admin/manage-supplier") ? "bg-[#006532] rounded-xl" : ""
+            }`}>
+             <TbBuildingWarehouse className={` w-6 h-6 mr-5 ${
+              activeIndex === 0 || window.location.pathname.includes("/admin/manage-supplier") ? "text-white" : "text-[#222222]  group-hover:text-white"
+            }`} />
             <NavLink
               to="/admin/manage-supplier/1/4"
               className={({ isActive }) =>
-                isActive
-                  ? "border-l-4 border-[#006532] pl-2 text-[#006532]"
-                  : "text-[#006532] hover:text-white"
+                isActive || window.location.pathname.includes("/admin/manage-supplier")
+                  ? "border-l-4 border-[#006532] bg-[#006532] text-white"
+                  : "text-[#222222]  group-hover:text-white"
               }
             >
-              Quản lý nhà cung cấp
+              Nhà cung cấp
             </NavLink>
           </li>
         </ul>

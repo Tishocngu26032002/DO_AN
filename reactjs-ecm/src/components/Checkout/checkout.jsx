@@ -55,6 +55,7 @@ const Checkout = () => {
     mutationFn: async (data) => {
       // call api thêm địa chỉ mới
       const response = await createNewAddress(data);
+      console.log("resAdd", response);
       return response.data; // Tải lại trang để lấy danh sách địa chỉ mới
     },
     onSuccess: (response) => {
@@ -174,15 +175,9 @@ const Checkout = () => {
         // clearSelectedCartItems();
 
         setTotalQuantity(res.data.data.total);
-
-        // const orderResponse = {
-        //   orderId: response.orderId,
-        //   status: response.status,
-        //   // các thuộc tính khác nếu cần
-        // };
-
+        console.log("response.orderId", response.data.data.id);
         navigate("/order-success", {
-          state: { orderResponse: response.data.data },
+          state: { orderId: response.data.data.id },
         });
       } else {
         showNotification(
@@ -244,7 +239,15 @@ const Checkout = () => {
                       Bao: {cart.product.weight}kg
                     </p>
                     <p className="text-sm font-medium text-gray-700">
-                      Số tiền: {cart.product.priceout * cart.quantity}đ
+                      <div className="flex gap-1">
+                        <div>Đơn giá:</div>
+                        <h4 className="flex gap-1">
+                          <p className="underline">đ</p>
+                          {new Intl.NumberFormat("vi-VN").format(
+                            cart.product.priceout,
+                          )}
+                        </h4>
+                      </div>
                     </p>
                   </div>
                 </div>
@@ -253,16 +256,24 @@ const Checkout = () => {
 
             <div className="shadow-lg mt-6 rounded-lg border border-gray-200 bg-white p-4">
               <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
-                <span>Tổng phụ</span>
-                <span>{totalCost}đ</span>
+                <span>Tổng tiền hàng</span>
+                <span>
+                  <span className="underline">đ</span>{" "}
+                  {new Intl.NumberFormat("vi-VN").format(totalCost)}
+                </span>
               </div>
               <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
-                <span>Phí giao hàng</span>
-                <span>0đ</span>
+                <span>Tổng tiền phí vận chuyển</span>
+                <span>
+                  <span className="underline">đ</span> 0
+                </span>
               </div>
               <div className="flex items-center justify-between text-lg font-semibold text-[#006532]">
-                <span>Tổng cộng</span>
-                <span>{totalCost}đ</span>
+                <span>Tổng thanh toán</span>
+                <span>
+                  <span className="underline">đ</span>{" "}
+                  {new Intl.NumberFormat("vi-VN").format(totalCost)}
+                </span>
               </div>
             </div>
           </div>
@@ -326,7 +337,7 @@ const Checkout = () => {
                 Phương thức thanh toán
               </h3>
               <div className="shadow-lg flex space-x-4 rounded-lg border border-gray-200 bg-white p-6">
-                {["Thanh toán khi nhận hàng", "Chuyển khoản ngân hàng"].map(
+                {["Thanh toán khi nhận hàng", "Thanh toán qua MOMO"].map(
                   (method) => (
                     <button
                       key={method}
@@ -339,7 +350,7 @@ const Checkout = () => {
                     >
                       {method === "Thanh toán khi nhận hàng"
                         ? "Thanh toán khi nhận hàng"
-                        : "Chuyển khoản ngân hàng"}
+                        : "Thanh toán qua MOMO"}
                     </button>
                   ),
                 )}
@@ -443,7 +454,7 @@ const Checkout = () => {
         className="mt-10 bg-[#f9f9f9] py-10 pt-10 text-center"
       >
         <div className="text-[46px] font-semibold leading-[54px] text-[#006532]">
-          Newest Products
+          Sản phẩm mới nhất
         </div>
         <div className="container mx-auto flex flex-wrap justify-evenly pt-5">
           {[...Array(4)].map((_, index) => (

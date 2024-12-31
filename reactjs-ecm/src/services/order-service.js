@@ -17,7 +17,7 @@ export const getUserOrders = async (userId, page = 1, limit = 10) => {
         },
       },
     );
-    return res.data.data.list;
+    return res.data;
   } catch (error) {
     console.error("Error fetching user orders:", error);
     throw error;
@@ -126,16 +126,25 @@ export const updateOrder = async (updateData) => {
   }
 };
 
-export async function getOrdersAdmin(page, limit, orderStatus,paymentStatus,includeExcluded) {
+export async function getOrdersAdmin(
+  page,
+  limit,
+  orderStatus,
+  paymentStatus,
+  includeExcluded,
+) {
   try {
     const token = getToken();
-    const res = await axios.get(`${BASE_URL}/order/manage-order/${page}/${limit}?orderStatus=${orderStatus}&paymentStatus=${paymentStatus}&includeExcluded=${includeExcluded}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        accept: "*/*",
+    const res = await axios.get(
+      `${BASE_URL}/order/manage-order/${page}/${limit}?orderStatus=${orderStatus}&paymentStatus=${paymentStatus}&includeExcluded=${includeExcluded}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          accept: "*/*",
+        },
       },
-    });
-    console.log('api', res.data);
+    );
+    console.log("api", res.data);
     return res.data;
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -143,18 +152,37 @@ export async function getOrdersAdmin(page, limit, orderStatus,paymentStatus,incl
   }
 }
 
-export const updateOrderAdmin = async ( orderData) => {
+export const updateOrderAdmin = async (orderData) => {
   try {
     const token = getToken(); // Lấy token
-    const userId= getUserId();
+    const userId = getUserId();
     const res = await axios.patch(`${BASE_URL}/order/${userId}`, orderData, {
       headers: {
         Authorization: `Bearer ${token}`, // Truyền token ở đây
       },
     });
+    console.log('1',res.data)
     return res.data;
   } catch (error) {
     console.error("Error updating user:", error);
+    throw error;
+  }
+};
+
+export const getOrderDetails = async (orderId) => {
+  try {
+    const token = getToken();
+    const res = await axios.get(
+      `${BASE_URL}/order/detail/${userId}/${orderId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching order details:", error);
     throw error;
   }
 };

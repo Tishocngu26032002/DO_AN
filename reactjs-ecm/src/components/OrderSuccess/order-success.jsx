@@ -6,14 +6,14 @@ import { PiCheckCircle } from "react-icons/pi";
 
 const OrderSuccess = () => {
   const location = useLocation();
-  const { orderResponse } = location.state || {}; // Lấy response từ state
+  const { orderId } = location.state || {}; // Lấy response từ state
 
-  console.log("orderres", orderResponse);
-  if (!orderResponse) {
-    // Nếu không có dữ liệu, điều hướng ngược lại
-    navigate("/");
-    // return null;
-  }
+  console.log("orderresponse", orderId);
+  // if (!orderResponse) {
+  //   // Nếu không có dữ liệu, điều hướng ngược lại
+  //   navigate("/");
+  //   // return null;
+  // }
 
   const navigate = useNavigate();
 
@@ -22,7 +22,9 @@ const OrderSuccess = () => {
   };
 
   const handleViewOrderDetails = () => {
-    navigate("/order-details"); // Đường dẫn đến chi tiết đơn hàng
+    navigate("/order-details", {
+      state: { orderId: orderId },
+    });
   };
 
   return (

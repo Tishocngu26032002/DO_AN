@@ -6,6 +6,7 @@ import { IoMenu, IoClose } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
 import img from "../../../public/images/Crops organic farm.png";
 import { getUser } from "../../services/user-service";
+import { getToken, getUserId } from "../../util/auth-local";
 import { logoutUser } from "../../services/auth-api";
 import {
   NotificationList,
@@ -16,14 +17,13 @@ import { useCart } from "../../Context/CartContext";
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState(null); 
+  const [user, setUser] = useState(null);
 
   const [cartItemsQuantity, setCartItemsQuantity] = useState(0);
 
   const [notifications, setNotifications] = useState([]);
 
   const { totalQuantity, isLoading } = useCart();
-
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -32,8 +32,8 @@ function Header() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await getUser(); 
-        setUser(response.data); 
+        const response = await getUser();
+        setUser(response.data);
       } catch (error) {
         console.error("Failed to fetch user", error);
       }
@@ -50,33 +50,35 @@ function Header() {
     ? user.lastName.substring(0, 4).toUpperCase()
     : "";
 
-    const handleLogoutUser = async () => {
-      try {
-        // Gọi hàm logoutUser với userId
-        await logoutUser();
-        
-        // Xóa token khỏi localStorage và đặt lại state user
-        localStorage.clear();
-        setUser(null); // Đặt lại user state sau khi đăng xuất
-    
-        // Hiển thị thông báo đăng xuất thành công
-        showNotification(
-          "Bạn đã đăng xuất thành công.",
-          notificationTypes.INFO,
-          setNotifications,
-        );
-      } catch (error) {
-        // Xử lý lỗi khi đăng xuất
-        console.error("Error logging out:", error);
-    
-        // Hiển thị thông báo lỗi
-        showNotification(
-          "Đăng xuất thất bại. Vui lòng thử lại.",
-          notificationTypes.ERROR,
-          setNotifications,
-        );
-      }
-    };
+  const handleLogoutUser = async () => {
+    try {
+      // Gọi hàm logoutUser với userId
+      await logoutUser();
+
+      // Xóa token khỏi localStorage và đặt lại state user
+      localStorage.clear();
+      setUser(null); // Đặt lại user state sau khi đăng xuất
+
+      // Hiển thị thông báo đăng xuất thành công
+      showNotification(
+        "Bạn đã đăng xuất thành công.",
+        notificationTypes.INFO,
+        setNotifications,
+      );
+    } catch (error) {
+      // Xử lý lỗi khi đăng xuất
+      console.error("Error logging out:", error);
+
+      // Hiển thị thông báo lỗi
+      showNotification(
+        "Đăng xuất thất bại. Vui lòng thử lại.",
+        notificationTypes.ERROR,
+        setNotifications,
+      );
+    }
+  };
+
+  const userId = getUserId();
   return (
     <>
       {/* Hiển thị các thông báo */}
@@ -136,7 +138,8 @@ function Header() {
               </li>
               <li className="px-4">
                 <NavLink
-                  to="/user/${userId}"
+                  // to="/user/${userId}"
+                  to={`/user/${userId}`}
                   className={({ isActive }) =>
                     isActive
                       ? "border-b-2 border-b-[#006532] text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out"
@@ -150,7 +153,7 @@ function Header() {
               {user && ( // Kiểm tra nếu lastName tồn tại thì hiển thị
                 <li className="pl-4">
                   <NavLink
-                    to="/contact"
+                    to={`/order-history/${userId}`}
                     className={({ isActive }) =>
                       isActive
                         ? "border-b-2 border-b-[#006532] text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out"
@@ -162,7 +165,7 @@ function Header() {
                 </li>
               )}
               <li id="lg-bag" className="md:mb-3 md:h-5 md:px-4">
-                <Link to={user ? "/home-page" : "/login"}>
+                <Link to={user ? "/order-history/${userId}" : "/login"}>
                   <FaRegUser
                     aria-hidden="true"
                     className="h-[23px] w-[23px] text-[#006532] transition duration-300 hover:text-[#80c9a4]"
@@ -198,7 +201,7 @@ function Header() {
           <div id="mobile" className="-mt-3 flex items-center md:hidden">
             {user && (
               <Link
-                to="/"
+                to="/order-history/${userId}"
                 className="pl-4 pr-1 pt-3 font-semibold text-[#006532]"
               >
                 <div className="h-[25px] w-[25px] transition duration-300 hover:text-[#80c9a4]">
@@ -261,30 +264,7 @@ function Header() {
                   SẢN PHẨM
                 </NavLink>
               </li>
-              <li className="py-2">
-                <NavLink
-                  to="/blog"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "border-b-2 border-b-[#006532] text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out"
-                      : "text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out hover:text-[#80c9a4]"
-                  }
-                >
-                  BLOG
-                </NavLink>
-              </li>
-              <li className="py-2">
-                <NavLink
-                  to="/about"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "border-b-2 border-b-[#006532] text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out"
-                      : "text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out hover:text-[#80c9a4]"
-                  }
-                >
-                  VỀ CHÚNG TÔI
-                </NavLink>
-              </li>
+
               <li className="py-2">
                 <NavLink
                   to="/contact"
@@ -300,7 +280,8 @@ function Header() {
               {user && (
                 <li className="py-2">
                   <NavLink
-                    to="/contact"
+                    to="/home-page"
+                    onClick={handleLogoutUser}
                     className={({ isActive }) =>
                       isActive
                         ? "border-b-2 border-b-[#006532] text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out"

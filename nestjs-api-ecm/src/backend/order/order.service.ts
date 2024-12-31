@@ -22,6 +22,7 @@ import { Email_entity } from 'src/entities/helper/email_entity';
 import { AccountNotify } from 'src/Until/configConst';
 import { Cart_productEntity } from 'src/entities/cartproduct_entity/cart_product.entity';
 import { CartRepository } from 'src/repository/CartRepository';
+import {GenerateEntityCode} from "src/share/GenerateEntityCode";
 
 @Injectable()
 export class OrderService extends BaseService<OrderEntity> {
@@ -50,6 +51,7 @@ export class OrderService extends BaseService<OrderEntity> {
 
     try {
       const order = this.orderRepo.create({
+        order_code: GenerateEntityCode.generateOrderCode("ORD"),
         total_price: oderDTO.totalPrice,
         orderStatus: OrderStatus.Checking,
         payment_method: oderDTO.paymentMethod,
@@ -174,6 +176,7 @@ export class OrderService extends BaseService<OrderEntity> {
           ? {
               id: order.id,
               createdAt: order.createdAt,
+              order_code: order.order_code,
               total_price: order.total_price,
               orderStatus: order.orderStatus,
               payment_method: order.payment_method,
@@ -272,20 +275,27 @@ export class OrderService extends BaseService<OrderEntity> {
     statuses: OrderStatus[],
     isExclusion: boolean = false,
   ) {
-    const query = this.orderRepo
-      .createQueryBuilder('order')
-      .where('order.id IN (:...order_ids)', { order_ids });
+    if (!order_ids || order_ids.length === 0) {
+      return [];
+    }
 
-    if (isExclusion) {
-      query.andWhere('order.orderStatus NOT IN (:...statuses)', { statuses });
-    } else {
-      query.andWhere('order.orderStatus IN (:...statuses)', { statuses });
+    const query = this.orderRepo
+        .createQueryBuilder('order')
+        .where('order.id IN (:...order_ids)', { order_ids });
+
+    if (statuses && statuses.length > 0) {
+      if (isExclusion) {
+        query.andWhere('order.orderStatus NOT IN (:...statuses)', { statuses });
+      } else {
+        query.andWhere('order.orderStatus IN (:...statuses)', { statuses });
+      }
     }
 
     const orderStatusCounts = await query
-      .select('order.orderStatus, COUNT(order.id) AS count')
-      .groupBy('order.orderStatus')
-      .getRawMany();
+        .select('order.orderStatus, COUNT(order.id) AS count')
+        .groupBy('order.orderStatus')
+        .getRawMany();
+
 
     return orderStatusCounts;
   }
@@ -293,7 +303,7 @@ export class OrderService extends BaseService<OrderEntity> {
   async getDetail(order_id: string) {
     const order = await this.orderRepo.findOne({
       where: { id: order_id },
-      relations: ['orderProducts', 'location'],
+      relations: ['orderProducts', 'orderProducts.product', 'location'],
     });
 
     if (!order) {
