@@ -71,27 +71,6 @@ const ManageProduct = () => {
     loadSupplier();
   }, []);
 
-  // useEffect(() => {
-  //   const loadProducts = async () => {
-  //     try {
-  //       if (!searchMode) {
-  //         const { products: productsData, totalProducts } = await fetchProducts(
-  //           currentPage,
-  //           productsPerPage,
-  //         );
-
-  //         setProducts(productsData || []);
-  //         console.log("productsDataa", productsData);
-  //         setFilteredProducts(productsData || []);
-  //         setTotalProducts(totalProducts);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error loading products:", error);
-  //     }
-  //   };
-  //   loadProducts();
-  // }, [currentPage, productsPerPage, searchMode]);
-
   useEffect(() => {
     const loadProducts = async () => {
       try {
@@ -152,11 +131,13 @@ const ManageProduct = () => {
           url_images2: form.url_images2 || "",
         }).replace(/"/g, '\\"'),
       };
-      console.log("data", formattedForm);
+      console.log("formattedForm", formattedForm);
 
       if (editMode) {
         await editProduct(editId, formattedForm);
         window.location.reload(); // Reload lại trang sau khi cập nhật
+        console.log("products", products);
+        console.log("editId", editId);
         setProducts(
           products.map((product) =>
             product.id === editId ? { ...formattedForm, id: editId } : product,
@@ -299,6 +280,7 @@ const ManageProduct = () => {
     const product = products.find((product) => product.id === id);
     console.log("pờ rô đắc", product);
     setForm({
+      id: product.id,
       name: product.name,
       priceout: product.priceout,
       banner: "",
@@ -402,13 +384,6 @@ const ManageProduct = () => {
                     </td>
 
                     <td className="border-y px-4 py-2">{product.weight}</td>
-                    {/* <td className="border px-4 py-2 text-center">
-                      <img
-                        src={product.url_image}
-                        alt={product.name}
-                        className="mx-auto h-12"
-                      />
-                    </td> */}
 
                     <td className="border-y px-4 py-2 text-center">
                       {product.url_images &&
@@ -612,7 +587,7 @@ const ManageProduct = () => {
           </div>
         )}
 
-        <div className="mt-4 flex justify-center">
+        {/* <div className="mt-4 flex justify-center">
           {Array.from({ length: totalPages }, (_, index) => (
             <button
               key={index + 1}
@@ -626,7 +601,7 @@ const ManageProduct = () => {
               {index + 1}
             </button>
           ))}
-        </div>
+        </div> */}
       </div>
     </div>
   );

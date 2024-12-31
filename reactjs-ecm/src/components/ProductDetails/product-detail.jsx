@@ -14,22 +14,51 @@ import {
 } from "../../services/cart-service.js"; // Assuming you have a cart service to handle API calls
 import img from "../../../public/images/checkout-banner.jpg";
 // Tách Image component
+// const Image = ({ mainImage, setMainImage, productImages }) => {
+//   return (
+//     <div className="single-pro-image md:mr-12 md:w-1/3 xl:mr-12 xl:w-2/3">
+//       {/* Ảnh chính */}
+//       <img src={mainImage} className="mb-2 w-full" alt="Main Product" />
+//       {/* Nhóm ảnh nhỏ */}
+//       <div className="small-img-group mt-1 flex justify-between">
+//         {productImages.map((img, index) => (
+//           <div
+//             key={index}
+//             className={`small-img-col w-24p cursor-pointer ${
+//               img === mainImage ? "border-2 border-[#0065322a]" : ""
+//             }`}
+//             onClick={() => setMainImage(img)}
+//           >
+//             <img src={img} className="w-full" alt={`Thumbnail ${index + 1}`} />
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// };
+
 const Image = ({ mainImage, setMainImage, productImages }) => {
   return (
     <div className="single-pro-image md:mr-12 md:w-1/3 xl:mr-12 xl:w-2/3">
       {/* Ảnh chính */}
-      <img src={mainImage} className="mb-2 w-full" alt="Main Product" />
+      <div className="flex h-[450px] justify-center">
+        <img src={mainImage} className="mb-2 h-full" alt="Main Product" />
+      </div>
       {/* Nhóm ảnh nhỏ */}
-      <div className="small-img-group mt-1 flex justify-between">
+      <div className="small-img-group mt-1 flex h-1/4 w-full justify-between">
         {productImages.map((img, index) => (
           <div
             key={index}
-            className={`small-img-col w-24p cursor-pointer ${
+            className={`small-img-col w-24p w-1/2 cursor-pointer ${
               img === mainImage ? "border-2 border-[#0065322a]" : ""
             }`}
             onClick={() => setMainImage(img)}
           >
-            <img src={img} className="w-full" alt={`Thumbnail ${index + 1}`} />
+            <img
+              src={img}
+              className="h-full w-full"
+              alt={`Thumbnail ${index + 1}`}
+            />
           </div>
         ))}
       </div>

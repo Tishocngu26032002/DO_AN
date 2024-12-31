@@ -226,7 +226,7 @@ const Report = () => {
                 >
                   <div className="flex h-full w-full flex-col items-start justify-center bg-[rgba(8,28,14,0.4)] text-center">
                     <h2 className="ml-5 w-2/4 text-2xl font-bold text-white">
-                      Chào mừng bạn trở lại, Thành !!
+                      Chào mừng bạn trở lại, Bình An !!
                     </h2>
                   </div>
                 </div>

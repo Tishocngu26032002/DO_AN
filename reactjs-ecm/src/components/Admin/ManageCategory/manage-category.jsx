@@ -46,7 +46,7 @@ const ManageCategory = () => {
   const [loading, setLoading] = useState(false);
 
   const [params, setParams] = useState({
-    limit: 2,
+    limit: 4,
     page: 1,
     total: 0,
     name: "",

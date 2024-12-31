@@ -48,10 +48,34 @@ const Cart = () => {
     }
 
     const response = await getCarts();
-    
+
     const cartData = response.data.data.cart;
-    
-    setCarts(cartData);
+    const formattedCarts = cartData.map((item) => {
+      let urlImages = {};
+
+      // Kiểm tra nếu url_images có giá trị hợp lệ
+      if (item.product.url_images) {
+        const cleanedUrlImages = item.product.url_images.replace(/\\\"/g, '"');
+        try {
+          urlImages = JSON.parse(cleanedUrlImages);
+        } catch (error) {
+          console.error("Error parsing url_images:", error);
+          urlImages = {};
+        }
+      }
+
+      return {
+        ...item,
+        product: {
+          ...item.product,
+          url_image1: urlImages.url_images1 || "",
+          url_image2: urlImages.url_images2 || "",
+        },
+      };
+    });
+    console.log(formattedCarts);
+    setCarts(formattedCarts);
+    // setCarts(cartData);
 
     const cost = cartData.reduce(
       (total, item) => total + item.quantity * item.product.priceout,
@@ -83,7 +107,35 @@ const Cart = () => {
 
       const response = await getCarts();
       const cartData = response.data.data.cart;
-      setCarts(cartData);
+      const formattedCarts = cartData.map((item) => {
+        let urlImages = {};
+
+        // Kiểm tra nếu url_images có giá trị hợp lệ
+        if (item.product.url_images) {
+          const cleanedUrlImages = item.product.url_images.replace(
+            /\\\"/g,
+            '"',
+          );
+          try {
+            urlImages = JSON.parse(cleanedUrlImages);
+          } catch (error) {
+            console.error("Error parsing url_images:", error);
+            urlImages = {};
+          }
+        }
+
+        return {
+          ...item,
+          product: {
+            ...item.product,
+            url_image1: urlImages.url_images1 || "",
+            url_image2: urlImages.url_images2 || "",
+          },
+        };
+      });
+      console.log(formattedCarts);
+      setCarts(formattedCarts);
+      // setCarts(cartData);
 
       const cost = cartData.reduce(
         (total, item) => total + item.quantity * item.product.priceout,
@@ -202,9 +254,11 @@ const Cart = () => {
             }}
           >
             <div className="flex h-full w-full flex-col items-start justify-end bg-[rgba(8,28,14,0.60)] text-center">
-            <div className="ml-56 pl-7 mb-10 border-l-[8px] border-[#2c7c54]  flex flex-col items-start justify-start">
-              <h2 className="text-3xl font-extrabold text-[#fff] leading-tight tracking-tight">Giỏ hàng của bạn</h2>
-            </div>
+              <div className="mb-10 ml-56 flex flex-col items-start justify-start border-l-[8px] border-[#2c7c54] pl-7">
+                <h2 className="text-3xl font-extrabold leading-tight tracking-tight text-[#fff]">
+                  Giỏ hàng của bạn
+                </h2>
+              </div>
             </div>
           </section>
 

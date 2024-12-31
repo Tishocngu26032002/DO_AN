@@ -31,11 +31,55 @@ const OrderDetails = () => {
 
   console.log("selectedCartItems", selectedCartItems);
 
+  // useEffect(() => {
+  //   const fetchOrderDetails = async () => {
+  //     try {
+  //       const response = await getOrderDetails(orderId);
+  //       console.log("response", response);
+  //       setOrderDetails(response.data);
+  //     } catch (error) {
+  //       console.error("Failed to fetch order details:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   if (orderId) fetchOrderDetails();
+  // }, [orderId]);
+
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
         const response = await getOrderDetails(orderId);
-        setOrderDetails(response.data);
+        console.log("response", response);
+
+        const item = response.data; // Lấy dữ liệu đơn hàng từ phản hồi
+
+        // Lặp qua từng sản phẩm trong orderProducts để xử lý url_images
+        item.orderProducts.forEach((product) => {
+          let urlImages = {};
+
+          // Kiểm tra nếu url_images có giá trị hợp lệ trong product
+          if (product.product.url_images) {
+            const cleanedUrlImages = product.product.url_images.replace(
+              /\\\"/g,
+              '"',
+            );
+            try {
+              urlImages = JSON.parse(cleanedUrlImages);
+            } catch (error) {
+              console.error("Error parsing url_images:", error);
+              urlImages = {};
+            }
+          }
+
+          // Cập nhật các trường url_image1 và url_image2 cho product.product
+          product.product.url_image1 = urlImages.url_images1 || "";
+          product.product.url_image2 = urlImages.url_images2 || "";
+        });
+
+        console.log("data", item);
+        setOrderDetails(item); // Đặt dữ liệu đơn hàng đã được xử lý vào state
       } catch (error) {
         console.error("Failed to fetch order details:", error);
       } finally {
@@ -131,7 +175,7 @@ const OrderDetails = () => {
                 className="shadow-lg flex items-center space-x-4 rounded-lg border border-gray-200 bg-white p-4"
               >
                 <img
-                  src={product.product.url_images}
+                  src={product.product.url_image1}
                   alt={product.product.name}
                   className="h-24 w-24 rounded-lg"
                 />

@@ -175,7 +175,34 @@ const ShopGrid = () => {
       if (userIdd) {
         const response = await getCarts();
         const cartData = response.data.data.cart;
-        setCarts(cartData);
+        const formattedCarts = cartData.map((item) => {
+          let urlImages = {};
+
+          // Kiểm tra nếu url_images có giá trị hợp lệ
+          if (item.product.url_images) {
+            const cleanedUrlImages = item.product.url_images.replace(
+              /\\\"/g,
+              '"',
+            );
+            try {
+              urlImages = JSON.parse(cleanedUrlImages);
+            } catch (error) {
+              console.error("Error parsing url_images:", error);
+              urlImages = {};
+            }
+          }
+
+          return {
+            ...item,
+            product: {
+              ...item.product,
+              url_image1: urlImages.url_images1 || "",
+              url_image2: urlImages.url_images2 || "",
+            },
+          };
+        });
+        console.log(formattedCarts);
+        setCarts(formattedCarts);
 
         const cost = cartData.reduce(
           (total, item) => total + item.quantity * item.product.priceout,
@@ -218,11 +245,27 @@ const ShopGrid = () => {
         onClick={() => navigate(`/product-detail/${product.id}`)}
         className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
       >
-        <img
+        {/* <img
           src={product.url_image1}
           alt={product.name}
           className="w-full border-[1px]"
+        /> */}
+        {/* <img
+          src={product.url_image1}
+          alt={product.name}
+          className="h-56 w-full border-[1px] object-cover"
+        /> */}
+        {/* <img
+          src={product.url_image1}
+          alt={product.name}
+          className="aspect-square w-full border-[1px] object-cover"
+        /> */}
+        <img
+          src={product.url_image1}
+          alt={product.name}
+          className="aspect-square w-full border-[1px] object-contain"
         />
+
         <div className="des pt-3 text-start">
           <span className="text-[13px] text-[#1a1a1a]">
             {product.category.name}
