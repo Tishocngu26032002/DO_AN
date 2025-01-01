@@ -8,11 +8,13 @@ import {OrderRepository} from "src/repository/OrderRepository";
 import {OrderProductRepository} from "src/repository/OrderProductRepository";
 import {ImportRepository} from "src/repository/ImportRepository";
 import {ImportProductRepository} from "src/repository/ImportProductRepository";
+import {UserRepository} from "src/repository/UserRepository";
+import {User} from "src/entities/user_entity/user.entity";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([OrderEntity, Order_productEntity, OrderRepository,
-      OrderProductRepository]),
+      OrderProductRepository, User]),
   ],
   exports: [DashboardService],
   controllers: [DashboardController],
@@ -20,7 +22,8 @@ import {ImportProductRepository} from "src/repository/ImportProductRepository";
     OrderRepository,
     OrderProductRepository,
     ImportRepository,
-    ImportProductRepository
+    ImportProductRepository,
+    UserRepository
   ],
 })
 export class DashboardModule {}
