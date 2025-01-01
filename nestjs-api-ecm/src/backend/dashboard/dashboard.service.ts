@@ -5,11 +5,12 @@ import {OrderEntity} from "src/entities/order_entity/oder.entity";
 import {OrderRepository} from "src/repository/OrderRepository";
 import {Order_productEntity} from "src/entities/order_entity/order_product.entity";
 import {DataSource, Repository} from "typeorm";
-import {TimeFilter} from "src/share/Enum/Enum";
+import {OrderStatus, TimeFilter} from "src/share/Enum/Enum";
 import {endOfMonth, endOfWeek, endOfYear, startOfMonth, startOfWeek, startOfYear} from "date-fns";
 import {OrderProductRepository} from "src/repository/OrderProductRepository";
 import {ImportRepository} from "src/repository/ImportRepository";
 import {ImportProductRepository} from "src/repository/ImportProductRepository";
+import {UserRepository} from "src/repository/UserRepository";
 
 @Injectable()
 export class DashboardService {
@@ -21,7 +22,9 @@ export class DashboardService {
         @InjectRepository(ImportRepository)
         private readonly importRepo: ImportRepository,
         @InjectRepository(ImportProductRepository)
-        private readonly importProRepo: ImportProductRepository
+        private readonly importProRepo: ImportProductRepository,
+        @InjectRepository(UserRepository)
+        private readonly userRepo: UserRepository
     ) {}
 
     async getSummaryStatistic(timeFilter: TimeFilter) {
@@ -107,6 +110,83 @@ export class DashboardService {
         const products = await this.orderProductRepo.getFeatureProductsByRevenue();
         return products;
     }
+
+    async getManageUserDashBoard() {
+        try {
+            const today = new Date();
+            const startOfThisWeek = new Date(today);
+            startOfThisWeek.setDate(today.getDate() - today.getDay()); // Chủ nhật đầu tuần này
+
+            const startOfLastWeek = new Date(startOfThisWeek);
+            startOfLastWeek.setDate(startOfThisWeek.getDate() - 7); // Chủ nhật tuần trước
+            const endOfLastWeek = new Date(startOfThisWeek);
+            endOfLastWeek.setDate(startOfThisWeek.getDate() - 1); // Thứ Bảy tuần trước
+
+            const totalUsers = await this.userRepo
+                .createQueryBuilder('user')
+                .where('user.role = :role', { role: 'user' })
+                .getCount();
+
+            const usersThisWeek = await this.userRepo
+                .createQueryBuilder('user')
+                .where('user.role = :role', { role: 'user' })
+                .andWhere('user.createdAt >= :startOfThisWeek', { startOfThisWeek })
+                .getCount();
+
+            const usersLastWeek = await this.userRepo
+                .createQueryBuilder('user')
+                .where('user.role = :role', { role: 'user' })
+                .andWhere('user.createdAt >= :startOfLastWeek', { startOfLastWeek })
+                .andWhere('user.createdAt < :endOfLastWeek', { endOfLastWeek })
+                .getCount();
+
+            // the number user who bought
+            const userBoughtCount = await this.orderRepo
+                .createQueryBuilder('order')
+                .select('COUNT(DISTINCT order.user_id)', 'userCount')
+                .where('order.orderStatus IN (:...statuses)', {
+                    statuses: [OrderStatus.Delivered, OrderStatus.Canceled],
+                })
+                .getRawOne();
+
+            // Get user counts for this week
+            const usersBoughtThisWeek = await this.orderRepo
+                .createQueryBuilder('order')
+                .select('COUNT(DISTINCT order.user_id)', 'userCount') // Count distinct user IDs
+                .where('order.createdAt  >= :startOfThisWeek', {startOfThisWeek})
+                .andWhere('order.orderStatus IN (:...statuses)', {
+                    statuses: [OrderStatus.Delivered, OrderStatus.Canceled],
+                })
+                .getRawOne();
+
+            // Get user counts for last week
+            const usersBoughtLastWeek = await this.orderRepo
+                .createQueryBuilder('order')
+                .select('COUNT(DISTINCT order.user_id)', 'userCount') // Count distinct user IDs
+                .andWhere('order.createdAt >= :startOfLastWeek', { startOfLastWeek })
+                .andWhere('order.createdAt < :endOfLastWeek', { endOfLastWeek })
+                .andWhere('order.orderStatus IN (:...statuses)', {
+                    statuses: [OrderStatus.Delivered, OrderStatus.Canceled],
+                })
+                .getRawOne();
+
+            return {
+                totalUsers,
+                usersThisWeek,
+                usersLastWeek,
+                usersBoughtThisWeek,
+                usersBoughtLastWeek
+            };
+        } catch (error) {
+            console.error('Error fetching dashboard data:', error);
+            return {
+                error: error.toString(),
+            };
+        }
+    }
+
+
+
 
     timeFilterCreate(timeFilter: TimeFilter): { startDate: Date; endDate: Date } {
         const now = new Date();

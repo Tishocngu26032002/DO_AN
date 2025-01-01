@@ -137,4 +137,16 @@ export class OrderController {
       return responseHandler.error(errorMessage);
     }
   }
+
+  @Get('order-user-dashboard/:user_id')
+  @Roles('user', 'admin')
+  async getOrderUserDashboard(@Param('user_id') user_id: string) {
+    try {
+      const orderUserDashBoard = await this.order_Service.getOrderUserDashboard(user_id);
+      return responseHandler.ok(orderUserDashBoard);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
+    }
+  }
 }

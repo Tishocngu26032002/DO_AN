@@ -2,7 +2,7 @@ import {Controller, Get, Param, Query, UseGuards} from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import {AuthGuard} from "src/guards/JwtAuth.guard";
 import {RolesGuard} from "src/guards/Roles.guard";
-import {ApiBearerAuth, ApiQuery, ApiTags} from "@nestjs/swagger";
+import {ApiBearerAuth, ApiOperation, ApiQuery, ApiTags} from "@nestjs/swagger";
 import {Roles} from "src/decorator/Role.decorator";
 import {responseHandler} from "src/Until/responseUtil";
 import {ApplyStatus, TimeFilter} from "src/share/Enum/Enum";
@@ -140,6 +140,22 @@ export class DashboardController {
     try {
       const featureProducts = await this.dashboardService.getFeatureProduct();
       return responseHandler.ok(featureProducts);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+      return responseHandler.error(errorMessage);
+    }
+  }
+
+  @Get('manage-user-dashboard')
+  @ApiOperation({
+    summary: 'get manage user dashboard',
+    description: 'get manage user dashboard',
+  })
+  @Roles('admin')
+  async getManageUserDashBoard() {
+    try {
+      const users = await this.dashboardService.getManageUserDashBoard();
+      return responseHandler.ok(users);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
       return responseHandler.error(errorMessage);
