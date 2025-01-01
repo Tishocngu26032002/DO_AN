@@ -31,11 +31,55 @@ const OrderDetails = () => {
 
   console.log("selectedCartItems", selectedCartItems);
 
+  // useEffect(() => {
+  //   const fetchOrderDetails = async () => {
+  //     try {
+  //       const response = await getOrderDetails(orderId);
+  //       console.log("response", response);
+  //       setOrderDetails(response.data);
+  //     } catch (error) {
+  //       console.error("Failed to fetch order details:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   if (orderId) fetchOrderDetails();
+  // }, [orderId]);
+
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
         const response = await getOrderDetails(orderId);
-        setOrderDetails(response.data);
+        console.log("response", response);
+
+        const item = response.data; // Lấy dữ liệu đơn hàng từ phản hồi
+
+        // Lặp qua từng sản phẩm trong orderProducts để xử lý url_images
+        item.orderProducts.forEach((product) => {
+          let urlImages = {};
+
+          // Kiểm tra nếu url_images có giá trị hợp lệ trong product
+          if (product.product.url_images) {
+            const cleanedUrlImages = product.product.url_images.replace(
+              /\\\"/g,
+              '"',
+            );
+            try {
+              urlImages = JSON.parse(cleanedUrlImages);
+            } catch (error) {
+              console.error("Error parsing url_images:", error);
+              urlImages = {};
+            }
+          }
+
+          // Cập nhật các trường url_image1 và url_image2 cho product.product
+          product.product.url_image1 = urlImages.url_images1 || "";
+          product.product.url_image2 = urlImages.url_images2 || "";
+        });
+
+        console.log("data", item);
+        setOrderDetails(item); // Đặt dữ liệu đơn hàng đã được xử lý vào state
       } catch (error) {
         console.error("Failed to fetch order details:", error);
       } finally {
@@ -61,6 +105,12 @@ const OrderDetails = () => {
   {
     console.log("orderDetails", orderDetails);
   }
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    const time = date.toLocaleTimeString("vi-VN", { hour12: false });
+    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    return `${formattedDate} ${time}`;
+  };
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
@@ -80,7 +130,8 @@ const OrderDetails = () => {
             <p className="text-lg text-gray-700">
               Ngày đặt hàng:{" "}
               <span className="font-semibold">
-                {new Date(orderDetails.createdAt).toLocaleDateString()}
+                {/* {new Date(orderDetails.createdAt).toLocaleDateString()} */}
+                {formatDateTime(orderDetails.createdAt)}{" "}
               </span>
             </p>
             <p className="text-lg text-gray-700">
@@ -115,7 +166,7 @@ const OrderDetails = () => {
 
           {/* Danh sách sản phẩm */}
           <h3 className="mb-4 text-2xl font-semibold text-gray-800">
-            Products
+            Sản phẩm
           </h3>
           <div className="grid grid-cols-1 gap-4">
             {orderDetails.orderProducts.map((product) => (
@@ -124,7 +175,7 @@ const OrderDetails = () => {
                 className="shadow-lg flex items-center space-x-4 rounded-lg border border-gray-200 bg-white p-4"
               >
                 <img
-                  src={product.product.url_images}
+                  src={product.product.url_image1}
                   alt={product.product.name}
                   className="h-24 w-24 rounded-lg"
                 />
@@ -156,7 +207,7 @@ const OrderDetails = () => {
           {/* Tóm tắt thanh toán */}
           <div className="shadow-lg mt-6 rounded-lg border border-gray-200 bg-white p-4">
             <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
-              <span>Tổng phụ</span>
+              <span>Tổng tiền hàng</span>
 
               <span>
                 <span className="underline">đ</span>{" "}
@@ -166,13 +217,13 @@ const OrderDetails = () => {
               </span>
             </div>
             <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
-              <span>Phí giao hàng</span>
+              <span>Tổng tiền phí vận chuyển</span>
               <span>
                 <span className="underline">đ</span> 0
               </span>
             </div>
             <div className="flex items-center justify-between text-lg font-semibold text-[#006532]">
-              <span>Tổng cộng</span>
+              <span>Tổng thanh toán</span>
               <span>
                 <span className="underline">đ</span>{" "}
                 {new Intl.NumberFormat("vi-VN").format(

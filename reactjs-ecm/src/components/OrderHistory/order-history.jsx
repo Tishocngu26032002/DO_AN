@@ -73,6 +73,13 @@ const OrderHistory = () => {
     return <div className="mt-10 text-center text-red-500">{error}</div>;
   }
 
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    const time = date.toLocaleTimeString("vi-VN", { hour12: false });
+    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    return `${formattedDate} ${time}`;
+  };
+
   const renderPagination = () => {
     if (total < limit) return null;
 
@@ -148,55 +155,58 @@ const OrderHistory = () => {
         </div>
       </div>
 
-      {/* Main content - Lịch sử đơn hàng */}
-      <div className="w-3/4 mx-auto mt-12 max-w-4xl p-6">
-        <h1 className="mb-4 text-2xl font-semibold text-[#006532]">
-          Lịch sử đơn hàng
-        </h1>
-        {orders.length === 0 ? (
-          <p className="text-gray-500">Bạn chưa có đơn hàng nào.</p>
-        ) : (
-          <div className="grid grid-cols-1 gap-4">
-            {orders.map((order) => (
-              <div
-                key={order.id}
-                className="shadow-sm hover:shadow-md rounded-lg border border-[#006532] p-4"
-              >
-                <p className="text-lg font-medium text-[#006532]">
-                  Mã đơn hàng:{" "}
-                  <span className="font-bold">{order.order_code}</span>
-                </p>
-                <p>
-                  Ngày đặt hàng:{" "}
-                  {new Date(order.createdAt).toLocaleDateString()}
-                </p>
-                <p>Trạng thái giao hàng: {order.orderStatus}</p>
-                <p>
-                  {/* Tổng tiền:{" "}
+        {/* Main content - Lịch sử đơn hàng */}
+        <div className="mx-auto mt-12 w-3/4 max-w-4xl p-6">
+          <h1 className="mb-4 text-2xl font-semibold text-[#006532]">
+            Lịch sử đơn hàng
+          </h1>
+          {orders.length === 0 ? (
+            <p className="text-gray-500">Bạn chưa có đơn hàng nào.</p>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {orders.map((order) => (
+                <div
+                  key={order.id}
+                  className="shadow-sm hover:shadow-md rounded-lg border border-[#006532] p-4"
+                >
+                  <p className="text-lg font-medium text-[#006532]">
+                    Mã đơn hàng:{" "}
+                    <span className="font-bold">{order.order_code}</span>
+                  </p>
+                  <p>
+                    Ngày đặt hàng:{" "}
+                    {/* {new Date(order.createdAt).toLocaleDateString()} */}
+                    {formatDateTime(order.createdAt)}{" "}
+                  </p>
+                  <p>Trạng thái giao hàng: {order.orderStatus}</p>
+                  <p>
+                    {/* Tổng tiền:{" "}
                   <span className="font-semibold text-[#006532]">
                     {order.total_price} VNĐ
                   </span> */}
-                  <div className="flex gap-1">
-                    <div>Tổng tiền:</div>
-                    <h4 className="flex gap-1 font-semibold text-[#006532]">
-                      <p className="underline">đ</p>
-                      {new Intl.NumberFormat("vi-VN").format(order.total_price)}
-                    </h4>
-                  </div>
-                </p>
-                <button
-                  onClick={() => fetchOrderDetail(order.id)}
-                  className="mt-2 rounded-md bg-[#006532] px-4 py-2 text-white hover:bg-opacity-90"
-                >
-                  Xem chi tiết
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+                    <div className="flex gap-1">
+                      <div>Tổng tiền:</div>
+                      <h4 className="flex gap-1 font-semibold text-[#006532]">
+                        <p className="underline">đ</p>
+                        {new Intl.NumberFormat("vi-VN").format(
+                          order.total_price,
+                        )}
+                      </h4>
+                    </div>
+                  </p>
+                  <button
+                    onClick={() => fetchOrderDetail(order.id)}
+                    className="mt-2 rounded-md bg-[#006532] px-4 py-2 text-white hover:bg-opacity-90"
+                  >
+                    Xem chi tiết
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
 
-        {/* Pagination */}
-        {/* <div className="flex justify-between items-center mt-16">
+          {/* Pagination */}
+          {/* <div className="flex justify-between items-center mt-16">
           <button
             className="px-4 py-2 bg-[#006532] text-white rounded-md hover:bg-opacity-90"
             onClick={handlePrevPage}
@@ -214,53 +224,53 @@ const OrderHistory = () => {
           </button>
         </div> */}
 
-        <section
-          id="pagination"
-          className="section-p1 flex justify-center space-x-2"
-        >
-          <div className="mb-4 mt-2 flex justify-center">
-            {renderPagination()}
-          </div>
-        </section>
-
-        {/* Order Detail Modal */}
-        {selectedOrder && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="shadow-lg w-full max-w-lg rounded-lg border-2 border-[#006532] bg-white p-6">
-              <h2 className="mb-4 text-xl font-semibold text-[#006532]">
-                Chi tiết đơn hàng {selectedOrder.id}
-              </h2>
-              <p>
-                Ngày đặt: {new Date(selectedOrder.createdAt).toLocaleString()}
-              </p>
-              <p>Trạng thái: {selectedOrder.orderStatus}</p>
-              <p>
-                Tổng tiền:{" "}
-                <span className="font-semibold text-[#006532]">
-                  {selectedOrder.total_price.toLocaleString()} VNĐ
-                </span>
-              </p>
-              <h3 className="mt-4 font-medium text-[#006532]">
-                Danh sách sản phẩm:
-              </h3>
-              <ul className="list-disc pl-5">
-                {selectedOrder.items.map((item) => (
-                  <li key={item.product_id}>
-                    {item.product_name} - {item.quantity} x{" "}
-                    {item.unit_price.toLocaleString()} VNĐ
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={closeOrderDetail}
-                className="mt-4 rounded-md bg-[#006532] px-4 py-2 text-white hover:bg-opacity-90"
-              >
-                Đóng
-              </button>
+          <section
+            id="pagination"
+            className="section-p1 flex justify-center space-x-2"
+          >
+            <div className="mb-4 mt-2 flex justify-center">
+              {renderPagination()}
             </div>
-          </div>
-        )}
-      </div>
+          </section>
+
+          {/* Order Detail Modal */}
+          {selectedOrder && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="shadow-lg w-full max-w-lg rounded-lg border-2 border-[#006532] bg-white p-6">
+                <h2 className="mb-4 text-xl font-semibold text-[#006532]">
+                  Chi tiết đơn hàng {selectedOrder.id}
+                </h2>
+                <p>
+                  Ngày đặt: {new Date(selectedOrder.createdAt).toLocaleString()}
+                </p>
+                <p>Trạng thái: {selectedOrder.orderStatus}</p>
+                <p>
+                  Tổng tiền:{" "}
+                  <span className="font-semibold text-[#006532]">
+                    {selectedOrder.total_price.toLocaleString()} VNĐ
+                  </span>
+                </p>
+                <h3 className="mt-4 font-medium text-[#006532]">
+                  Danh sách sản phẩm:
+                </h3>
+                <ul className="list-disc pl-5">
+                  {selectedOrder.items.map((item) => (
+                    <li key={item.product_id}>
+                      {item.product_name} - {item.quantity} x{" "}
+                      {item.unit_price.toLocaleString()} VNĐ
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={closeOrderDetail}
+                  className="mt-4 rounded-md bg-[#006532] px-4 py-2 text-white hover:bg-opacity-90"
+                >
+                  Đóng
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       <Footer />
     </>

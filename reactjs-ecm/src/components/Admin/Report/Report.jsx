@@ -1,6 +1,6 @@
 import AdminHeader from "../AdminHeader/admin-header.jsx";
 import React, { useEffect, useState } from "react";
-import banner from '../../../../public/images/banner-admin.png'
+import banner from "../../../../public/images/banner-admin.png";
 import {
   LineChart,
   AreaChart,
@@ -178,289 +178,338 @@ const Report = () => {
   const formatYAxis = (tickItem) => {
     const absValue = Math.abs(tickItem);
     if (absValue >= 1000000) {
-      return (tickItem / 1000000).toFixed(1) + 'M';
+      return (tickItem / 1000000).toFixed(1) + "M";
     } else if (absValue >= 1000) {
-      return (tickItem / 1000).toFixed(1) + 'K';
+      return (tickItem / 1000).toFixed(1) + "K";
     } else {
       return tickItem;
     }
   };
-  
+
   return (
     <div>
       <AdminHeader />
       <div className="min-h-screen bg-gray-100 px-8 py-4">
-      <div className="w-5/6 p-4 ml-[250px]">
-        <div className="mb-4 ">
-          {/* Chọn thời gian */}
-          <div className="mb-6 flex justify-start ">
-            {["Tuần", "Tháng", "Quý", "Năm"].map((filter) => (
-              <button
-                key={filter}
-                className={`shadow-md border px-3 py-2 text-[#222222] ${
-                  timeFilter === filter ? "bg-[#006532] text-white" : "bg-white "
-                } hover:bg-[#004d26] hover:text-white`}
-                onClick={() => {
-                  setTimeFilter(filter);
-                }}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-        </div>
-      <div className=" flex md:flex-wrap">
-      <div className="mb-8 mr-6 w-[45%] h-1/2">
-        {/* Các thẻ thông tin */}
-        <div>
-          <div
-          id="page-header"
-          className="h-48 mb-4"
-          style={{
-            backgroundImage: `url(${banner})`,
-            backgroundPosition: "center",
-            backgroundSize: "cover",
-          
-          }}
-        >
-          <div className="flex flex-col h-full w-full  items-start justify-center bg-[rgba(8,28,14,0.4)] text-center">
-            <h2 className="ml-5 text-2xl font-bold w-2/4 text-white">Chào mừng bạn trở lại, Thành !!</h2>
-            
-          </div>
-        </div>
-      </div>
-        <div className=" grid grid-cols-2 gap-6 md:grid-cols-2">
-          <div className="shadow-lg border border-gray-200 bg-white p-6">
-            <h4 className="text-xl font-semibold text-[#222222]">Doanh thu</h4>
-            <p className="text-2xl font-bold text-[#006532]">
-              {dashboardData?.thisTime?.revenue || 0} VND
-            </p>
-            <p className="text-sm text-gray-500">
-              {getComparisonText(timeFilter)} +
-              {(dashboardData?.thisTime?.revenue || 0) -
-                (dashboardData?.lastTime?.revenue || 0)}{" "}
-              VND
-            </p>
-          </div>
-          <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
-            <h4 className="text-xl font-semibold text-[#222222]">Sản phẩm</h4>
-            <p className="text-2xl font-bold text-[#006532]">
-              {dashboardData?.thisTime?.product || 0}
-            </p>
-            <p className="text-sm text-gray-500">
-              {getComparisonText(timeFilter)} +
-              {(dashboardData?.thisTime?.product || 0) -
-                (dashboardData?.lastTime?.product || 0)}{" "}
-              sản phẩm
-            </p>
-          </div>
-          <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
-            <h4 className="text-xl font-semibold text-[#222222]">Khách hàng</h4>
-            <p className="text-2xl font-bold text-[#006532]">
-              {dashboardData?.thisTime?.customer || 0}
-            </p>
-            <p className="text-sm text-gray-500">
-              {getComparisonText(timeFilter)} +
-              {(dashboardData?.thisTime?.customer || 0) -
-                (dashboardData?.lastTime?.customer || 0)}{" "}
-              khách hàng
-            </p>
-          </div>
-          <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
-            <h4 className="text-xl font-semibold text-[#222222]">Đơn hàng</h4>
-            <p className="text-2xl font-bold text-[#006532]">
-              {dashboardData?.thisTime?.order || 0}
-            </p>
-            <p className="text-sm text-gray-500">
-              {getComparisonText(timeFilter)} +
-              {(dashboardData?.thisTime?.order || 0) -
-                (dashboardData?.lastTime?.order || 0)}{" "}
-              đơn hàng
-            </p>
-          </div>
-        </div>
-        </div>
-        {/* Biểu đồ Line */}
-        <div className="mb-8 p-4 w-[53%]  bg-white rounded-lg shadow-md">
-          <div className="flex gap-4 items-center">
-            <h4 className="mb-4 text-2xl font-semibold text-[#222222]">
-            Doanh thu và Lợi nhuận
-            </h4>
-            <select
-              className="mb-4 rounded border px-3 py-2 text-sm"
-              value={dataLineChartFilter}
-              onChange={(e) => setDataLineChartFilter(e.target.value)}
-            >
-              <option value="Tuần">Tuần</option>
-              <option value="Tháng">Tháng</option>
-              <option value="Quý">Quý</option>
-              <option value="Năm">Năm</option>
-            </select>
-          </div>
-          <div>
-            <ResponsiveContainer width="100%" height={400}>
-              <LineChart data={dataLineChart} margin={{ left: 30 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ddd" vertical={false} />
-                <XAxis dataKey="time_period" tickLine={false} axisLine={false} />
-                <YAxis tickLine={false} axisLine={false} tickFormatter={formatYAxis} />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '8px', backgroundColor: '#fff', borderColor: '#ddd' }} 
-                  itemStyle={{ color: '#333' }}
-                  formatter={(value) => {
-                    const absValue = Math.abs(value);
-                    if (absValue >= 1000000) {
-                      return (value / 1000000).toFixed(1) + 'M';
-                    } else if (absValue >= 1000) {
-                      return (value / 1000).toFixed(1) + 'K';
-                    } else {
-                      return value;
-                    }
+        <div className="ml-[250px] w-5/6 p-4">
+          <div className="mb-4">
+            {/* Chọn thời gian */}
+            <div className="mb-6 flex justify-start">
+              {["Tuần", "Tháng", "Quý", "Năm"].map((filter) => (
+                <button
+                  key={filter}
+                  className={`shadow-md border px-3 py-2 text-[#222222] ${
+                    timeFilter === filter
+                      ? "bg-[#006532] text-white"
+                      : "bg-white"
+                  } hover:bg-[#004d26] hover:text-white`}
+                  onClick={() => {
+                    setTimeFilter(filter);
                   }}
-                />
-                <Legend iconType="circle" layout="horizontal" verticalAlign="top" align="center" />
-                <Line type="linear" dataKey="total_revenue" stroke="#427b70" strokeWidth={3} dot={{ r: 2 }} />
-                <Line type="linear" dataKey="total_cost" stroke="#c49a75" strokeWidth={3} dot={{ r: 2 }} />
-                <Line type="linear" dataKey="profit" stroke="#30476c" strokeWidth={3} dot={{ r: 2 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-        </div>
-        {/* Biểu đồ Bar: Top5 sản phẩm */}
-        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
-            <div className="flex items-center justify-between">
-              <h4 className="mb-4 text-xl font-semibold text-[#222222]">
-                Top 5 sản phẩm có doanh thu cao nhất
-              </h4>
-              <select
-                className="mb-4 rounded border px-3 py-2 text-sm"
-                value={topProductsFilter}
-                onChange={(e) => setTopProductsFilter(e.target.value)}
-              >
-                <option value="Tuần">Tuần</option>
-                <option value="Tháng">Tháng</option>
-                <option value="Quý">Quý</option>
-                <option value="Năm">Năm</option>
-              </select>
+                >
+                  {filter}
+                </button>
+              ))}
             </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={topProducts}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="productName" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="revenue" fill="#006532" />
-              </BarChart>
-            </ResponsiveContainer>
           </div>
-          <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
-            <div className="flex items-center justify-between">
-              <h4 className="mb-4 text-xl font-semibold text-[#222222]">
-                Top 5 khách hàng mua nhiều nhất
-              </h4>
-              <select
-                className="mb-4 rounded border px-3 py-2 text-sm"
-                value={topCustomersFilter}
-                onChange={(e) => setTopCustomersFilter(e.target.value)}
-              >
-                <option value="Tuần">Tuần</option>
-                <option value="Tháng">Tháng</option>
-                <option value="Quý">Quý</option>
-                <option value="Năm">Năm</option>
-              </select>
+          <div className="flex md:flex-wrap">
+            <div className="mb-8 mr-6 h-1/2 w-[45%]">
+              {/* Các thẻ thông tin */}
+              <div>
+                <div
+                  id="page-header"
+                  className="mb-4 h-48"
+                  style={{
+                    backgroundImage: `url(${banner})`,
+                    backgroundPosition: "center",
+                    backgroundSize: "cover",
+                  }}
+                >
+                  <div className="flex h-full w-full flex-col items-start justify-center bg-[rgba(8,28,14,0.4)] text-center">
+                    <h2 className="ml-5 w-2/4 text-2xl font-bold text-white">
+                      Chào mừng bạn trở lại, Bình An !!
+                    </h2>
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-6 md:grid-cols-2">
+                <div className="shadow-lg border border-gray-200 bg-white p-6">
+                  <h4 className="text-xl font-semibold text-[#222222]">
+                    Doanh thu
+                  </h4>
+                  <p className="text-2xl font-bold text-[#006532]">
+                    {dashboardData?.thisTime?.revenue || 0} VND
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {getComparisonText(timeFilter)} +
+                    {(dashboardData?.thisTime?.revenue || 0) -
+                      (dashboardData?.lastTime?.revenue || 0)}{" "}
+                    VND
+                  </p>
+                </div>
+                <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
+                  <h4 className="text-xl font-semibold text-[#222222]">
+                    Sản phẩm
+                  </h4>
+                  <p className="text-2xl font-bold text-[#006532]">
+                    {dashboardData?.thisTime?.product || 0}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {getComparisonText(timeFilter)} +
+                    {(dashboardData?.thisTime?.product || 0) -
+                      (dashboardData?.lastTime?.product || 0)}{" "}
+                    sản phẩm
+                  </p>
+                </div>
+                <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
+                  <h4 className="text-xl font-semibold text-[#222222]">
+                    Khách hàng
+                  </h4>
+                  <p className="text-2xl font-bold text-[#006532]">
+                    {dashboardData?.thisTime?.customer || 0}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {getComparisonText(timeFilter)} +
+                    {(dashboardData?.thisTime?.customer || 0) -
+                      (dashboardData?.lastTime?.customer || 0)}{" "}
+                    khách hàng
+                  </p>
+                </div>
+                <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
+                  <h4 className="text-xl font-semibold text-[#222222]">
+                    Đơn hàng
+                  </h4>
+                  <p className="text-2xl font-bold text-[#006532]">
+                    {dashboardData?.thisTime?.order || 0}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {getComparisonText(timeFilter)} +
+                    {(dashboardData?.thisTime?.order || 0) -
+                      (dashboardData?.lastTime?.order || 0)}{" "}
+                    đơn hàng
+                  </p>
+                </div>
+              </div>
             </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={topCustomers}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="userName" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="revenue" fill="#82ca9d" />
-              </BarChart>
-            </ResponsiveContainer>
+            {/* Biểu đồ Line */}
+            <div className="shadow-md mb-8 w-[53%] rounded-lg bg-white p-4">
+              <div className="flex items-center gap-4">
+                <h4 className="mb-4 text-2xl font-semibold text-[#222222]">
+                  Doanh thu và Lợi nhuận
+                </h4>
+                <select
+                  className="mb-4 rounded border px-3 py-2 text-sm"
+                  value={dataLineChartFilter}
+                  onChange={(e) => setDataLineChartFilter(e.target.value)}
+                >
+                  <option value="Tuần">Tuần</option>
+                  <option value="Tháng">Tháng</option>
+                  <option value="Quý">Quý</option>
+                  <option value="Năm">Năm</option>
+                </select>
+              </div>
+              <div>
+                <ResponsiveContainer width="100%" height={400}>
+                  <LineChart data={dataLineChart} margin={{ left: 30 }}>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="#ddd"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="time_period"
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={formatYAxis}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: "8px",
+                        backgroundColor: "#fff",
+                        borderColor: "#ddd",
+                      }}
+                      itemStyle={{ color: "#333" }}
+                      formatter={(value) => {
+                        const absValue = Math.abs(value);
+                        if (absValue >= 1000000) {
+                          return (value / 1000000).toFixed(1) + "M";
+                        } else if (absValue >= 1000) {
+                          return (value / 1000).toFixed(1) + "K";
+                        } else {
+                          return value;
+                        }
+                      }}
+                    />
+                    <Legend
+                      iconType="circle"
+                      layout="horizontal"
+                      verticalAlign="top"
+                      align="center"
+                    />
+                    <Line
+                      type="linear"
+                      dataKey="total_revenue"
+                      stroke="#427b70"
+                      strokeWidth={3}
+                      dot={{ r: 2 }}
+                    />
+                    <Line
+                      type="linear"
+                      dataKey="total_cost"
+                      stroke="#c49a75"
+                      strokeWidth={3}
+                      dot={{ r: 2 }}
+                    />
+                    <Line
+                      type="linear"
+                      dataKey="profit"
+                      stroke="#30476c"
+                      strokeWidth={3}
+                      dot={{ r: 2 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
-        </div>
+          {/* Biểu đồ Bar: Top5 sản phẩm */}
+          <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
+              <div className="flex items-center justify-between">
+                <h4 className="mb-4 text-xl font-semibold text-[#222222]">
+                  Top 5 sản phẩm có doanh thu cao nhất
+                </h4>
+                <select
+                  className="mb-4 rounded border px-3 py-2 text-sm"
+                  value={topProductsFilter}
+                  onChange={(e) => setTopProductsFilter(e.target.value)}
+                >
+                  <option value="Tuần">Tuần</option>
+                  <option value="Tháng">Tháng</option>
+                  <option value="Quý">Quý</option>
+                  <option value="Năm">Năm</option>
+                </select>
+              </div>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={topProducts}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="productName" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="revenue" fill="#006532" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
+              <div className="flex items-center justify-between">
+                <h4 className="mb-4 text-xl font-semibold text-[#222222]">
+                  Top 5 khách hàng mua nhiều nhất
+                </h4>
+                <select
+                  className="mb-4 rounded border px-3 py-2 text-sm"
+                  value={topCustomersFilter}
+                  onChange={(e) => setTopCustomersFilter(e.target.value)}
+                >
+                  <option value="Tuần">Tuần</option>
+                  <option value="Tháng">Tháng</option>
+                  <option value="Quý">Quý</option>
+                  <option value="Năm">Năm</option>
+                </select>
+              </div>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={topCustomers}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="userName" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="revenue" fill="#82ca9d" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
 
-        {/* Biểu đồ Donut */}
-        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
-            <div className="flex items-center justify-between">
-              <h4 className="mb-4 text-xl font-semibold text-[#006532]">
-                Doanh số theo Category
-              </h4>
-              <select
-                className="mb-4 rounded border px-3 py-2 text-sm"
-                value={categorySalesFilter}
-                onChange={(e) => setCategorySalesFilter(e.target.value)}
-              >
-                <option value="Tuần">Tuần</option>
-                <option value="Tháng">Tháng</option>
-                <option value="Quý">Quý</option>
-                <option value="Năm">Năm</option>
-              </select>
-            </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={salesByCategory}
-                  dataKey="revenue"
-                  nameKey="categoryName"
-                  innerRadius={60}
-                  outerRadius={80}
-                  fill="#006532"
-                  label={(entry) => `${entry.categoryName}: ${entry.revenue}`}
+          {/* Biểu đồ Donut */}
+          <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
+              <div className="flex items-center justify-between">
+                <h4 className="mb-4 text-xl font-semibold text-[#006532]">
+                  Doanh số theo danh mục
+                </h4>
+                <select
+                  className="mb-4 rounded border px-3 py-2 text-sm"
+                  value={categorySalesFilter}
+                  onChange={(e) => setCategorySalesFilter(e.target.value)}
                 >
-                  {salesByCategory.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={entry.revenue > 300 ? "#82ca9d" : "#ff7300"}
-                    />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
-            <div className="flex items-center justify-between">
-              <h4 className="mb-4 text-xl font-semibold text-[#006532]">
-                Doanh số theo Supplier
-              </h4>
-              <select
-                className="mb-4 rounded border px-3 py-2 text-sm"
-                value={supplierSalesFilter}
-                onChange={(e) => setSupplierSalesFilter(e.target.value)}
-              >
-                <option value="Tuần">Tuần</option>
-                <option value="Tháng">Tháng</option>
-                <option value="Quý">Quý</option>
-                <option value="Năm">Năm</option>
-              </select>
+                  <option value="Tuần">Tuần</option>
+                  <option value="Tháng">Tháng</option>
+                  <option value="Quý">Quý</option>
+                  <option value="Năm">Năm</option>
+                </select>
+              </div>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={salesByCategory}
+                    dataKey="revenue"
+                    nameKey="categoryName"
+                    innerRadius={60}
+                    outerRadius={80}
+                    fill="#006532"
+                    label={(entry) => `${entry.categoryName}: ${entry.revenue}`}
+                  >
+                    {salesByCategory.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.revenue > 300 ? "#82ca9d" : "#ff7300"}
+                      />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
             </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={salesBySupplier}
-                  dataKey="revenue"
-                  nameKey="supplierName"
-                  innerRadius={60}
-                  outerRadius={80}
-                  fill="#006532"
-                  label={(entry) => `${entry.supplierName}: ${entry.revenue}`}
+            <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
+              <div className="flex items-center justify-between">
+                <h4 className="mb-4 text-xl font-semibold text-[#006532]">
+                  Doanh số theo nhà cung cấp
+                </h4>
+                <select
+                  className="mb-4 rounded border px-3 py-2 text-sm"
+                  value={supplierSalesFilter}
+                  onChange={(e) => setSupplierSalesFilter(e.target.value)}
                 >
-                  {salesBySupplier.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={entry.revenue > 300 ? "#82ca9d" : "#ff7300"}
-                    />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
+                  <option value="Tuần">Tuần</option>
+                  <option value="Tháng">Tháng</option>
+                  <option value="Quý">Quý</option>
+                  <option value="Năm">Năm</option>
+                </select>
+              </div>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={salesBySupplier}
+                    dataKey="revenue"
+                    nameKey="supplierName"
+                    innerRadius={60}
+                    outerRadius={80}
+                    fill="#006532"
+                    label={(entry) => `${entry.supplierName}: ${entry.revenue}`}
+                  >
+                    {salesBySupplier.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.revenue > 300 ? "#82ca9d" : "#ff7300"}
+                      />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </div>
         </div>
       </div>
     </div>
@@ -468,6 +517,3 @@ const Report = () => {
 };
 
 export default Report;
-
-
-

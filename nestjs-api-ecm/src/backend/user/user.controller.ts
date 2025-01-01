@@ -5,7 +5,7 @@ import {
   Param,
   Patch,
   Post,
-  Body, Query,
+  Body, Query, UseGuards,
 } from '@nestjs/common';
 import { UserService } from 'src/backend/user/user.service';
 import { CreateUserDto } from 'src/dto/userDTO/user.create.dto';
@@ -15,10 +15,13 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/decorator/Role.decorator';
 import {ParseBooleanPipe} from "src/share/ParseBooleanPipe";
 import {UserSearchDto} from "src/dto/userDTO/user.search.dto";
+import {AuthGuard} from "src/guards/JwtAuth.guard";
+import {RolesGuard} from "src/guards/Roles.guard";
 
 @Controller('users')
 @ApiBearerAuth()
 @ApiTags('User')
+@UseGuards(AuthGuard, RolesGuard)
 export class UserController {
   constructor(private readonly usersService: UserService) {}
 

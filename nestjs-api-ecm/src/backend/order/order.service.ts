@@ -312,6 +312,44 @@ export class OrderService extends BaseService<OrderEntity> {
     return order;
   }
 
+  async getOrderUserDashboard(user_id: string) {
+    try {
+      const allStatuses = Object.values(OrderStatus);
+
+      const ordersSummary = await this.orderRepo
+          .createQueryBuilder('order')
+          .select('order.orderStatus', 'orderStatus')
+          .addSelect('COUNT(*)', 'count')
+          .where('order.user_id = :user_id', { user_id })
+          .groupBy('order.orderStatus')
+          .getRawMany();
+
+      const statusSummary = allStatuses.reduce((summary, status) => {
+        summary[status] = 0;
+        return summary;
+      }, {});
+
+      for (const item of ordersSummary) {
+        statusSummary[item.orderStatus] = parseInt(item.count, 10);
+      }
+
+      const totalOrders = await this.orderRepo.count({
+        where: { user_id },
+      });
+
+      return {
+          totalOrders,
+          statusSummary,
+      };
+    } catch (error) {
+      return {
+        error: error.toString(),
+      };
+    }
+  }
+
+
+
   async updateOrder(updateOrderDTO: UpdateOrderDTO) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();

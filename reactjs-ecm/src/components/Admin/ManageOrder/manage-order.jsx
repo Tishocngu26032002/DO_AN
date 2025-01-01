@@ -1075,7 +1075,7 @@ const ManageOrder = () => {
                 Cập nhật đơn hàng
               </h2>
               <p className="text-black">
-                <strong>Mã đơn hàng:</strong> {currentOrder.order.id}
+                <strong>Mã đơn hàng:</strong> {currentOrder.order.order_code}
               </p>
               <p className="text-black">
                 <strong>Nhân viên:</strong>{" "}

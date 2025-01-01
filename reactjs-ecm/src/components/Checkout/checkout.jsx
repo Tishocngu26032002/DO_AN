@@ -198,16 +198,18 @@ const Checkout = () => {
       <NotificationList notifications={notifications} />
       <section
         id="page-header"
-        className="h-52"
+        className="h-64"
         style={{
-          backgroundImage: `url("images/banner/image-4.jpg")`,
-          backgroundPosition: "center",
-          backgroundSize: "cover",
+          backgroundImage: `url("images/checkout-banner.jpg")`,
+              backgroundPosition: "center 20%",
+              backgroundSize: "cover",
         }}
       >
-        <div className="flex h-full w-full flex-col items-center justify-center bg-[rgba(8,28,14,0.69)] text-center">
-          <h2 className="text-2xl font-bold text-white">THANH TOÁN</h2>
-        </div>
+        <div className="flex h-full w-full flex-col items-start justify-end bg-[rgba(8,28,14,0.60)] text-center">
+            <div className="ml-72 pl-7 mb-10 border-l-[8px] border-[#2c7c54]  flex flex-col items-start justify-start">
+              <h2 className="text-3xl font-extrabold text-[#fff] leading-tight tracking-tight">Thanh toán</h2>
+            </div>
+            </div>
       </section>
 
       <div className="container mx-auto p-6 md:p-12">
@@ -215,7 +217,7 @@ const Checkout = () => {
           {/* Sản phẩm */}
           <div className="order-1">
             <h3 className="mb-6 text-2xl font-semibold text-gray-800">
-              Đặt hàng của bạn
+              Đơn hàng của bạn
             </h3>
             <div className="grid grid-cols-1 gap-4">
               {selectedCartItems.map((cart) => (
@@ -224,7 +226,7 @@ const Checkout = () => {
                   className="shadow-lg flex items-center space-x-4 rounded-lg border border-gray-200 bg-white p-4"
                 >
                   <img
-                    src={cart.product.url_images}
+                    src={cart.product.url_image1}
                     alt={cart.product.name}
                     className="h-24 w-24 rounded-lg"
                   />
@@ -256,20 +258,20 @@ const Checkout = () => {
 
             <div className="shadow-lg mt-6 rounded-lg border border-gray-200 bg-white p-4">
               <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
-                <span>Tổng phụ</span>
+                <span>Tổng tiền hàng</span>
                 <span>
                   <span className="underline">đ</span>{" "}
                   {new Intl.NumberFormat("vi-VN").format(totalCost)}
                 </span>
               </div>
               <div className="mb-2 flex items-center justify-between border-b pb-2 text-gray-700">
-                <span>Phí giao hàng</span>
+                <span>Tổng tiền phí vận chuyển</span>
                 <span>
                   <span className="underline">đ</span> 0
                 </span>
               </div>
               <div className="flex items-center justify-between text-lg font-semibold text-[#006532]">
-                <span>Tổng cộng</span>
+                <span>Tổng thanh toán</span>
                 <span>
                   <span className="underline">đ</span>{" "}
                   {new Intl.NumberFormat("vi-VN").format(totalCost)}

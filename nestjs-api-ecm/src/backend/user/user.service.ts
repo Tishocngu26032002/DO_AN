@@ -112,17 +112,47 @@ export class UserService {
 
   async remove(id: string) {
     const user = await this.usersRepository.findOne({ where: { id } });
-
     if (!user) {
       throw new Error(`USER WITH ID ${id} NOT FOUND`);
     }
-
     user.isActive = false;
-
     const check = await this.usersRepository.save(user);
-
     if (!check) throw new Error('REMOVE NOT SUCCESS!');
-
     return user;
+  }
+
+  async getManageUserDashBoard() {
+    try {
+      const today = new Date();
+      const startOfThisWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+
+      const startOfLastWeek = new Date(startOfThisWeek);
+      startOfLastWeek.setDate(startOfThisWeek.getDate() - 7);
+      const endOfLastWeek = new Date(startOfThisWeek);
+      endOfLastWeek.setDate(startOfThisWeek.getDate() - 1);
+
+      const totalUsers = await this.usersRepository.count();
+      const usersThisWeek = await this.usersRepository
+          .createQueryBuilder('user')
+          .where('user.createdAt >= :startOfThisWeek', { startOfThisWeek })
+          .getCount();
+
+      const usersLastWeek = await this.usersRepository
+          .createQueryBuilder('user')
+          .where('user.createdAt >= :startOfLastWeek', { startOfLastWeek })
+          .andWhere('user.createdAt <= :endOfLastWeek', { endOfLastWeek })
+          .getCount();
+      return {
+        data: {
+          totalUsers,
+          usersThisWeek,
+          usersLastWeek,
+        },
+      };
+    } catch (error) {
+      return {
+        error: error.toString(),
+      };
+    }
   }
 }

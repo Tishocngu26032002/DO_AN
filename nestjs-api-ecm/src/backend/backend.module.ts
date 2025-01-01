@@ -17,6 +17,7 @@ import {DashboardModule} from "src/backend/dashboard/dashboard.module";
 import {NotificationModule} from "src/backend/notification/notification.module";
 import {LogoutModule} from "src/backend/auth/logout/logout.module";
 import {ChangePasswordModule} from "src/backend/auth/change-password/change-password.module";
+import { MomoModule } from './momo/momo.module';
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import {ChangePasswordModule} from "src/backend/auth/change-password/change-pass
     DashboardModule,
     NotificationModule,
     LogoutModule,
-    ChangePasswordModule
+    ChangePasswordModule,
+    MomoModule
   ],
 })
 export class BackendModule {}
