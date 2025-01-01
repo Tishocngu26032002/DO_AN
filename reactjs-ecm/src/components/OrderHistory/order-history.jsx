@@ -122,6 +122,7 @@ const OrderHistory = () => {
   return (
     <>
       <Header />
+      <div className="flex min-h-screen">
       {/* Sidebar thống kê */}
       <div className="min-h-screen w-1/4 bg-[#006532] p-6 text-white">
         <h2 className="mb-6 mt-8 text-center text-xl font-semibold">
@@ -148,7 +149,7 @@ const OrderHistory = () => {
       </div>
 
       {/* Main content - Lịch sử đơn hàng */}
-      <div className="mx-auto mt-12 max-w-4xl p-6">
+      <div className="w-3/4 mx-auto mt-12 max-w-4xl p-6">
         <h1 className="mb-4 text-2xl font-semibold text-[#006532]">
           Lịch sử đơn hàng
         </h1>
@@ -259,6 +260,7 @@ const OrderHistory = () => {
             </div>
           </div>
         )}
+      </div>
       </div>
       <Footer />
     </>
