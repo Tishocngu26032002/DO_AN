@@ -4,7 +4,7 @@ import { createCart, getCarts, updateCart } from "../../services/cart-service";
 import { getProducts, getQueryProducts } from "../../services/product-service";
 import Header from "../Header/header";
 import Footer from "../Footer/footer";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { PiShoppingCart } from "react-icons/pi";
 import { getCategory } from "../../services/category-service";
 import { getUserId } from "../../util/auth-local";
@@ -16,11 +16,18 @@ import {
 } from "../Notification/NotificationService";
 import { useCart } from "../../Context/CartContext";
 const ShopGrid = () => {
+  const { page: pageParam, limit: limitParam } = useParams(); // Lấy page và limit từ URL
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const [searchTerm, setSearchTerm] = useState(queryParams.get("name") || "");
+  const [filterStatus, setFilterStatus] = useState(
+    queryParams.get("category") || "",
+  );
   const navigate = useNavigate();
 
   const [params, setParams] = useState({
-    limit: PER_PAGE,
-    page: 1,
+    limit: Number(limitParam),
+    page: Number(pageParam),
     total: 0,
     name: "",
     category_id: "",
@@ -41,8 +48,19 @@ const ShopGrid = () => {
 
   const [notifications, setNotifications] = useState([]);
 
+  // Cập nhật URL khi thay đổi filter
   useEffect(() => {
-    getProductsOnPage();
+    const queryParams = new URLSearchParams();
+    if (searchTerm) queryParams.set("name", searchTerm);
+    if (filterStatus) queryParams.set("category", filterStatus);
+    window.history.replaceState(
+      null,
+      "",
+      `/product/search/${params.page}/${params.limit}?${queryParams.toString()}`,
+    );
+  }, [searchTerm, filterStatus, params.page, params.limit]);
+
+  useEffect(() => {
     getCategoryOnPage();
   }, []);
 
@@ -55,42 +73,6 @@ const ShopGrid = () => {
       const response = await getCategory(1, 20);
 
       setCategory(response.data.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getProductsOnPage = async () => {
-    try {
-      const response = await getProducts(params.page, params.limit);
-
-      const products = response.data.products.map((product) => {
-        let urlImages = {};
-
-        if (product.url_images) {
-          const cleanedUrlImages = product.url_images.replace(/\\\"/g, '"');
-          try {
-            urlImages = JSON.parse(cleanedUrlImages);
-          } catch (error) {
-            console.error("Error parsing url_images:", error);
-            urlImages = {};
-          }
-        }
-
-        return {
-          ...product,
-          url_image1: urlImages.url_images1 || "",
-          url_image2: urlImages.url_images2 || "",
-        };
-      });
-      setProducts(products);
-      console.log(products);
-      if (response.data.total !== params.total) {
-        setParams((prev) => ({
-          ...prev,
-          total: response.data.total,
-        }));
-      }
     } catch (error) {
       console.log(error);
     }
@@ -221,17 +203,21 @@ const ShopGrid = () => {
   };
 
   const handleSearch = (e) => {
+    const value = e.target.value.trim();
+    setSearchTerm(value);
     setParams((prev) => ({
       ...prev,
-      name: e.target.value.trim(),
-      page: 1,
+      name: value,
+      page: 1, // Reset về trang đầu
     }));
   };
 
   const handleFilter = (e) => {
+    const value = e.target.value.trim();
+    setFilterStatus(value);
     setParams((prev) => ({
       ...prev,
-      category_id: e.target.value.trim(),
+      category_id: value,
       page: 1,
     }));
   };
@@ -245,21 +231,6 @@ const ShopGrid = () => {
         onClick={() => navigate(`/product-detail/${product.id}`)}
         className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
       >
-        {/* <img
-          src={product.url_image1}
-          alt={product.name}
-          className="w-full border-[1px]"
-        /> */}
-        {/* <img
-          src={product.url_image1}
-          alt={product.name}
-          className="h-56 w-full border-[1px] object-cover"
-        /> */}
-        {/* <img
-          src={product.url_image1}
-          alt={product.name}
-          className="aspect-square w-full border-[1px] object-cover"
-        /> */}
         <img
           src={product.url_image1}
           alt={product.name}
@@ -300,34 +271,10 @@ const ShopGrid = () => {
     ));
   };
 
-  // const renderPagination = () => {
-  //   if (params.total < PER_PAGE) return null;
-
-  //   const totalPages = Math.ceil(params.total / PER_PAGE);
-  //   return (
-  //     <div id="pagination" className="section-p1">
-  //       {[...Array(totalPages)].map((_, index) => (
-  //         <a
-  //           key={index + 1}
-  //           data-page={index + 1}
-  //           className={`page ${
-  //             params.page === index + 1
-  //               ? "active bg-[#088178] text-white"
-  //               : "bg-gray-200"
-  //           } mx-1 rounded p-2`}
-  //           onClick={() => handlePageChange(index + 1)}
-  //         >
-  //           {index + 1}
-  //         </a>
-  //       ))}
-  //     </div>
-  //   );
-  // };
-
   const renderPagination = () => {
     if (params.total < PER_PAGE) return null;
 
-    const totalPages = Math.ceil(params.total / PER_PAGE);
+    const totalPages = Math.ceil(params.total / params.limit);
     const visiblePages = 5; // Hiển thị tối đa 5 trang
 
     const startPage = Math.max(1, params.page - Math.floor(visiblePages / 2));

@@ -143,6 +143,7 @@ const ManageSupplier = () => {
   const handleSearchChange = (event) => {
     const newSearchTerm = event.target.value;
     setSearchTerm(newSearchTerm);
+    setPage(1);
   };
 
   const handleInputChange = (e) => {
