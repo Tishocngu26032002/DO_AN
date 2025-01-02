@@ -59,7 +59,10 @@ root.render(
                   <Route path="/ship-order" element={<ShipOrder />} />
                   <Route path="/ship-history" element={<ShipHistory />} />
                   <Route path="/home-page" element={<Home />} />
-                  <Route path="/products" element={<ShopGrid />} />
+                  <Route
+                    path="/product/search/:page/:limit"
+                    element={<ShopGrid />}
+                  />
                   <Route
                     path="/product-detail/:productId"
                     element={<ProductDetail />}
@@ -86,10 +89,22 @@ root.render(
             element={
               <NotificationProvider>
                 <Routes>
-                  <Route path="/manage-category" element={<ManageCategory />} />
-                  <Route path="/manage-order/:currentPage/:ordersPerPage" element={<ManageOrder />} />
-                  <Route path="/manage-order-complete/:currentPage/:ordersPerPage" element={<ManageOrderComplete/>}/>
-                  <Route path="/manage-import/:currentPage/:usersPerPage" element={<ManageImport/>}/>
+                  <Route
+                    path="/manage-category/:page/:limit"
+                    element={<ManageCategory />}
+                  />
+                  <Route
+                    path="/manage-order/:currentPage/:ordersPerPage"
+                    element={<ManageOrder />}
+                  />
+                  <Route
+                    path="/manage-order-complete/:currentPage/:ordersPerPage"
+                    element={<ManageOrderComplete />}
+                  />
+                  <Route
+                    path="/manage-import/:currentPage/:usersPerPage"
+                    element={<ManageImport />}
+                  />
                   <Route
                     path="/manage-product/:currentPage/:productsPerPage"
                     element={<ManageProduct />}

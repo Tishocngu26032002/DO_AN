@@ -310,7 +310,7 @@ function HeaderAdmin() {
               }`}
             />
             <NavLink
-              to="/admin/manage-category"
+              to="/admin/manage-category/1/4"
               className={({ isActive }) =>
                 isActive ||
                 window.location.pathname.includes("/admin/manage-category")

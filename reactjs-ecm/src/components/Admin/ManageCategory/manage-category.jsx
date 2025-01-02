@@ -8,8 +8,7 @@ import {
   getQueryCategory,
   updateCategory,
 } from "../../../services/category-service.js";
-
-import { PER_PAGE } from "../../../constants/per-page.js";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { uploadImage } from "../../../services/image-service.js";
 
 const Modal = ({ children, showModal, setShowModal }) =>
@@ -28,6 +27,14 @@ const Modal = ({ children, showModal, setShowModal }) =>
   ) : null;
 
 const ManageCategory = () => {
+  const { page: pageParam, limit: limitParam } = useParams(); // Lấy page và limit từ URL
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const [searchTerm, setSearchTerm] = useState(queryParams.get("name") || "");
+  const [filterStatus, setFilterStatus] = useState(
+    queryParams.get("status") || "",
+  );
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState({
     name: "",
@@ -39,15 +46,13 @@ const ManageCategory = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [expandedDescription, setExpandedDescription] = useState({});
   const [showModal, setShowModal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
 
   const [loading, setLoading] = useState(false);
 
   const [params, setParams] = useState({
-    limit: 4,
-    page: 1,
+    limit: Number(limitParam),
+    page: Number(pageParam),
     total: 0,
     name: "",
     status: "",
@@ -77,6 +82,18 @@ const ManageCategory = () => {
     }
   };
 
+  // Cập nhật URL khi thay đổi filter
+  useEffect(() => {
+    const queryParams = new URLSearchParams();
+    if (searchTerm) queryParams.set("name", searchTerm);
+    if (filterStatus) queryParams.set("status", filterStatus);
+    window.history.replaceState(
+      null,
+      "",
+      `/admin/manage-category/${params.page}/${params.limit}?${queryParams.toString()}`,
+    );
+  }, [searchTerm, filterStatus, params.page, params.limit]);
+
   useEffect(() => {
     getQueryCategoryOnPage();
   }, [params.page, params.limit, showModal, params.name, params.status]);
@@ -86,17 +103,21 @@ const ManageCategory = () => {
   };
 
   const handleSearch = (e) => {
+    const value = e.target.value.trim();
+    setSearchTerm(value);
     setParams((prev) => ({
       ...prev,
-      name: e.target.value.trim(),
+      name: value,
       page: 1,
     }));
   };
 
   const handleFilter = (e) => {
+    const value = e.target.value.trim();
+    setFilterStatus(value);
     setParams((prev) => ({
       ...prev,
-      status: e.target.value.trim(),
+      status: value,
       page: 1,
     }));
   };
@@ -252,33 +273,10 @@ const ManageCategory = () => {
     return matchesSearch && matchesStatus;
   });
 
-  // const renderPagination = () => {
-  //   if (params.total < PER_PAGE) return null;
-  //   const totalPages = Math.ceil(params.total / PER_PAGE);
-  //   return (
-  //     <div>
-  //       {[...Array(totalPages)].map((_, index) => (
-  //         <a
-  //           key={index + 1}
-  //           data-page={index + 1}
-  //           className={`mx-1 rounded px-3 py-1 ${
-  //             index + 1 === params.page
-  //               ? "bg-[#006532] text-white"
-  //               : "bg-gray-200 text-gray-800 hover:bg-blue-200"
-  //           }`}
-  //           onClick={() => handlePageChange(index + 1)}
-  //         >
-  //           {index + 1}
-  //         </a>
-  //       ))}
-  //     </div>
-  //   );
-  // };
-
   const renderPagination = () => {
     if (params.total < 2) return null;
 
-    const totalPages = Math.ceil(params.total / 2);
+    const totalPages = Math.ceil(params.total / params.limit);
     const visiblePages = 5; // Hiển thị tối đa 5 trang
 
     const startPage = Math.max(1, params.page - Math.floor(visiblePages / 2));

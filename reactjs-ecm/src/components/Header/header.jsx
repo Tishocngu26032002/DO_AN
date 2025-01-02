@@ -113,9 +113,10 @@ function Header() {
               </li>
               <li className="px-4">
                 <NavLink
-                  to="/products"
+                  to="/product/search/1/8"
                   className={({ isActive }) =>
-                    isActive
+                    isActive ||
+                    window.location.pathname.includes("/product/search")
                       ? "border-b-2 border-b-[#006532] text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out"
                       : "text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out hover:text-[#80c9a4]"
                   }
@@ -153,7 +154,7 @@ function Header() {
               {user && ( // Kiểm tra nếu lastName tồn tại thì hiển thị
                 <li className="pl-4">
                   <NavLink
-                    to={`/order-history/${userId}`}
+                    to={`/user/${userId}`}
                     className={({ isActive }) =>
                       isActive
                         ? "border-b-2 border-b-[#006532] text-[15px] font-bold text-[#006532] transition-colors duration-300 ease-in-out"
@@ -201,7 +202,7 @@ function Header() {
           <div id="mobile" className="-mt-3 flex items-center md:hidden">
             {user && (
               <Link
-                to="/order-history/${userId}"
+                to="/user/${userId}"
                 className="pl-4 pr-1 pt-3 font-semibold text-[#006532]"
               >
                 <div className="h-[25px] w-[25px] transition duration-300 hover:text-[#80c9a4]">

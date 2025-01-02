@@ -11,7 +11,6 @@ import { PER_PAGE } from "../../constants/per-page";
 import { createCart, getCarts, updateCart } from "../../services/cart-service";
 import {
   getFeatureProducts,
-  getLatestProducts,
   getProducts,
   getQueryProducts,
 } from "../../services/product-service";
@@ -25,23 +24,14 @@ import {
   showNotification,
 } from "../Notification/NotificationService";
 import { useCart } from "../../Context/CartContext";
+import LatestProducts from "./LatestProducts";
 
 function HomePage() {
   const [featureProducts, setFeatureProducts] = useState([]);
 
-  const [latestProducts, setLatestProducts] = useState([]);
-
   const [notifications, setNotifications] = useState([]);
 
   const navigate = useNavigate();
-
-  // const [params, setParams] = useState({
-  //   limit: 4,
-  //   page: 1,
-  //   total: 0,
-  //   name: "",
-  //   category_id: "",
-  // });
 
   const {
     carts,
@@ -107,59 +97,6 @@ function HomePage() {
     }
   };
 
-  const handleAddToCartLatest = async (productId) => {
-    const product = latestProducts.find((prod) => prod.productId === productId);
-    const cartIndex = carts.findIndex(
-      (cart) => cart.product_id === product.productId,
-    );
-
-    let userId = getUserId();
-
-    try {
-      if (cartIndex !== -1) {
-        // Nếu sản phẩm đã tồn tại trong giỏ hàng
-        await updateCart({
-          ...carts[cartIndex],
-          quantity: carts[cartIndex].quantity + 1,
-        });
-      } else {
-        // Nếu sản phẩm chưa tồn tại
-        await createCart({
-          product_id: product.productId,
-          quantity: 1,
-          user_id: userId,
-        });
-        setTotalQuantity((prev) => prev + 1); // Cập nhật ngay lập tức
-      }
-
-      showNotification(
-        "Sản phẩm đã được thêm vào giỏ hàng!",
-        notificationTypes.SUCCESS,
-        setNotifications,
-      );
-
-      let userIdd = getUserId();
-      if (userIdd) {
-        const response = await getCarts();
-        const cartData = response.data.data.cart;
-        setCarts(cartData);
-
-        const cost = cartData.reduce(
-          (total, item) => total + item.quantity * item.product.priceout,
-          0,
-        );
-        setTotalCost(cost);
-      }
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      showNotification(
-        "Thêm sản phẩm vào giỏ hàng thất bại!",
-        notificationTypes.ERROR,
-        setNotifications,
-      );
-    }
-  };
-
   const renderFeatureProducts = () => {
     if (featureProducts.length === 0) return;
 
@@ -167,12 +104,12 @@ function HomePage() {
       <div
         key={product.productId}
         onClick={() => navigate(`/product-detail/${product.productId}`)}
-        className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
+        className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
       >
         <img
-          src={product.productImage}
+          src={product.url_image1}
           alt={product.productName}
-          className="w-full rounded-xl"
+          className="aspect-square w-full border-[1px] object-contain"
         />
         <div className="des pt-3 text-start">
           <span className="text-[13px] text-[#1a1a1a]">
@@ -208,72 +145,15 @@ function HomePage() {
     ));
   };
 
-  const renderLatestProducts = () => {
-    if (latestProducts.length === 0) return;
-
-    return latestProducts.slice(0, 4).map((product) => (
-      <div
-        key={product.productId}
-        onClick={() => navigate(`/product-detail/${product.productId}`)}
-        className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
-      >
-        <img
-          src={product.url_image1}
-          alt={product.productName}
-          className="w-full rounded-xl"
-        />
-        <div className="des pt-3 text-start">
-          <span className="text-[13px] text-[#1a1a1a]">
-            {product.categoryName}
-          </span>
-          <h5 className="pt-2 text-[15px] font-semibold text-[#006532]">
-            {product.productName}
-          </h5>
-          {/* <h5 className="pt-2 text-[13px] text-[#1a1a1a]">
-            Bao: {product.weight}kg
-          </h5> */}
-          <h4 className="flex pt-2 text-[16px] font-semibold text-[#006532]">
-            <p className="mr-1 mt-[2px] text-sm font-normal underline">đ</p>
-            {new Intl.NumberFormat("vi-VN").format(product.priceOut)}
-          </h4>
-        </div>
-        <a
-          href="#"
-          className="cart absolute bottom-5 right-2 -mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] font-medium leading-10 text-[#006532]"
-        >
-          <Link to="">
-            <PiShoppingCart
-              data-id={product.productId}
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                handleAddToCartLatest(product.productId);
-              }}
-            />
-          </Link>
-        </a>
-      </div>
-    ));
-  };
-
   const getFeatureProductsOnPage = async () => {
     try {
       const response = await getFeatureProducts();
-      setFeatureProducts(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getLatestProductsOnPage = async () => {
-    try {
-      const response = await getLatestProducts();
       const data = response.data.map((product) => {
         let urlImages = {};
 
         // Kiểm tra nếu url_images có giá trị hợp lệ
-        if (product.productImages) {
-          const cleanedUrlImages = product.productImages.replace(/\\\"/g, '"');
+        if (product.productImage) {
+          const cleanedUrlImages = product.productImage.replace(/\\\"/g, '"');
           try {
             urlImages = JSON.parse(cleanedUrlImages);
           } catch (error) {
@@ -288,8 +168,7 @@ function HomePage() {
           url_image2: urlImages.url_images2 || "",
         };
       });
-      console.log(data);
-      setLatestProducts(data);
+      setFeatureProducts(data);
     } catch (error) {
       console.log(error);
     }
@@ -297,7 +176,6 @@ function HomePage() {
 
   useEffect(() => {
     getFeatureProductsOnPage();
-    getLatestProductsOnPage();
   }, []);
 
   return (
@@ -401,23 +279,7 @@ function HomePage() {
         </button>
       </section>
 
-      <section
-        id="product2"
-        className="section-p1 px-[80px] py-[40px] text-center"
-      >
-        <h2 className="text-[46px] leading-[54px] text-[#222] mobile:text-[32px]">
-          Sản phẩm mới nhất
-        </h2>
-        <p className="my-[15px] mb-[20px] text-[16px] text-[#465b52]">
-          New Products
-        </p>
-        <div
-          className="pro-container flex flex-wrap justify-between pt-[20px] tablet:justify-center"
-          id="product-render"
-        >
-          {renderLatestProducts()}
-        </div>
-      </section>
+      <LatestProducts />
 
       <section className="sm-banner section-p1 flex w-full flex-wrap justify-between px-[80px] py-[40px]">
         <div className="banner-box h-[50vh] w-full min-w-[300px] bg-[url('/images/GLOBADRY-banner.jpg')] bg-cover bg-center text-center tablet:h-[30vh] tablet:w-full mobile:mb-[20px] mobile:h-[40vh]">
