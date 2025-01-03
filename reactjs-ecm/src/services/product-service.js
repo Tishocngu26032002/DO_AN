@@ -64,18 +64,15 @@ export const fetchProductDetail = async (productId) => {
 export const fetchProducts = async (currentPage, productsPerPage) => {
   try {
     const token = getToken();
-    console.log(token);
     const response = await axios.get(
       `${BASE_URL}/product/${currentPage}/${productsPerPage}`,
     );
-    console.log(response.data);
     if (
       response.status === 200 &&
       response.data.success &&
       Array.isArray(response.data.data.products)
     ) {
       const totalProducts = response.data.data.total;
-      console.log("Total Products:", totalProducts);
       return {
         products: response.data.data.products.map((product) => ({
           id: product.id,
@@ -202,8 +199,6 @@ export const deleteProduct = async (id) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log("Response status:", response.status);
-    console.log("Response data:", response.data);
     if (response.status === 200 && response.data) {
       return response.data;
     } else {

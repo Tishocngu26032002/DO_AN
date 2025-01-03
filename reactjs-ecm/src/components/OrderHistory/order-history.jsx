@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getUserOrders, getDetailOrder } from "../../services/order-service";
+import { getUserOrders, getDetailOrder, getOrderUserDashboard } from "../../services/order-service";
 import Header from "../Header/header";
 import Footer from "../Footer/footer";
 
@@ -12,6 +12,7 @@ const OrderHistory = () => {
   const [page, setPage] = useState(1); // Quản lý trang hiện tại
   const [selectedOrder, setSelectedOrder] = useState(null); // Lưu chi tiết đơn hàng
   const [detailLoading, setDetailLoading] = useState(false); // Trạng thái tải chi tiết
+  const [dashboardData, setDashboardData] = useState(null);
   const limit = 5; // Số đơn hàng mỗi trang
 
   const [total, setTotal] = useState(0);
@@ -59,6 +60,28 @@ const OrderHistory = () => {
   // const handlePageChange = (page) => {
   //   setPage((prev) => ({ ...prev, page: page }));
   // };
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const data = await getOrderUserDashboard(userId);
+        if (data.success) {
+          setDashboardData(data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+      }
+    };
+
+    fetchDashboardData();
+  }, [userId]);
+
+  if (!dashboardData) {
+    return <p>Loading...</p>;
+  }
+
+  const { totalOrders, statusSummary } = dashboardData;
+
   const handlePageChange = (page) => {
     setPage(page);
   };
@@ -138,19 +161,19 @@ const OrderHistory = () => {
           <div className="space-y-4">
             <div className="rounded-md bg-green-700 p-4">
               <p className="text-lg font-medium">Tổng đơn hàng</p>
-              <p className="text-2xl font-bold">100</p>
+              <p className="text-2xl font-bold">{totalOrders}</p>
             </div>
             <div className="rounded-md bg-green-700 p-4">
               <p className="text-lg font-medium">Đơn đang kiểm</p>
-              <p className="text-2xl font-bold">25</p>
+              <p className="text-2xl font-bold">{statusSummary["Đang kiểm hàng"]}</p>
             </div>
             <div className="rounded-md bg-green-700 p-4">
               <p className="text-lg font-medium">Đơn đã giao</p>
-              <p className="text-2xl font-bold">65</p>
+              <p className="text-2xl font-bold">{statusSummary["Đã giao hàng"]}</p>
             </div>
             <div className="rounded-md bg-green-700 p-4">
               <p className="text-lg font-medium">Đơn đã hủy</p>
-              <p className="text-2xl font-bold">10</p>
+              <p className="text-2xl font-bold">{statusSummary["Hủy đơn hàng"]}</p>
             </div>
           </div>
         </div>

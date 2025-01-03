@@ -106,3 +106,20 @@ export async function getSalesBySupplier(filter) {
     throw error;
   }
 }
+
+export const getManageUserDashboard = async () => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/manage-user-dashboard`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+    throw error;
+  }
+};
