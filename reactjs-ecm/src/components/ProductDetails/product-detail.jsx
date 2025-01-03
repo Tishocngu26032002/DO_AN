@@ -6,36 +6,25 @@ import { fetchProductDetail } from "../../services/product-service.js";
 import { getCategory } from "../../services/category-service.js";
 import Footer from "../Footer/footer.jsx";
 import { PiMinusBold, PiPlusBold } from "react-icons/pi";
-import { authLocal, userIdLocal, getToken } from "../../util/auth-local.js"; // Import the auth methods
+import {
+  authLocal,
+  userIdLocal,
+  getToken,
+  getUserId,
+} from "../../util/auth-local.js"; // Import the auth methods
 import {
   getCarts,
   createCart,
   updateCart,
 } from "../../services/cart-service.js"; // Assuming you have a cart service to handle API calls
 import img from "../../../public/images/checkout-banner.jpg";
-// Tách Image component
-// const Image = ({ mainImage, setMainImage, productImages }) => {
-//   return (
-//     <div className="single-pro-image md:mr-12 md:w-1/3 xl:mr-12 xl:w-2/3">
-//       {/* Ảnh chính */}
-//       <img src={mainImage} className="mb-2 w-full" alt="Main Product" />
-//       {/* Nhóm ảnh nhỏ */}
-//       <div className="small-img-group mt-1 flex justify-between">
-//         {productImages.map((img, index) => (
-//           <div
-//             key={index}
-//             className={`small-img-col w-24p cursor-pointer ${
-//               img === mainImage ? "border-2 border-[#0065322a]" : ""
-//             }`}
-//             onClick={() => setMainImage(img)}
-//           >
-//             <img src={img} className="w-full" alt={`Thumbnail ${index + 1}`} />
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
+import LatestProducts from "../HomePages/LatestProducts.jsx";
+import {
+  NotificationList,
+  notificationTypes,
+  showNotification,
+} from "../Notification/NotificationService.jsx";
+import { useCart } from "../../Context/CartContext.jsx";
 
 const Image = ({ mainImage, setMainImage, productImages }) => {
   return (
@@ -73,7 +62,18 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [mainImage, setMainImage] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [carts, setCarts] = useState([]);
+  // const [carts, setCarts] = useState([]);
+
+  const [notifications, setNotifications] = useState([]);
+
+  const {
+    carts,
+    setCarts,
+    totalQuantity,
+    setTotalCost,
+    setTotalQuantity,
+    fetchCarts,
+  } = useCart();
 
   const handleIncrease = () => {
     setQuantity((prev) => prev + 1);
@@ -136,7 +136,7 @@ const ProductDetail = () => {
           userId = userId.replace(/^"|"$/g, "");
 
           if (userId) {
-            const cartsData = await getCarts(userId, token); // Lấy giỏ hàng từ API
+            const cartsData = await getCarts(); // Lấy giỏ hàng từ API
             setCarts(cartsData.data.data.cart); // Cập nhật giỏ hàng
           }
         }
@@ -176,11 +176,54 @@ const ProductDetail = () => {
             );
           } else {
             await createCart(cartData, token);
+            setTotalQuantity((prev) => prev + 1); // Cập nhật ngay lập tức
           }
 
-          const cartsData = await getCarts(userId, token);
-          setCarts(cartsData.data.data.cart);
-          alert("Product added to cart!");
+          let userIdd = getUserId();
+          if (userIdd) {
+            const response = await getCarts();
+            const cartData = response.data.data.cart;
+            const formattedCarts = cartData.map((item) => {
+              let urlImages = {};
+
+              // Kiểm tra nếu url_images có giá trị hợp lệ
+              if (item.product.url_images) {
+                const cleanedUrlImages = item.product.url_images.replace(
+                  /\\\"/g,
+                  '"',
+                );
+                try {
+                  urlImages = JSON.parse(cleanedUrlImages);
+                } catch (error) {
+                  console.error("Error parsing url_images:", error);
+                  urlImages = {};
+                }
+              }
+
+              return {
+                ...item,
+                product: {
+                  ...item.product,
+                  url_image1: urlImages.url_images1 || "",
+                  url_image2: urlImages.url_images2 || "",
+                },
+              };
+            });
+            console.log(formattedCarts);
+            setCarts(formattedCarts);
+
+            const cost = cartData.reduce(
+              (total, item) => total + item.quantity * item.product.priceout,
+              0,
+            );
+            setTotalCost(cost);
+          }
+
+          showNotification(
+            "Sản phẩm đã được thêm vào giỏ hàng!",
+            notificationTypes.SUCCESS,
+            setNotifications,
+          );
         } else {
           alert("User ID is missing. Please log in.");
         }
@@ -201,9 +244,8 @@ const ProductDetail = () => {
   return (
     <>
       <Header />
-      {/* <p className="text-white">
-            HOME / {category.find((category) => category.id === product.category_id,)?.name || "Không rõ"} / {product.name}
-          </p> */}
+      {/* Hiển thị các thông báo */}
+      <NotificationList notifications={notifications} />
       <section
         id="page-header"
         className="h-56"
@@ -291,49 +333,10 @@ const ProductDetail = () => {
         </div>
       </section>
 
-      <section
-        id="product1"
-        className="mt-10 bg-[#f9f9f9] py-10 pt-10 text-center"
-      >
-        <div className="text-[46px] font-semibold leading-[54px] text-[#006532]">
-          Sản phẩm mới nhất
-        </div>
-        <div className="pro-container flex flex-wrap justify-evenly pt-5">
-          {[...Array(4)].map((_, index) => (
-            <div
-              key={index}
-              className="pro ease shadow-lg hover:shadow-xl relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] bg-white p-3 transition duration-200"
-            >
-              <img
-                src="/images/products/262.png"
-                alt={`Product ${index + 1}`}
-                className="w-full rounded-xl"
-              />
-              <div className="des pt-3 text-start">
-                <span className="text-sm text-[#006532]">Adidas</span>
-                <h5 className="pt-2 text-sm text-[#1a1a1a]">
-                  Cotton shirts pure cotton
-                </h5>
-                <div className="star mt-2 flex">
-                  {[...Array(5)].map((_, starIndex) => (
-                    <i
-                      key={starIndex}
-                      className="fas fa-star mr-1 text-xs text-yellow-500"
-                    ></i>
-                  ))}
-                </div>
-                <h4 className="pt-2 text-lg font-bold text-[#006532]">$78</h4>
-              </div>
-              <a
-                href="#"
-                className="cart absolute bottom-5 right-2 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] text-[#006532]"
-              >
-                <PiShoppingCart />
-              </a>
-            </div>
-          ))}
-        </div>
-      </section>
+      <div className="bg-[#f9f9f9]">
+        <LatestProducts />
+      </div>
+
       <Footer />
     </>
   );

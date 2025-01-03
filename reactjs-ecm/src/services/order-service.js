@@ -186,3 +186,20 @@ export const getOrderDetails = async (orderId) => {
     throw error;
   }
 };
+
+export const getOrderUserDashboard = async (userId) => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/order/order-user-dashboard/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching order dashboard data:', error);
+    throw error;
+  }
+};

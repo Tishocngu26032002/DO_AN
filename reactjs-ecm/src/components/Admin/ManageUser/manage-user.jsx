@@ -25,6 +25,7 @@ import {
 } from "../../Notification/NotificationService.jsx";
 import NotificationHandler from "../../Notification/notification-handle.jsx";
 import { getUserId } from "../../../util/auth-local.js";
+import { getManageUserDashboard } from "../../../services/report-service.js";
 
 const Modal = ({ children, showModal, setShowModal }) =>
   showModal ? (
@@ -68,6 +69,8 @@ const ManageUser = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [showConfirmPopupMulti, setShowConfirmPopupMulti] = useState(false);
   const [timeFilter, setTimeFilter] = useState("Tuần");
+  const [dashboardData, setDashboardData] = useState(null);
+
 
   // Cập nhật URL khi thay đổi filter
   useEffect(() => {
@@ -445,6 +448,33 @@ const ManageUser = () => {
     setShowViewPopup(true);
   };
 
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const data = await getManageUserDashboard();
+        if (data.success) {
+          setDashboardData(data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  if (!dashboardData) {
+    return <p>Loading...</p>;
+  }
+
+  const {
+    totalUsers,
+    usersThisWeek,
+    usersLastWeek,
+    usersBoughtThisWeek,
+    usersBoughtLastWeek,
+  } = dashboardData;
+
   const handlePageChange = (page) => {
     const queryParams = new URLSearchParams();
     if (searchTerm) queryParams.set("search", searchTerm);
@@ -666,20 +696,33 @@ const ManageUser = () => {
           </button>
         </Modal>
 
-        <div className="mb-8 grid grid-cols-2 gap-6 md:grid-cols-4">
-          <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
-            <h4 className="text-xl font-semibold text-[#222222]">
+        <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="shadow-md rounded-lg border border-t-4 border-[#e0e0e0] border-t-[#F29339] bg-white p-4 transition-shadow duration-300 ease-in-out hover:shadow-custom-dark">
+            <h4 className="mb-2 text-center text-xl font-semibold text-[#006532]">
               Tổng số khách hàng
             </h4>
-            <p className="text-2xl font-semibold text-[#006532]">50</p>
-            <p className="text-sm text-gray-500">So với tuần trước: +5</p>
+            <p className="text-center text-2xl font-bold text-[#006532]">{totalUsers}</p>
+            <p className="text-center text-sm text-gray-500">
+              So với tuần trước: {usersThisWeek - usersLastWeek > 0 ? '+' : ''}{usersThisWeek - usersLastWeek}
+            </p>
           </div>
-          <div className="shadow-lg rounded-lg border border-gray-200 bg-white p-6">
-            <h4 className="text-xl font-semibold text-[#222222]">
+          <div className="shadow-md rounded-lg border border-t-4 border-[#e0e0e0] border-t-[#84b2da] bg-white p-4 transition-shadow duration-300 ease-in-out hover:shadow-custom-dark">
+            <h4 className="mb-2 text-center text-xl font-semibold text-[#006532]">
               Số khách hàng mới
             </h4>
-            <p className="text-2xl font-semibold text-[#006532]">15</p>
-            <p className="text-sm text-gray-500">So với tuần trước: +2</p>
+            <p className="text-center text-2xl font-bold text-[#006532]">{usersThisWeek}</p>
+            <p className="text-center text-sm text-gray-500">
+              So với tuần trước: {usersThisWeek - usersLastWeek > 0 ? '+' : ''}{usersThisWeek - usersLastWeek}
+            </p>
+          </div>
+          <div className="shadow-md rounded-lg border border-t-4 border-[#e0e0e0] border-t-[#4175a2] bg-white p-4 transition-shadow duration-300 ease-in-out hover:shadow-custom-dark">
+            <h4 className="mb-2 text-center text-xl font-semibold text-[#006532]">
+              Số khách hàng mua hàng
+            </h4>
+            <p className="text-center text-2xl font-bold text-[#006532]">{usersBoughtThisWeek.userCount}</p>
+            <p className="text-center text-sm text-gray-500">
+              So với tuần trước: {usersBoughtThisWeek.userCount - usersBoughtLastWeek.userCount > 0 ? '+' : ''}{usersBoughtThisWeek.userCount - usersBoughtLastWeek.userCount}
+            </p>
           </div>
         </div>
 

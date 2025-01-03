@@ -11,7 +11,12 @@ import {
 } from "../Notification/NotificationService.jsx";
 import { useCart } from "../../Context/CartContext.jsx";
 import { getUserId } from "../../util/auth-local.js";
-import { getCarts, updateCart } from "../../services/cart-service.js";
+import {
+  deleteCartItems,
+  getCarts,
+  updateCart,
+} from "../../services/cart-service.js";
+import LatestProducts from "../HomePages/LatestProducts.jsx";
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -21,7 +26,6 @@ const Cart = () => {
     setCarts,
     setTotalQuantity,
 
-    deleteCartItem,
     updateSelectedCartItems,
     isLoading,
   } = useCart();
@@ -151,7 +155,7 @@ const Cart = () => {
   };
 
   const handleDeleteCart = async (cartId) => {
-    await deleteCartItem(cartId);
+    await deleteCartItems([cartId]);
     setTotalQuantity((prev) => prev - 1);
     const response = await getCarts();
     const cartData = response.data.data.cart;
@@ -414,49 +418,10 @@ const Cart = () => {
             </div>
           )}
 
-          <section
-            id="product1"
-            className="mt-10 bg-[#f9f9f9] py-10 pt-10 text-center"
-          >
-            <div className="text-[46px] font-semibold leading-[54px] text-[#006532]">
-              Sản phẩm mới nhất
-            </div>
-            <div className="container mx-auto flex flex-wrap justify-evenly pt-5">
-              {[...Array(4)].map((_, index) => (
-                <div
-                  key={index}
-                  className="pro ease relative m-4 w-1/5 min-w-[250px] cursor-pointer rounded-2xl border border-[#cce7d0] bg-white p-3 shadow-[20px_20px_30px_rgba(0,0,0,0.02)] transition duration-200 hover:shadow-[20px_20px_30px_rgba(0,0,0,0.06)]"
-                >
-                  <img
-                    src="/images/products/262.png"
-                    alt={`Product ${index + 1}`}
-                    className="w-full rounded-xl"
-                  />
-                  <div className="des pt-3 text-start">
-                    <span className="text-[13px] text-[#1a1a1a]">Adidas</span>
-                    <h5 className="pt-2 text-[15px] font-semibold text-[#006532]">
-                      Cotton shirts pure cotton
-                    </h5>
-                    <h5 className="pt-2 text-[13px] text-[#1a1a1a]">
-                      Bao: 20kg
-                    </h5>
-                    <h4 className="flex pt-2 text-[16px] font-semibold text-[#006532]">
-                      <p className="mr-1 mt-[2px] text-sm font-normal underline">
-                        đ
-                      </p>
-                      78000
-                    </h4>
-                  </div>
-                  <a
-                    href="#"
-                    className="cart absolute bottom-5 right-2 -mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#cce7d0] bg-[#e8f6ea] font-medium leading-10 text-[#006532]"
-                  >
-                    <PiShoppingCart />
-                  </a>
-                </div>
-              ))}
-            </div>
-          </section>
+          <div className="bg-[#f9f9f9]">
+            <LatestProducts />
+          </div>
+
           <Footer />
         </div>
       )}
