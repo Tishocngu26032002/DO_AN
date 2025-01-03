@@ -100,7 +100,7 @@ export class UserController {
   }
 
   //get info user for admin
-  @Get(':user_id_get')
+  @Get('admin/:user_id')
   @ApiOperation({
     summary: 'get info user by admin',
     description: 'get info user by admin',
